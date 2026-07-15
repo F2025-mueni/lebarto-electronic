@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Lebarto Electronics</title>
+
+    <link rel="stylesheet" href="login.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<div class="login-container">
+
+    <!-- Left Side -->
+    <div class="left-panel">
+
+        <div class="overlay">
+            <i class="fa-solid fa-laptop store-icon"></i>
+
+            <h1>LEBARTO</h1>
+
+            <h2>Electronics Sales System</h2>
+
+            <p>
+                Fast, Secure & Smart Sales Management
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Right Side -->
+    <div class="right-panel">
+
+        <form id="loginForm">
+
+            <h2>Welcome Back</h2>
+
+            <p class="subtitle">
+                Login to continue
+            </p>
+
+            <div class="input-group">
+
+                <label>Email Address</label>
+
+                <div class="input-box">
+
+                    <i class="fa-solid fa-envelope"></i>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                        required>
+
+                </div>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Password</label>
+
+                <div class="input-box">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter password"
+                        required>
+
+                    <i class="fa-solid fa-eye" id="togglePassword"></i>
+
+                </div>
+
+            </div>
+
+            <button type="submit">
+
+                <i class="fa-solid fa-right-to-bracket"></i>
+
+                Login
+
+            </button>
+
+            <p id="errorMessage"></p>
+
+            <div class="links">
+
+                <a href="#" id="forgotPassword">
+                    Forgot Password?
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="login.js"></script>
+
+</body>
+</html>

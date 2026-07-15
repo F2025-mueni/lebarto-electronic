@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lebarto Electronics - Sales</title>
+
+
+<link rel="stylesheet" href="sales.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<div class="sidebar">
+
+
+<h2>
+
+<i class="fa-solid fa-store"></i>
+
+Lebarto
+
+</h2>
+
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+
+Products
+
+</a>
+
+
+
+
+<a href="categories.html">
+
+<i class="fa-solid fa-list"></i>
+
+Categories
+
+</a>
+
+
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+
+Suppliers
+
+</a>
+
+
+
+
+<a href="customers.html">
+
+<i class="fa-solid fa-users"></i>
+
+Customers
+
+</a>
+
+
+
+
+<a href="sales.html" class="active">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Sales
+
+</a>
+
+
+
+
+<a href="reports.html">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Reports
+
+</a>
+
+
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+Sales Management
+</h1>
+
+
+
+<div class="admin-info">
+
+<i class="fa-solid fa-user-shield"></i>
+
+<span id="adminName">
+Admin
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= SALES CARDS ================= -->
+
+
+<div class="cards">
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+
+<div>
+
+<h3>Total Sales</h3>
+
+<p id="totalSales">
+
+KSh 0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-receipt"></i>
+
+
+<div>
+
+<h3>Total Transactions</h3>
+
+<p id="totalTransactions">
+
+0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-calendar-day"></i>
+
+
+<div>
+
+<h3>Today's Sales</h3>
+
+<p id="todaySales">
+
+KSh 0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= FILTER AREA ================= -->
+
+
+<div class="actions">
+
+
+<input
+
+type="text"
+
+id="searchSale"
+
+placeholder="Search customer or cashier...">
+
+
+
+
+
+<select id="paymentFilter">
+
+
+<option value="">
+
+All Payments
+
+</option>
+
+
+<option value="Cash">
+
+Cash
+
+</option>
+
+
+<option value="Mpesa">
+
+M-Pesa
+
+</option>
+
+
+<option value="Card">
+
+Card
+
+</option>
+
+
+</select>
+
+
+
+
+
+<input
+
+type="date"
+
+id="dateFilter">
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= SALES TABLE ================= -->
+
+
+<div class="table-container">
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>#</th>
+
+<th>Receipt No</th>
+
+<th>Customer</th>
+
+<th>Cashier</th>
+
+<th>Payment</th>
+
+<th>Total</th>
+
+<th>Date</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="salesTable">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= RECEIPT MODAL ================= -->
+
+
+<div class="modal" id="receiptModal">
+
+
+<div class="modal-content">
+
+
+<span class="close" id="closeModal">
+
+&times;
+
+</span>
+
+
+
+<h2>
+Sale Receipt
+</h2>
+
+
+
+<div id="receiptDetails">
+
+
+</div>
+
+
+
+
+<button id="printReceiptBtn">
+
+<i class="fa-solid fa-print"></i>
+
+Print Receipt
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<script type="module" src="sales.js"></script>
+
+
+</body>
+
+</html>

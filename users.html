@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Lebarto Electronics - Users</title>
+
+
+<link rel="stylesheet" href="users.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<div class="sidebar">
+
+
+<h2>
+
+<i class="fa-solid fa-store"></i>
+
+Lebarto
+
+</h2>
+
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+
+Products
+
+</a>
+
+
+
+
+<a href="categories.html">
+
+<i class="fa-solid fa-list"></i>
+
+Categories
+
+</a>
+
+
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+
+Suppliers
+
+</a>
+
+
+
+
+<a href="customers.html">
+
+<i class="fa-solid fa-users"></i>
+
+Customers
+
+</a>
+
+
+
+
+<a href="sales.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Sales
+
+</a>
+
+
+
+
+<a href="reports.html">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Reports
+
+</a>
+
+
+
+
+<a href="users.html" class="active">
+
+<i class="fa-solid fa-user-gear"></i>
+
+Users
+
+</a>
+
+
+
+
+<a href="settings.html">
+
+<i class="fa-solid fa-gear"></i>
+
+Settings
+
+</a>
+
+
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+User Management
+</h1>
+
+
+
+<div class="admin-info">
+
+
+<i class="fa-solid fa-user-shield"></i>
+
+
+<span id="adminName">
+
+Admin
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= CARDS ================= -->
+
+
+<div class="cards">
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-users"></i>
+
+
+<div>
+
+<h3>Total Users</h3>
+
+
+<p id="totalUsers">
+
+0
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-user-shield"></i>
+
+
+<div>
+
+<h3>Admins</h3>
+
+
+<p id="totalAdmins">
+
+0
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-user"></i>
+
+
+<div>
+
+<h3>Cashiers</h3>
+
+
+<p id="totalCashiers">
+
+0
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= ACTION BAR ================= -->
+
+
+<div class="actions">
+
+
+<input
+
+type="text"
+
+id="searchUser"
+
+placeholder="Search users...">
+
+
+
+
+
+<button id="addUserBtn">
+
+
+<i class="fa-solid fa-plus"></i>
+
+
+Add User
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= TABLE ================= -->
+
+
+<div class="table-container">
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>#</th>
+
+<th>Name</th>
+
+<th>Email</th>
+
+<th>Role</th>
+
+<th>Status</th>
+
+<th>Date Created</th>
+
+<th>Actions</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="userTable">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- ================= MODAL ================= -->
+
+
+<div class="modal" id="userModal">
+
+
+<div class="modal-content">
+
+
+<span class="close" id="closeModal">
+
+&times;
+
+</span>
+
+
+
+
+<h2 id="modalTitle">
+
+Add User
+
+</h2>
+
+
+
+
+
+<form id="userForm">
+
+
+
+<label>
+
+Full Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="userName"
+
+required>
+
+
+
+
+<label>
+
+Email
+
+</label>
+
+
+<input
+
+type="email"
+
+id="userEmail"
+
+required>
+
+
+
+
+
+<label>
+
+Role
+
+</label>
+
+
+<select id="userRole">
+
+
+<option value="admin">
+
+Admin
+
+</option>
+
+
+<option value="cashier">
+
+Cashier
+
+</option>
+
+
+</select>
+
+
+
+
+
+<label>
+
+Password
+
+</label>
+
+
+<input
+
+type="password"
+
+id="userPassword">
+
+
+
+
+
+
+<div class="modal-buttons">
+
+
+
+<button
+
+type="submit"
+
+class="save-btn">
+
+Save User
+
+</button>
+
+
+
+
+<button
+
+type="button"
+
+id="cancelBtn"
+
+class="cancel-btn">
+
+Cancel
+
+</button>
+
+
+</div>
+
+
+
+
+</form>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<script type="module" src="users.js"></script>
+
+
+
+</body>
+
+</html>

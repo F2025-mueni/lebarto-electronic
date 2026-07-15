@@ -1,0 +1,197 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point of Sale | Lebarto Electronics</title>
+
+    <link rel="stylesheet" href="pos.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Left Side -->
+
+    <div class="left-panel">
+
+        <div class="top-bar">
+
+            <h2>New Sale</h2>
+
+            <button id="backBtn">
+                <i class="fa-solid fa-arrow-left"></i>
+                Dashboard
+            </button>
+
+        </div>
+
+        <div class="search-section">
+
+            <input
+                type="text"
+                id="searchProduct"
+                placeholder="Search product name or barcode...">
+
+        </div>
+
+        <div id="productList" class="product-list">
+
+            <!-- Products loaded from Firebase -->
+
+        </div>
+
+    </div>
+
+    <!-- Right Side -->
+
+    <div class="right-panel">
+
+        <h2>Shopping Cart</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="cartTable">
+
+            </tbody>
+
+        </table>
+
+        <div class="customer-section">
+
+            <label>Customer</label>
+
+            <input
+                type="text"
+                id="customerName"
+                placeholder="Walk-in Customer">
+
+        </div>
+
+        <div class="payment-section">
+
+            <label>Payment Method</label>
+
+            <select id="paymentMethod">
+
+                <option>Cash</option>
+
+                <option>M-Pesa</option>
+
+                <option>Card</option>
+
+                <option>Bank Transfer</option>
+
+            </select>
+
+        </div>
+
+        <div class="summary">
+
+            <div>
+
+                <span>Subtotal</span>
+
+                <strong id="subtotal">
+                    KSh 0
+                </strong>
+
+            </div>
+
+            <div>
+
+                <span>Discount</span>
+
+                <input
+                    type="number"
+                    id="discount"
+                    value="0">
+
+            </div>
+
+            <div>
+
+                <span>Total</span>
+
+                <strong id="grandTotal">
+                    KSh 0
+                </strong>
+
+            </div>
+
+            <div>
+
+                <span>Amount Paid</span>
+
+                <input
+                    type="number"
+                    id="amountPaid">
+
+            </div>
+
+            <div>
+
+                <span>Balance</span>
+
+                <strong id="balance">
+                    KSh 0
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="buttons">
+
+            <button id="clearCart">
+                <i class="fa-solid fa-trash"></i>
+                Clear
+            </button>
+
+            <button id="completeSale">
+
+                <i class="fa-solid fa-check"></i>
+
+                Complete Sale
+
+            </button>
+
+            <button id="printReceipt">
+
+                <i class="fa-solid fa-print"></i>
+
+                Print Receipt
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="pos.js"></script>
+
+</body>
+</html>
+```

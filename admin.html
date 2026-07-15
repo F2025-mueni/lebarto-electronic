@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Lebarto Electronics</title>
+
+    <link rel="stylesheet" href="admin.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        <i class="fa-solid fa-laptop"></i>
+        <h2>LEBARTO</h2>
+    </div>
+
+    <ul>
+
+        <li class="active">
+            <a href="#">
+                <i class="fa-solid fa-gauge"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="products.html">
+                <i class="fa-solid fa-box"></i>
+                Products
+            </a>
+        </li>
+
+        <li>
+            <a href="categories.html">
+                <i class="fa-solid fa-layer-group"></i>
+                Categories
+            </a>
+        </li>
+
+        <li>
+            <a href="suppliers.html">
+                <i class="fa-solid fa-truck"></i>
+                Suppliers
+            </a>
+        </li>
+
+        <li>
+            <a href="cashiers.html">
+                <i class="fa-solid fa-users"></i>
+                Cashiers
+            </a>
+        </li>
+
+        <li>
+            <a href="sales.html">
+                <i class="fa-solid fa-cart-shopping"></i>
+                Sales
+            </a>
+        </li>
+
+        <li>
+            <a href="reports.html">
+                <i class="fa-solid fa-chart-column"></i>
+                Reports
+            </a>
+        </li>
+
+        <li>
+            <a href="settings.html">
+                <i class="fa-solid fa-gear"></i>
+                Settings
+            </a>
+        </li>
+
+        <li>
+            <a href="#" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+<div class="main">
+
+    <header>
+
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Welcome,
+                <span id="adminName">Administrator</span>
+            </p>
+        </div>
+
+        <div class="profile">
+
+            <i class="fa-solid fa-user-circle"></i>
+
+        </div>
+
+    </header>
+
+    <!-- Dashboard Cards -->
+
+    <section class="cards">
+
+        <div class="card">
+
+            <i class="fa-solid fa-box"></i>
+
+            <h3>Total Products</h3>
+
+            <h2 id="totalProducts">0</h2>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fa-solid fa-money-bill-wave"></i>
+
+            <h3>Today's Sales</h3>
+
+            <h2 id="todaySales">KSh 0</h2>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fa-solid fa-users"></i>
+
+            <h3>Cashiers</h3>
+
+            <h2 id="totalCashiers">0</h2>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <h3>Low Stock</h3>
+
+            <h2 id="lowStock">0</h2>
+
+        </div>
+
+    </section>
+
+    <!-- Recent Sales -->
+
+    <section class="table-section">
+
+        <div class="table-header">
+
+            <h2>Recent Sales</h2>
+
+            <input
+                type="text"
+                id="searchSale"
+                placeholder="Search receipt...">
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Receipt No</th>
+                    <th>Date</th>
+                    <th>Cashier</th>
+                    <th>Total</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="salesTable">
+
+                <!-- Sales loaded from Firebase -->
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+</div>
+
+<script type="module" src="admin.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lebarto Electronics - Categories</title>
+
+
+<link rel="stylesheet" href="categories.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+
+<h2>
+<i class="fa-solid fa-store"></i>
+Lebarto
+</h2>
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+Dashboard
+
+</a>
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+Products
+
+</a>
+
+
+<a href="categories.html" class="active">
+
+<i class="fa-solid fa-list"></i>
+Categories
+
+</a>
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+Suppliers
+
+</a>
+
+
+<a href="customers.html">
+
+<i class="fa-solid fa-users"></i>
+Customers
+
+</a>
+
+
+<a href="sales.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+Sales
+
+</a>
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+Logout
+
+</a>
+
+
+</div>
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+Product Categories
+</h1>
+
+
+<div class="admin-info">
+
+<i class="fa-solid fa-user"></i>
+
+<span id="adminName">
+Admin
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ================= STATISTICS ================= -->
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<i class="fa-solid fa-list"></i>
+
+<div>
+
+<h3>Total Categories</h3>
+
+<p id="totalCategories">
+0
+</p>
+
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+<div>
+
+<h3>Products Assigned</h3>
+
+<p id="assignedProducts">
+0
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- ================= ACTION AREA ================= -->
+
+
+<div class="actions">
+
+
+<input
+type="text"
+id="searchCategory"
+placeholder="Search category...">
+
+
+
+<button id="addCategoryBtn">
+
+<i class="fa-solid fa-plus"></i>
+
+Add Category
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= TABLE ================= -->
+
+
+<div class="table-container">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>#</th>
+
+<th>Category Name</th>
+
+<th>Description</th>
+
+<th>Date Created</th>
+
+<th>Actions</th>
+
+
+</tr>
+
+</thead>
+
+
+
+<tbody id="categoryTable">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= MODAL ================= -->
+
+
+<div class="modal" id="categoryModal">
+
+
+<div class="modal-content">
+
+
+<span class="close" id="closeModal">
+
+&times;
+
+</span>
+
+
+
+<h2 id="modalTitle">
+
+Add Category
+
+</h2>
+
+
+
+
+<form id="categoryForm">
+
+
+
+<label>
+Category Name
+</label>
+
+
+<input
+type="text"
+id="categoryName"
+required>
+
+
+
+
+<label>
+Description
+</label>
+
+
+<textarea
+id="categoryDescription"
+rows="4">
+
+</textarea>
+
+
+
+
+
+<div class="modal-buttons">
+
+
+<button
+type="submit"
+class="save-btn">
+
+Save Category
+
+</button>
+
+
+
+<button
+type="button"
+id="cancelBtn"
+class="cancel-btn">
+
+Cancel
+
+</button>
+
+
+</div>
+
+
+
+</form>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<script type="module" src="categories.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Products | Lebarto Electronics</title>
+
+    <link
+        rel="stylesheet"
+        href="products.css">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- ========================= -->
+<!-- SIDEBAR -->
+<!-- ========================= -->
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        <i class="fa-solid fa-bolt"></i>
+
+        <h2>LEBARTO</h2>
+
+        <span>Electronics</span>
+
+    </div>
+
+    <ul>
+
+        <li>
+
+            <a href="admin.html">
+
+                <i class="fa-solid fa-gauge"></i>
+
+                Dashboard
+
+            </a>
+
+        </li>
+
+        <li class="active">
+
+            <a href="products.html">
+
+                <i class="fa-solid fa-box"></i>
+
+                Products
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="categories.html">
+
+                <i class="fa-solid fa-tags"></i>
+
+                Categories
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="suppliers.html">
+
+                <i class="fa-solid fa-truck"></i>
+
+                Suppliers
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="customers.html">
+
+                <i class="fa-solid fa-users"></i>
+
+                Customers
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="sales.html">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                Sales
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="reports.html">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                Reports
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="users.html">
+
+                <i class="fa-solid fa-user"></i>
+
+                Users
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="settings.html">
+
+                <i class="fa-solid fa-gear"></i>
+
+                Settings
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a
+                href="#"
+                id="logoutBtn">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Logout
+
+            </a>
+
+        </li>
+
+    </ul>
+
+</div>
+
+<!-- ========================= -->
+<!-- MAIN CONTENT -->
+<!-- ========================= -->
+
+<div class="main-content">
+
+<!-- HEADER -->
+
+<header class="page-header">
+
+    <div>
+
+        <h1>
+
+            Products Management
+
+        </h1>
+
+        <p>
+
+            Manage all products available in your inventory.
+
+        </p>
+
+    </div>
+
+    <button id="addProductBtn">
+
+        <i class="fa-solid fa-plus"></i>
+
+        Add Product
+
+    </button>
+
+</header>
+
+<!-- ========================= -->
+<!-- STATISTICS -->
+<!-- ========================= -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="icon blue">
+
+            <i class="fa-solid fa-box"></i>
+
+        </div>
+
+        <div>
+
+            <h4>Total Products</h4>
+
+            <h2 id="totalProducts">
+
+                0
+
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="icon orange">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+        </div>
+
+        <div>
+
+            <h4>Low Stock</h4>
+
+            <h2 id="lowStock">
+
+                0
+
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="icon green">
+
+            <i class="fa-solid fa-warehouse"></i>
+
+        </div>
+
+        <div>
+
+            <h4>Total Stock</h4>
+
+            <h2 id="totalStock">
+
+                0
+
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="icon purple">
+
+            <i class="fa-solid fa-money-bill-wave"></i>
+
+        </div>
+
+        <div>
+
+            <h4>Inventory Value</h4>
+
+            <h2 id="inventoryValue">
+
+                KSh 0
+
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- SEARCH BAR -->
+<!-- ========================= -->
+
+<div class="toolbar">
+
+    <div class="search-box">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+
+            type="text"
+
+            id="searchProduct"
+
+            placeholder="Search by product, barcode, supplier or category...">
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- PRODUCTS TABLE -->
+<!-- ========================= -->
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Image</th>
+
+<th>Barcode</th>
+
+<th>Product</th>
+
+<th>Category</th>
+
+<th>Supplier</th>
+
+<th>Buying Price</th>
+
+<th>Selling Price</th>
+
+<th>Quantity</th>
+
+<th>Status</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="productTable">
+
+<tr>
+
+<td colspan="10" style="text-align:center;padding:40px;">
+
+Loading products...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<!-- ===================================== -->
+<!-- PRODUCT MODAL -->
+<!-- ===================================== -->
+
+<div class="modal" id="productModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+
+                Add Product
+
+            </h2>
+
+            <span id="closeModal">
+
+                &times;
+
+            </span>
+
+        </div>
+
+        <form id="productForm">
+
+            <div class="form-grid">
+
+                <div>
+
+                    <label>
+
+                        Product Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="productName"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Barcode
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="barcode"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Category
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="category"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Supplier
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="supplier"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Buying Price
+
+                    </label>
+
+                    <input
+                        type="number"
+                        id="buyingPrice"
+                        min="0"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Selling Price
+
+                    </label>
+
+                    <input
+                        type="number"
+                        id="sellingPrice"
+                        min="0"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Quantity
+
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        min="0"
+                        required>
+
+                </div>
+
+                <div>
+
+                    <label>
+
+                        Minimum Stock
+
+                    </label>
+
+                    <input
+                        type="number"
+                        id="minimumStock"
+                        min="0"
+                        value="5">
+
+                </div>
+
+                <div class="full-width">
+
+                    <label>
+
+                        Product Image
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="productImage"
+                        accept="image/*">
+
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    type="submit"
+                    id="saveProduct">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Save Product
+
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelBtn">
+
+                    Cancel
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- PRODUCTS SCRIPT -->
+<!-- ========================= -->
+
+<script type="module" src="products.js"></script>
+
+</body>
+</html>

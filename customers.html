@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lebarto Electronics - Customers</title>
+
+
+<link rel="stylesheet" href="customers.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+
+<h2>
+<i class="fa-solid fa-store"></i>
+Lebarto
+</h2>
+
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+
+Products
+
+</a>
+
+
+
+<a href="categories.html">
+
+<i class="fa-solid fa-list"></i>
+
+Categories
+
+</a>
+
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+
+Suppliers
+
+</a>
+
+
+
+<a href="customers.html" class="active">
+
+<i class="fa-solid fa-users"></i>
+
+Customers
+
+</a>
+
+
+
+<a href="sales.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Sales
+
+</a>
+
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+
+</div>
+
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+Customer Management
+</h1>
+
+
+<div class="admin-info">
+
+<i class="fa-solid fa-user-shield"></i>
+
+<span id="adminName">
+Admin
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- ================= CARDS ================= -->
+
+
+<div class="cards">
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-users"></i>
+
+
+<div>
+
+<h3>Total Customers</h3>
+
+<p id="totalCustomers">
+0
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-user-plus"></i>
+
+
+<div>
+
+<h3>New Customers</h3>
+
+<p id="newCustomers">
+0
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-money-bill"></i>
+
+
+<div>
+
+<h3>Total Purchases</h3>
+
+<p id="customerPurchases">
+KSh 0
+</p>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= ACTION BAR ================= -->
+
+
+<div class="actions">
+
+
+<input
+type="text"
+id="searchCustomer"
+placeholder="Search customer...">
+
+
+
+<button id="addCustomerBtn">
+
+<i class="fa-solid fa-plus"></i>
+
+Add Customer
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= TABLE ================= -->
+
+
+<div class="table-container">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+
+<th>#</th>
+
+<th>Name</th>
+
+<th>Phone</th>
+
+<th>Email</th>
+
+<th>Address</th>
+
+<th>Date Added</th>
+
+<th>Actions</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="customerTable">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= MODAL ================= -->
+
+
+<div class="modal" id="customerModal">
+
+
+<div class="modal-content">
+
+
+<span class="close" id="closeModal">
+
+&times;
+
+</span>
+
+
+
+<h2 id="modalTitle">
+
+Add Customer
+
+</h2>
+
+
+
+
+
+<form id="customerForm">
+
+
+
+<label>
+Customer Name
+</label>
+
+
+<input
+type="text"
+id="customerName"
+required>
+
+
+
+
+
+<label>
+Phone Number
+</label>
+
+
+<input
+type="text"
+id="customerPhone">
+
+
+
+
+
+
+<label>
+Email
+</label>
+
+
+<input
+type="email"
+id="customerEmail">
+
+
+
+
+
+<label>
+Address
+</label>
+
+
+<textarea
+id="customerAddress"
+rows="4">
+
+</textarea>
+
+
+
+
+
+<div class="modal-buttons">
+
+
+<button
+type="submit"
+class="save-btn">
+
+Save Customer
+
+</button>
+
+
+
+
+<button
+type="button"
+id="cancelBtn"
+class="cancel-btn">
+
+Cancel
+
+</button>
+
+
+
+</div>
+
+
+
+</form>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<script type="module" src="customers.js"></script>
+
+
+</body>
+
+
+</html>

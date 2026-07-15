@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lebarto Electronics - Reports</title>
+
+
+<link rel="stylesheet" href="reports.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<div class="sidebar">
+
+
+<h2>
+
+<i class="fa-solid fa-store"></i>
+
+Lebarto
+
+</h2>
+
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+
+Products
+
+</a>
+
+
+
+<a href="categories.html">
+
+<i class="fa-solid fa-list"></i>
+
+Categories
+
+</a>
+
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+
+Suppliers
+
+</a>
+
+
+
+<a href="customers.html">
+
+<i class="fa-solid fa-users"></i>
+
+Customers
+
+</a>
+
+
+
+<a href="sales.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Sales
+
+</a>
+
+
+
+<a href="reports.html" class="active">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Reports
+
+</a>
+
+
+
+<a href="users.html">
+
+<i class="fa-solid fa-user-gear"></i>
+
+Users
+
+</a>
+
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+Reports Dashboard
+</h1>
+
+
+<div class="admin-info">
+
+<i class="fa-solid fa-user-shield"></i>
+
+<span id="adminName">
+Admin
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= REPORT CARDS ================= -->
+
+
+<div class="cards">
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+
+<div>
+
+<h3>Total Revenue</h3>
+
+<p id="totalRevenue">
+
+KSh 0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<div>
+
+<h3>Total Profit</h3>
+
+<p id="totalProfit">
+
+KSh 0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-box"></i>
+
+
+<div>
+
+<h3>Products Sold</h3>
+
+<p id="productsSold">
+
+0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<i class="fa-solid fa-users"></i>
+
+
+<div>
+
+<h3>Customers</h3>
+
+<p id="customersCount">
+
+0
+
+</p>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= FILTER ================= -->
+
+
+<div class="filter-box">
+
+
+<label>
+
+Start Date
+
+</label>
+
+
+<input 
+type="date"
+id="startDate">
+
+
+
+
+
+<label>
+
+End Date
+
+</label>
+
+
+<input
+type="date"
+id="endDate">
+
+
+
+
+
+<button id="generateReportBtn">
+
+<i class="fa-solid fa-filter"></i>
+
+Generate Report
+
+</button>
+
+
+
+<button id="printReportBtn">
+
+<i class="fa-solid fa-print"></i>
+
+Print
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= REPORT TABLE ================= -->
+
+
+<div class="table-container">
+
+
+<h2>
+Sales Summary
+</h2>
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>#</th>
+
+<th>Date</th>
+
+<th>Customer</th>
+
+<th>Items</th>
+
+<th>Total</th>
+
+<th>Payment</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="reportTable">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<script type="module" src="reports.js"></script>
+
+
+</body>
+
+
+</html>

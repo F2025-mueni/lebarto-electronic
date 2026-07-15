@@ -1,0 +1,185 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier Dashboard | Lebarto Electronics</title>
+
+    <link rel="stylesheet" href="cashier.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <div class="logo">
+            <i class="fa-solid fa-cash-register"></i>
+            <h2>LEBARTO</h2>
+            <p>Cashier Panel</p>
+        </div>
+
+        <ul>
+
+            <li class="active">
+                <a href="cashier.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="pos.html">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    New Sale
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <i class="fa-solid fa-users"></i>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="sales.html">
+                    <i class="fa-solid fa-receipt"></i>
+                    Sales History
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <i class="fa-solid fa-user-gear"></i>
+                    My Account
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="logoutBtn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+
+        <!-- Header -->
+        <header>
+
+            <div>
+                <h1>Cashier Dashboard</h1>
+                <p>Welcome, <strong id="cashierName">Cashier</strong></p>
+            </div>
+
+            <div class="profile">
+                <i class="fa-solid fa-circle-user"></i>
+            </div>
+
+        </header>
+
+        <!-- Dashboard Cards -->
+        <section class="cards">
+
+            <div class="card">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                <h3>Today's Sales</h3>
+                <h2 id="todaySales">KSh 0</h2>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-receipt"></i>
+                <h3>Transactions</h3>
+                <h2 id="todayTransactions">0</h2>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-box"></i>
+                <h3>Products Sold</h3>
+                <h2 id="productsSold">0</h2>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-clock"></i>
+                <h3>Current Time</h3>
+                <h2 id="currentTime">00:00</h2>
+            </div>
+
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+
+            <button onclick="location.href='pos.html'">
+                <i class="fa-solid fa-cart-shopping"></i>
+                New Sale
+            </button>
+
+            <button onclick="location.href='customers.html'">
+                <i class="fa-solid fa-user-plus"></i>
+                New Customer
+            </button>
+
+            <button onclick="location.href='sales.html'">
+                <i class="fa-solid fa-receipt"></i>
+                Sales History
+            </button>
+
+        </section>
+
+        <!-- Recent Sales -->
+        <section class="table-section">
+
+            <div class="table-header">
+                <h2>Recent Sales</h2>
+
+                <input
+                    type="text"
+                    id="searchSale"
+                    placeholder="Search receipt...">
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Receipt No</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="salesTable">
+
+                    <!-- Loaded from Firebase -->
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </div>
+
+    <script type="module" src="cashier.js"></script>
+
+</body>
+</html>
+```

@@ -1,0 +1,206 @@
+/* =====================================================
+   LEBARTO ELECTRONICS
+   LOGOUT PAGE STYLE
+===================================================== */
+
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+
+}
+
+
+
+body{
+
+    height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #2563eb,
+        #111827
+    );
+
+}
+
+
+
+
+
+.logout-box{
+
+    width:380px;
+
+    background:white;
+
+    padding:40px;
+
+    text-align:center;
+
+    border-radius:15px;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.25);
+
+}
+
+
+
+
+
+.icon{
+
+    width:80px;
+
+    height:80px;
+
+    margin:auto;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#2563eb;
+
+    border-radius:50%;
+
+    color:white;
+
+    font-size:35px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+
+
+.logout-box h2{
+
+    color:#111827;
+
+    font-size:28px;
+
+    margin-bottom:15px;
+
+}
+
+
+
+
+
+.logout-box p{
+
+    color:#6b7280;
+
+    margin-bottom:25px;
+
+}
+
+
+
+
+
+.loader{
+
+    width:40px;
+
+    height:40px;
+
+    border:5px solid #ddd;
+
+    border-top:5px solid #2563eb;
+
+    border-radius:50%;
+
+    margin:20px auto;
+
+    animation:spin 1s linear infinite;
+
+}
+
+
+
+@keyframes spin{
+
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+
+}
+
+
+
+
+
+.home-btn{
+
+    display:inline-block;
+
+    padding:12px 25px;
+
+    background:#2563eb;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:8px;
+
+    margin-top:15px;
+
+    transition:.3s;
+
+}
+
+
+
+.home-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+
+
+
+
+
+@media(max-width:450px){
+
+
+.logout-box{
+
+    width:90%;
+
+    padding:30px;
+
+}
+
+
+}

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Lebarto Electronics - Settings</title>
+
+
+<link rel="stylesheet" href="settings.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<div class="sidebar">
+
+
+<h2>
+
+<i class="fa-solid fa-store"></i>
+
+Lebarto
+
+</h2>
+
+
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+
+
+
+<a href="products.html">
+
+<i class="fa-solid fa-box"></i>
+
+Products
+
+</a>
+
+
+
+
+<a href="categories.html">
+
+<i class="fa-solid fa-list"></i>
+
+Categories
+
+</a>
+
+
+
+
+<a href="suppliers.html">
+
+<i class="fa-solid fa-truck"></i>
+
+Suppliers
+
+</a>
+
+
+
+
+<a href="customers.html">
+
+<i class="fa-solid fa-users"></i>
+
+Customers
+
+</a>
+
+
+
+
+<a href="sales.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Sales
+
+</a>
+
+
+
+
+<a href="reports.html">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Reports
+
+</a>
+
+
+
+
+<a href="users.html">
+
+<i class="fa-solid fa-user-gear"></i>
+
+Users
+
+</a>
+
+
+
+
+<a href="settings.html" class="active">
+
+<i class="fa-solid fa-gear"></i>
+
+Settings
+
+</a>
+
+
+
+
+<a href="#" id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<div class="main">
+
+
+
+<div class="topbar">
+
+
+<h1>
+System Settings
+</h1>
+
+
+
+<div class="admin-info">
+
+
+<i class="fa-solid fa-user-shield"></i>
+
+
+<span id="adminName">
+
+Admin
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= SETTINGS CONTAINER ================= -->
+
+
+<div class="settings-container">
+
+
+
+
+
+
+<!-- SHOP SETTINGS -->
+
+
+<div class="settings-card">
+
+
+<h2>
+
+<i class="fa-solid fa-store"></i>
+
+Shop Information
+
+</h2>
+
+
+
+
+<form id="shopForm">
+
+
+
+<label>
+
+Shop Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="shopName"
+
+placeholder="Lebarto Electronics">
+
+
+
+
+
+<label>
+
+Phone Number
+
+</label>
+
+
+<input
+
+type="text"
+
+id="shopPhone">
+
+
+
+
+
+<label>
+
+Email
+
+</label>
+
+
+<input
+
+type="email"
+
+id="shopEmail">
+
+
+
+
+
+<label>
+
+Address
+
+</label>
+
+
+<textarea
+
+id="shopAddress"
+
+rows="3">
+
+</textarea>
+
+
+
+
+<button type="submit">
+
+Save Shop Details
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- RECEIPT SETTINGS -->
+
+
+<div class="settings-card">
+
+
+<h2>
+
+<i class="fa-solid fa-receipt"></i>
+
+Receipt Settings
+
+</h2>
+
+
+
+
+<form id="receiptForm">
+
+
+
+<label>
+
+Receipt Footer Message
+
+</label>
+
+
+<input
+
+type="text"
+
+id="receiptMessage"
+
+placeholder="Thank you for shopping with us">
+
+
+
+
+
+<label>
+
+Show Logo
+
+</label>
+
+
+<select id="showLogo">
+
+
+<option value="yes">
+
+Yes
+
+</option>
+
+
+<option value="no">
+
+No
+
+</option>
+
+
+</select>
+
+
+
+
+
+<button type="submit">
+
+Save Receipt Settings
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- PROFILE SETTINGS -->
+
+
+<div class="settings-card">
+
+
+<h2>
+
+<i class="fa-solid fa-user"></i>
+
+Account Settings
+
+</h2>
+
+
+
+
+<form id="profileForm">
+
+
+
+<label>
+
+Full Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="profileName">
+
+
+
+
+
+<label>
+
+Email
+
+</label>
+
+
+<input
+
+type="email"
+
+id="profileEmail"
+
+readonly>
+
+
+
+
+
+<button type="submit">
+
+Update Profile
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<script type="module" src="settings.js"></script>
+
+
+</body>
+
+</html>

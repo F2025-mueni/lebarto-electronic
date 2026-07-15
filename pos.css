@@ -1,0 +1,356 @@
+/* ==========================================
+   LEBARTO ELECTRONICS POS
+========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#eef2f7;
+}
+
+/* ================= Layout ================= */
+
+.container{
+    display:grid;
+    grid-template-columns:60% 40%;
+    height:100vh;
+}
+
+/* ================= Left Panel ================= */
+
+.left-panel{
+    background:#fff;
+    padding:20px;
+    border-right:2px solid #e5e5e5;
+    display:flex;
+    flex-direction:column;
+}
+
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.top-bar h2{
+    color:#0D6EFD;
+    font-size:30px;
+}
+
+#backBtn{
+    background:#0D6EFD;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+#backBtn:hover{
+    background:#0b5ed7;
+}
+
+.search-section{
+    margin-bottom:20px;
+}
+
+.search-section input{
+    width:100%;
+    padding:15px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+}
+
+/* ================= Product List ================= */
+
+.product-list{
+    flex:1;
+    overflow-y:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:18px;
+    padding-right:5px;
+}
+
+.product-card{
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    padding:15px;
+    transition:.3s;
+    text-align:center;
+    border:2px solid transparent;
+}
+
+.product-card:hover{
+    border-color:#0D6EFD;
+    transform:translateY(-4px);
+}
+
+.product-card img{
+    width:100%;
+    height:140px;
+    object-fit:contain;
+    margin-bottom:10px;
+}
+
+.product-card h3{
+    color:#333;
+    margin-bottom:8px;
+}
+
+.product-card p{
+    color:#666;
+    margin:5px 0;
+}
+
+.product-card h4{
+    color:#198754;
+    margin:10px 0;
+}
+
+.product-card button{
+    width:100%;
+    padding:12px;
+    background:#0D6EFD;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.product-card button:hover{
+    background:#0b5ed7;
+}
+
+.product-card button:disabled{
+    background:#bbb;
+    cursor:not-allowed;
+}
+
+/* ================= Right Panel ================= */
+
+.right-panel{
+    background:#f9fafb;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    overflow-y:auto;
+}
+
+.right-panel h2{
+    color:#0D6EFD;
+    margin-bottom:15px;
+}
+
+/* ================= Cart ================= */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    border-radius:8px;
+    overflow:hidden;
+}
+
+thead{
+    background:#0D6EFD;
+    color:#fff;
+}
+
+th,
+td{
+    padding:12px;
+    text-align:center;
+}
+
+tbody{
+    display:block;
+    max-height:180px;
+    overflow-y:auto;
+}
+
+thead,
+tbody tr{
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+
+/* ================= Customer ================= */
+
+.customer-section,
+.payment-section{
+    margin-top:18px;
+}
+
+.customer-section label,
+.payment-section label{
+    display:block;
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.customer-section input,
+.payment-section select{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+/* ================= Summary ================= */
+
+.summary{
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    margin-top:20px;
+}
+
+.summary div{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.summary input{
+    width:140px;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.summary strong{
+    color:#198754;
+    font-size:18px;
+}
+
+/* ================= Buttons ================= */
+
+.buttons{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid #ddd;
+    background:#f9fafb;
+    position:sticky;
+    bottom:0;
+}
+
+.buttons button{
+    padding:15px;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    transition:.3s;
+}
+
+#clearCart{
+    background:#dc3545;
+}
+
+#completeSale{
+    background:#198754;
+}
+
+#printReceipt{
+    background:#0D6EFD;
+}
+
+#clearCart:hover{
+    background:#bb2d3b;
+}
+
+#completeSale:hover{
+    background:#157347;
+}
+
+#printReceipt:hover{
+    background:#0b5ed7;
+}
+
+/* ================= Scrollbars ================= */
+
+::-webkit-scrollbar{
+    width:8px;
+    height:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#0D6EFD;
+    border-radius:10px;
+}
+
+/* ================= Responsive ================= */
+
+@media(max-width:1100px){
+
+.container{
+grid-template-columns:1fr;
+height:auto;
+}
+
+.left-panel,
+.right-panel{
+height:auto;
+}
+
+}
+
+@media(max-width:768px){
+
+.product-list{
+grid-template-columns:1fr;
+}
+
+.buttons{
+grid-template-columns:1fr;
+}
+
+.summary div{
+flex-direction:column;
+align-items:flex-start;
+gap:8px;
+}
+
+.summary input{
+width:100%;
+}
+
+}
+
+@media(max-width:500px){
+
+.top-bar{
+flex-direction:column;
+align-items:flex-start;
+gap:15px;
+}
+
+.top-bar h2{
+font-size:24px;
+}
+
+#backBtn{
+width:100%;
+}
+
+}

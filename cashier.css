@@ -14,7 +14,7 @@
 body{
     display:flex;
     min-height:100vh;
-    background:#f5f7fb;
+    background:linear-gradient(135deg,#87CEEB,#EAF6FF);
 }
 
 /* ================= Sidebar ================= */
@@ -121,9 +121,8 @@ header p{
     gap:20px;
     margin-bottom:30px;
 }
-
-.card{
-    background:#fff;
+   .card{
+    background:#F8FDFF;
     border-radius:15px;
     padding:25px;
     box-shadow:0 5px 15px rgba(0,0,0,.08);

@@ -231,7 +231,9 @@ function displaySales(data){
 
         <td>
 
-        ${sale.paymentMethod || "-"}
+       ${sale.paymentMethods
+    ? sale.paymentMethods.join(", ")
+    : "-"}
 
         </td>
 
@@ -249,16 +251,13 @@ function displaySales(data){
 
         <td>
 
-        ${
-            sale.date
-            ?
-            new Date(
-            sale.date.seconds*1000
-            )
-            .toLocaleDateString()
-            :
-            "N/A"
-        }
+      ${
+sale.date
+?
+sale.date.toDate().toLocaleString()
+:
+"N/A"
+}
 
         </td>
 
@@ -316,7 +315,7 @@ function updateStatistics(){
     sales.forEach(sale=>{
 
 
-        total += Number(sale.total || 0);
+      total += Number(sale.total) || 0;
 
 
     });
@@ -362,11 +361,11 @@ function updateStatistics(){
 
 
 
-            if(saleDate===today){
+          if(saleDate===today){
 
-                todayTotal += Number(sale.total);
+    todayTotal += Number(sale.total || 0);
 
-            }
+}
 
 
         }
@@ -432,10 +431,36 @@ window.viewSale=function(id){
 
 
 
-    <p>
-    Payment:
-    ${selectedSale.paymentMethod}
-    </p>
+<p>
+Payment:
+${selectedSale.paymentMethods
+    ? selectedSale.paymentMethods.join(", ")
+    : "-"}
+</p>
+<p>
+Cashier:
+${selectedSale.cashier}
+</p>
+
+<p>
+Receipt:
+${selectedSale.receiptNo}
+</p>
+
+<p>
+Discount:
+KSh ${Number(selectedSale.discount || 0).toLocaleString()}
+</p>
+
+<p>
+Paid:
+KSh ${Number(selectedSale.amountPaid || 0).toLocaleString()}
+</p>
+
+<p>
+Balance:
+KSh ${Number(selectedSale.balance || 0).toLocaleString()}
+</p>
 
 
 
@@ -469,7 +494,7 @@ window.viewSale=function(id){
 
         <span>
 
-        KSh ${item.price * item.quantity}
+       KSh ${(Number(item.total) || Number(item.price) * Number(item.quantity) || 0).toLocaleString()}
 
         </span>
 
@@ -493,9 +518,9 @@ window.viewSale=function(id){
     <div class="receipt-total">
 
 
-    Total:
+  Total:
 
-    KSh ${selectedSale.total}
+KSh ${Number(selectedSale.total || 0).toLocaleString()}
 
 
     </div>
@@ -602,39 +627,36 @@ function filterSales(){
     sales.filter(sale=>{
 
 
-        let matchText =
+      let matchText =
 
-        (
+(sale.customerName || "")
+.toLowerCase()
+.includes(text)
 
-        sale.customerName || ""
+||
 
-        )
+(sale.cashier || "")
+.toLowerCase()
+.includes(text)
 
-        .toLowerCase()
+||
 
-        .includes(text)
-
-        ||
-
-        (
-
-        sale.cashier || ""
-
-        )
-
-        .toLowerCase()
-
-        .includes(text);
+(sale.receiptNo || "")
+.toLowerCase()
+.includes(text);
 
 
 
-        let matchPayment =
+       let matchPayment =
 
-        payment===""
+payment === ""
 
-        ||
+||
 
-        sale.paymentMethod===payment;
+(
+    Array.isArray(sale.paymentMethods) &&
+    sale.paymentMethods.includes(payment)
+);
 
 
 

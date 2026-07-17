@@ -21,7 +21,7 @@ html{
 
 body{
     font-family:'Poppins',sans-serif;
-    background:#f4f7fb;
+    background:linear-gradient(135deg,#87CEEB,#EAF6FF);
     color:#333;
     display:flex;
     min-height:100vh;
@@ -409,10 +409,12 @@ tbody tr:hover{
     background:#fff;
     width:900px;
     max-width:100%;
+    max-height:90vh;
+    overflow-y:auto;
     border-radius:18px;
-    overflow:hidden;
     box-shadow:0 15px 45px rgba(0,0,0,.25);
-    animation:popup .3s ease;
+    display:flex;
+    flex-direction:column;
 }
 
 @keyframes popup{
@@ -463,6 +465,7 @@ tbody tr:hover{
 
 #productForm{
     padding:25px;
+    overflow-y:auto;
 }
 
 .form-grid{
@@ -537,12 +540,14 @@ input[type=file]{
 ========================== */
 
 .buttons{
-
     display:flex;
     justify-content:flex-end;
     gap:15px;
     margin-top:30px;
-
+    padding:20px 25px;
+    background:#fff;
+    position:sticky;
+    bottom:0;
 }
 
 #saveProduct{

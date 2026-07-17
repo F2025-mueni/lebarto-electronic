@@ -157,7 +157,7 @@ async function loadTodaySales(){
 
     const snapshot = await getDocs(collection(db,"sales"));
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toDateString();
 
     let total = 0;
 
@@ -165,9 +165,15 @@ async function loadTodaySales(){
 
         const sale = doc.data();
 
-        if(sale.date === today){
+        if(sale.date){
 
-            total += Number(sale.total);
+            const saleDate = sale.date.toDate().toDateString();
+
+            if(saleDate === today){
+
+                total += Number(sale.total) || 0;
+
+            }
 
         }
 
@@ -189,11 +195,11 @@ async function loadRecentSales(){
 
     salesBody.innerHTML = "";
 
-    const q = query(
-        collection(db,"sales"),
-        orderBy("timestamp","desc"),
-        limit(10)
-    );
+   const q = query(
+    collection(db,"sales"),
+    orderBy("date","desc"),
+    limit(10)
+);
 
     const snapshot = await getDocs(q);
 
@@ -207,7 +213,15 @@ async function loadRecentSales(){
 
             <td>${sale.receiptNo}</td>
 
-            <td>${sale.date}</td>
+           <td>
+${
+sale.date
+?
+sale.date.toDate().toLocaleString()
+:
+"N/A"
+}
+</td>
 
             <td>${sale.cashier}</td>
 

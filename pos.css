@@ -10,7 +10,7 @@
 }
 
 body{
-    background:#eef2f7;
+    background:#87CEEB; /* Sky Blue */
 }
 
 /* ================= Layout ================= */
@@ -24,7 +24,7 @@ body{
 /* ================= Left Panel ================= */
 
 .left-panel{
-    background:#fff;
+     background:linear-gradient(135deg,#87CEEB,#EAF6FF);
     padding:20px;
     border-right:2px solid #e5e5e5;
     display:flex;

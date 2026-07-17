@@ -209,13 +209,15 @@ function displayProducts(productArray){
 
             </p>
 
-            <h4>
+           <h4>
 
-                KSh
+KSh ${Number(product.minSellingPrice).toLocaleString()}
 
-                ${Number(product.sellingPrice).toLocaleString()}
+-
 
-            </h4>
+KSh ${Number(product.maxSellingPrice).toLocaleString()}
+
+</h4>
 
             <button
 
@@ -330,23 +332,27 @@ window.addToCart=function(id){
 
     else{
 
-        cart.push({
+     cart.push({
 
-            id:product.id,
+    id:product.id,
 
-            barcode:product.barcode,
+    barcode:product.barcode,
 
-            name:product.name,
+    name:product.name,
 
-            price:Number(product.sellingPrice),
+    minPrice:Number(product.minSellingPrice),
 
-            buyingPrice:Number(product.buyingPrice),
+    maxPrice:Number(product.maxSellingPrice),
 
-            quantity:1,
+    price:Number(product.minSellingPrice),
 
-            stock:Number(product.quantity)
+    buyingPrice:Number(product.buyingPrice),
 
-        });
+    quantity:1,
+
+    stock:Number(product.quantity)
+
+});
 
     }
 
@@ -421,13 +427,30 @@ function updateCart(){
 
         </td>
 
-        <td>
+      <td>
 
-        KSh
+<input
 
-        ${item.price.toLocaleString()}
+type="number"
 
-        </td>
+value="${item.price}"
+
+min="${item.minPrice}"
+
+oninput="updateSellingPrice('${item.id}',this.value)"
+
+style="width:90px;">
+
+<br>
+
+<small>
+
+Min:
+KSh ${item.minPrice.toLocaleString()}
+
+</small>
+
+</td>
 
         <td>
 
@@ -499,6 +522,45 @@ window.increaseQty = function(id){
     }
 
     item.quantity++;
+
+    updateCart();
+
+};
+window.updateSellingPrice = function(id,value){
+
+    const item = cart.find(p=>p.id===id);
+
+    if(!item){
+
+        return;
+
+    }
+
+    const price = Number(value);
+
+    if(isNaN(price)){
+
+        return;
+
+    }
+
+    if(price < item.minPrice){
+
+        alert(
+
+            `Selling price cannot be below KSh ${item.minPrice.toLocaleString()}`
+
+        );
+
+        updateCart();
+
+        return;
+
+    }
+
+    item.price = price;
+
+    calculateTotals();
 
     updateCart();
 
@@ -868,13 +930,15 @@ async function completeSale(){
 
 
 
-        const paymentMethod =
+      const paymentMethods = [...document.querySelectorAll(
+    'input[name="paymentMethod"]:checked'
+)].map(item => item.value);
 
-        document
-        .getElementById("paymentMethod")
-        .value;
-
-
+console.log(paymentMethods);
+if (paymentMethods.length === 0) {
+    alert("Please select at least one payment method.");
+    return;
+}
 
         const discount =
 
@@ -900,28 +964,23 @@ async function completeSale(){
 
 
 
-        let subtotal = 0;
-        let profit = 0;
+     let subtotal = 0;
+let profit = 0;
 
+cart.forEach(item => {
 
+    const price = Number(item.price) || 0;
+    const buyingPrice = Number(item.buyingPrice) || 0;
+    const qty = Number(item.quantity) || 0;
 
-       cart.forEach(item=>{
-
-    subtotal += item.price * item.quantity;
-
-    profit +=
-
-    (item.price - item.buyingPrice)
-
-    * item.quantity;
+    subtotal += price * qty;
+    profit += (price - buyingPrice) * qty;
 
 });
 
 
 
-        const grandTotal =
-
-        subtotal - discount;
+      const grandTotal = Number(subtotal) - Number(discount);
 
 
 
@@ -978,10 +1037,9 @@ cart.forEach(item=>{
 
 
 
-          cashier:
+         cashier:
 
-currentUser.email || currentUserData?.name || "Unknown Cashier",
-
+currentUserData?.name || currentUser.email || "Unknown Cashier",
 
 
             cashierId:
@@ -990,9 +1048,9 @@ currentUser.email || currentUserData?.name || "Unknown Cashier",
 
 
 
-            paymentMethod:
+            paymentMethods:
 
-            paymentMethod,
+            paymentMethods,
 
 
 
@@ -1121,7 +1179,7 @@ Number(product.quantity)-Number(item.quantity)
 
             cashier: currentUser.email,
 
-            paymentMethod: paymentMethod,
+            paymentMethods: paymentMethods,
 
             subtotal: subtotal,
 
@@ -1153,7 +1211,9 @@ Number(product.quantity)-Number(item.quantity)
         document.getElementById("discount").value = 0;
         document.getElementById("amountPaid").value = "";
         document.getElementById("balance").textContent = "KSh 0";
-        document.getElementById("paymentMethod").selectedIndex = 0;
+       document.querySelectorAll('input[name="paymentMethod"]').forEach(box => {
+    box.checked = false;
+});
 
         calculateTotals();
 
@@ -1446,7 +1506,7 @@ ${sale.customerName}
 
 <strong>Payment:</strong>
 
-${sale.paymentMethod}
+${sale.paymentMethods.join(", ")}
 
 </p>
 

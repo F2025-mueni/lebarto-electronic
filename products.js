@@ -707,42 +707,41 @@ if(maxSellingPrice < minSellingPrice){
 
 
 
-        // ===================================
-        // CHECK DUPLICATE BARCODE
-        // ===================================
+      // ===================================
+// CHECK DUPLICATE BARCODE
+// ===================================
 
-        const barcodeQuery = query(
+// Only check if a barcode was entered
+if (barcode !== "") {
 
-            collection(db,"products"),
+    const barcodeQuery = query(
+        collection(db, "products"),
+        where("barcode", "==", barcode)
+    );
 
-            where("barcode","==",barcode)
+    const barcodeSnapshot = await getDocs(barcodeQuery);
 
-        );
+    let barcodeExists = false;
 
-        const barcodeSnapshot =
-        await getDocs(barcodeQuery);
+    barcodeSnapshot.forEach((productDoc) => {
 
-        let barcodeExists = false;
+        if (productDoc.id !== editingProductId) {
 
-        barcodeSnapshot.forEach(doc=>{
-
-            if(doc.id!==editingProductId){
-
-                barcodeExists = true;
-
-            }
-
-        });
-
-        if(barcodeExists){
-
-            alert("Barcode already exists.");
-
-            return;
+            barcodeExists = true;
 
         }
 
+    });
 
+    if (barcodeExists) {
+
+        alert("Barcode already exists.");
+
+        return;
+
+    }
+
+}
 
         // ===================================
         // PRODUCT OBJECT
@@ -752,7 +751,7 @@ if(maxSellingPrice < minSellingPrice){
 
             name,
 
-            barcode,
+          barcode: barcode === "" ? null : barcode,
 
             category,
 

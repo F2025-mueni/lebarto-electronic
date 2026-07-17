@@ -441,8 +441,7 @@ Loading products...
 
                     <input
                         type="text"
-                        id="barcode"
-                        required>
+                        id="barcode">
 
                 </div>
 
@@ -471,8 +470,7 @@ Loading products...
 
                     <input
                         type="text"
-                        id="supplier"
-                        required>
+                        id="supplier">
 
                 </div>
 
@@ -494,19 +492,34 @@ Loading products...
 
                 <div>
 
-                    <label>
+    <label>
+        Minimum Selling Price
+    </label>
 
-                        Selling Price
+    <input
+        type="number"
+        id="minSellingPrice"
+        min="0"
+        placeholder="Enter minimum price"
+        required>
 
-                    </label>
+</div>
 
-                    <input
-                        type="number"
-                        id="sellingPrice"
-                        min="0"
-                        required>
 
-                </div>
+<div>
+
+    <label>
+        Maximum Selling Price
+    </label>
+
+    <input
+        type="number"
+        id="maxSellingPrice"
+        min="0"
+        placeholder="Enter maximum price"
+        required>
+
+</div>
 
                 <div>
 

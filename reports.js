@@ -214,41 +214,18 @@ function generateReport(){
     filteredSales.forEach(sale=>{
 
 
-        revenue += Number(sale.total || 0);
+       revenue += Number(sale.total) || 0;
 
 
 
-        sale.items.forEach(item=>{
+     sale.items.forEach(item=>{
+
+    soldProducts += Number(item.quantity || 0);
+
+});
 
 
-            soldProducts += Number(item.quantity);
-
-
-
-            const product =
-            products.find(
-                p=>p.name===item.name
-            );
-
-
-
-            if(product){
-
-
-                profit +=
-                (
-                    Number(item.price)
-                    -
-                    Number(product.buyingPrice)
-                )
-                *
-                Number(item.quantity);
-
-
-            }
-
-
-        });
+profit += Number(sale.profit) || 0;
 
 
 
@@ -416,11 +393,17 @@ function displayReportTable(){
 
 
 
-        <td>
+      <td>
 
-        ${sale.paymentMethod || "-"}
+${
+sale.paymentMethods
+?
+sale.paymentMethods.join(", ")
+:
+"-"
+}
 
-        </td>
+</td>
 
 
         </tr>

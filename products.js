@@ -274,13 +274,18 @@ function displayProducts(productArray){
 
             </td>
 
-            <td>
+           <td>
 
-                KSh
-                ${Number(product.sellingPrice || 0)
-                .toLocaleString()}
+KSh 
+${Number(product.minSellingPrice || 0)
+.toLocaleString()}
 
-            </td>
+-
+KSh
+${Number(product.maxSellingPrice || 0)
+.toLocaleString()}
+
+</td>
 
             <td>
 
@@ -568,12 +573,20 @@ async function saveProduct(e){
             .value
         );
 
-        const sellingPrice =
-        Number(
-            document
-            .getElementById("sellingPrice")
-            .value
-        );
+        const minSellingPrice =
+Number(
+    document
+    .getElementById("minSellingPrice")
+    .value
+);
+
+
+const maxSellingPrice =
+Number(
+    document
+    .getElementById("maxSellingPrice")
+    .value
+);
 
         const quantity =
         Number(
@@ -591,49 +604,106 @@ async function saveProduct(e){
 
 
 
-        // ===================================
-        // VALIDATION
-        // ===================================
+       // ===================================
+// VALIDATION
+// REQUIRED PRODUCT FIELDS
+// ===================================
 
-        if(name===""){
+if(name===""){
 
-            alert("Enter product name.");
+    alert("Product name is required.");
 
-            return;
+    return;
 
-        }
+}
 
-        if(barcode===""){
 
-            alert("Enter barcode.");
+if(category===""){
 
-            return;
+    alert("Category is required.");
 
-        }
+    return;
 
-        if(category===""){
+}
 
-            alert("Enter category.");
 
-            return;
+// Check empty buying price
+if(document.getElementById("buyingPrice").value.trim()===""){
 
-        }
+    alert("Buying price is required.");
 
-        if(supplier===""){
+    return;
 
-            alert("Enter supplier.");
+}
 
-            return;
 
-        }
+// Check empty minimum selling price
+if(document.getElementById("minSellingPrice").value.trim()===""){
 
-        if(sellingPrice<buyingPrice){
+    alert("Minimum selling price is required.");
 
-            alert("Selling price cannot be lower than buying price.");
+    return;
 
-            return;
+}
 
-        }
+
+// Check empty maximum selling price
+if(document.getElementById("maxSellingPrice").value.trim()===""){
+
+    alert("Maximum selling price is required.");
+
+    return;
+
+}
+
+
+// ===================================
+// PRICE RULES
+// ===================================
+
+if(buyingPrice <= 0){
+
+    alert("Enter a valid buying price.");
+
+    return;
+
+}
+
+
+if(minSellingPrice <= 0){
+
+    alert("Enter a valid minimum selling price.");
+
+    return;
+
+}
+
+
+if(maxSellingPrice <= 0){
+
+    alert("Enter a valid maximum selling price.");
+
+    return;
+
+}
+
+
+if(minSellingPrice < buyingPrice){
+
+    alert("Minimum selling price cannot be lower than buying price.");
+
+    return;
+
+}
+
+
+if(maxSellingPrice < minSellingPrice){
+
+    alert("Maximum selling price cannot be lower than minimum selling price.");
+
+    return;
+
+}
 
 
 
@@ -690,7 +760,9 @@ async function saveProduct(e){
 
             buyingPrice,
 
-            sellingPrice,
+            minSellingPrice,
+
+            maxSellingPrice,
 
             quantity,
 
@@ -846,9 +918,15 @@ window.editProduct = function(id){
     product.buyingPrice || 0;
 
     document
-    .getElementById("sellingPrice")
-    .value =
-    product.sellingPrice || 0;
+.getElementById("minSellingPrice")
+.value =
+product.minSellingPrice || 0;
+
+
+document
+.getElementById("maxSellingPrice")
+.value =
+product.maxSellingPrice || 0;
 
     document
     .getElementById("quantity")
@@ -1058,92 +1136,113 @@ document
 // LIVE PRICE VALIDATION
 // =====================================================
 
-document
 
-.getElementById("sellingPrice")
-
-.addEventListener("input",()=>{
+// MINIMUM SELLING PRICE CHECK
+function validateMinSellingPrice(){
 
     const buying = Number(
-
-        document
-        .getElementById("buyingPrice")
-        .value
-
+        document.getElementById("buyingPrice").value
     ) || 0;
 
-    const selling = Number(
 
-        document
-        .getElementById("sellingPrice")
-        .value
-
+    const minSelling = Number(
+        document.getElementById("minSellingPrice").value
     ) || 0;
 
-    if(selling < buying){
 
-        document
-        .getElementById("sellingPrice")
-        .style.border =
-        "2px solid red";
+    const input =
+    document.getElementById("minSellingPrice");
+
+
+    if(minSelling < buying){
+
+        input.style.border = "2px solid red";
+        input.title =
+        "Minimum selling price cannot be lower than buying price";
 
     }
 
     else{
 
-        document
-        .getElementById("sellingPrice")
-        .style.border = "";
+        input.style.border = "";
+        input.title = "";
 
     }
 
-});
+}
 
 
-// =====================================================
-// BUYING PRICE VALIDATION
-// =====================================================
 
+// MAXIMUM SELLING PRICE CHECK
+function validateMaxSellingPrice(){
+
+    const minSelling = Number(
+        document.getElementById("minSellingPrice").value
+    ) || 0;
+
+
+    const maxSelling = Number(
+        document.getElementById("maxSellingPrice").value
+    ) || 0;
+
+
+    const input =
+    document.getElementById("maxSellingPrice");
+
+
+    if(maxSelling < minSelling){
+
+        input.style.border = "2px solid red";
+        input.title =
+        "Maximum selling price cannot be lower than minimum selling price";
+
+    }
+
+    else{
+
+        input.style.border = "";
+        input.title = "";
+
+    }
+
+}
+
+
+
+// BUYING PRICE CHANGED
 document
-
 .getElementById("buyingPrice")
-
 .addEventListener("input",()=>{
 
-    const buying = Number(
-
-        document
-        .getElementById("buyingPrice")
-        .value
-
-    ) || 0;
-
-    const selling = Number(
-
-        document
-        .getElementById("sellingPrice")
-        .value
-
-    ) || 0;
-
-    if(selling < buying){
-
-        document
-        .getElementById("sellingPrice")
-        .style.border =
-        "2px solid red";
-
-    }
-
-    else{
-
-        document
-        .getElementById("sellingPrice")
-        .style.border = "";
-
-    }
+    validateMinSellingPrice();
 
 });
+
+
+
+// MIN SELLING PRICE CHANGED
+document
+.getElementById("minSellingPrice")
+.addEventListener("input",()=>{
+
+    validateMinSellingPrice();
+    validateMaxSellingPrice();
+
+});
+
+
+
+// MAX SELLING PRICE CHANGED
+document
+.getElementById("maxSellingPrice")
+.addEventListener("input",()=>{
+
+    validateMaxSellingPrice();
+
+});
+
+
+
 
 
 // =====================================================
@@ -1188,15 +1287,13 @@ document
 // PREVENT NEGATIVE PRICES
 // =====================================================
 
-["buyingPrice","sellingPrice"].forEach(id=>{
+["buyingPrice","minSellingPrice","maxSellingPrice"].forEach(id=>{
 
     document
-
     .getElementById(id)
-
     .addEventListener("input",(e)=>{
 
-        if(Number(e.target.value)<0){
+        if(Number(e.target.value) < 0){
 
             e.target.value = 0;
 

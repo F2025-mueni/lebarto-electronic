@@ -18,7 +18,9 @@ import {
     getDocs,
     query,
     orderBy,
-    limit
+    limit,
+    deleteDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
@@ -203,35 +205,88 @@ async function loadRecentSales(){
 
     const snapshot = await getDocs(q);
 
-    snapshot.forEach(doc=>{
+    snapshot.forEach((saleDoc) => {
 
-        const sale = doc.data();
+    const sale = saleDoc.data();
 
-        salesBody.innerHTML += `
+    salesBody.innerHTML += `
+    <tr>
+        <td>${sale.receiptNo}</td>
+        <td>${sale.date ? sale.date.toDate().toLocaleString() : "N/A"}</td>
+        <td>${sale.cashier}</td>
+        <td>KSh ${Number(sale.total).toLocaleString()}</td>
+        <td>
 
-        <tr>
+    <button class="action-btn edit-btn" onclick="editSale('${saleDoc.id}')">
+        <i class="fa-solid fa-pen"></i> Edit
+    </button>
 
-            <td>${sale.receiptNo}</td>
+    <button class="action-btn delete-btn" onclick="deleteSale('${saleDoc.id}')">
+        <i class="fa-solid fa-trash"></i> Delete
+    </button>
 
-           <td>
-${
-sale.date
-?
-sale.date.toDate().toLocaleString()
-:
-"N/A"
-}
 </td>
+    </tr>
+    `;
+});
 
-            <td>${sale.cashier}</td>
+}
+window.deleteSale = async function(id){
 
-            <td>KSh ${Number(sale.total).toLocaleString()}</td>
+    if(!confirm("Delete this sale?")) return;
 
-        </tr>
+    try{
 
-        `;
+        await deleteDoc(doc(db,"sales",id));
 
-    });
+        alert("Sale deleted.");
+
+        loadRecentSales();
+        loadTodaySales();
+
+    }catch(error){
+
+        console.error(error);
+        alert("Failed to delete sale.");
+
+    }
+
+}
+window.editSale = async function(id){
+
+    const newTotal = prompt("Enter new sale total:");
+
+    if(newTotal === null) return;
+
+    const total = Number(newTotal);
+
+    if(isNaN(total) || total < 0){
+
+        alert("Please enter a valid amount.");
+        return;
+
+    }
+
+    try{
+
+        await updateDoc(doc(db,"sales",id),{
+
+            total: total
+
+        });
+
+        alert("Sale updated successfully.");
+
+        loadRecentSales();
+        loadTodaySales();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("Failed to update sale.");
+
+    }
 
 }
 

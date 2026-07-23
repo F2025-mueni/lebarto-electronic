@@ -243,5 +243,53 @@ tbody tr:hover{
         white-space:nowrap;
     }
 
+}\
+/* ================= Action Buttons ================= */
+
+.action-btn{
+    padding:8px 16px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:all .3s ease;
+}
+
+
+/* Edit Button */
+
+.edit-btn{
+    background:#0D6EFD;
+    box-shadow:0 3px 8px rgba(13,110,253,.3);
+}
+
+.edit-btn:hover{
+    background:#084298;
+    transform:translateY(-2px);
+}
+
+
+/* Delete Button */
+
+.delete-btn{
+    background:#dc3545;
+    box-shadow:0 3px 8px rgba(220,53,69,.3);
+}
+
+.delete-btn:hover{
+    background:#a71d2a;
+    transform:translateY(-2px);
+}
+
+
+/* Actions column alignment */
+
+td:last-child{
+    white-space:nowrap;
 }
 ```

@@ -1,18 +1,32 @@
-// ===========================================
-// LEBARTO ELECTRONICS SALES SYSTEM
-// firebase-config.js
-// ===========================================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
-// ===========================================
+// =====================================================
+// LEBARTO ELECTRONICS
 // FIREBASE CONFIGURATION
-// ===========================================
+// =====================================================
+
+
+// Firebase App
+import { initializeApp } from 
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+
+// Firebase Authentication
+import { getAuth } from 
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+// Firebase Firestore
+import { getFirestore } from 
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+// Firebase Storage
+import { getStorage } from 
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+
+// =====================================================
+// FIREBASE CONFIGURATION
+// =====================================================
 
 const firebaseConfig = {
 
@@ -33,23 +47,36 @@ const firebaseConfig = {
 };
 
 
-// ===========================================
+// =====================================================
 // INITIALIZE FIREBASE
-// ===========================================
+// =====================================================
 
 const app = initializeApp(firebaseConfig);
 
 
-// Authentication
+// =====================================================
+// FIREBASE SERVICES
+// =====================================================
 
+
+// Authentication
 const auth = getAuth(app);
 
 
-// Firestore
-
+// Firestore Database
 const db = getFirestore(app);
 
 
-// Export
+// Storage (Product Images)
+const storage = getStorage(app);
 
-export { auth, db };
+
+// =====================================================
+// EXPORT SERVICES
+// =====================================================
+
+export {
+    auth,
+    db,
+    storage
+};

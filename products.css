@@ -534,6 +534,67 @@ input[type=file]{
     padding:12px;
 
 }
+/* ==========================
+   CAMERA & GALLERY BUTTONS
+========================== */
+
+.upload-buttons{
+    display:flex;
+    gap:15px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+
+.camera-btn,
+.gallery-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px 22px;
+    border-radius:10px;
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+    user-select:none;
+}
+
+.camera-btn{
+    background:#1565c0;
+}
+
+.camera-btn:hover{
+    background:#0d47a1;
+    transform:translateY(-2px);
+}
+
+.gallery-btn{
+    background:#2e7d32;
+}
+
+.gallery-btn:hover{
+    background:#1b5e20;
+    transform:translateY(-2px);
+}
+
+#fileName{
+    margin-top:12px;
+    color:#666;
+    font-size:14px;
+}
+
+#imagePreview{
+    width:160px;
+    height:160px;
+    object-fit:cover;
+    border:2px solid #ddd;
+    border-radius:10px;
+    margin-top:15px;
+    display:none;
+}
 
 /* ==========================
    BUTTONS

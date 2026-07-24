@@ -5,7 +5,7 @@
 // Authentication • Load Products • Statistics • Search
 // =====================================================
 
-import { auth, db } from "./firebase-config.js";
+import { auth, db, storage } from "./firebase-config.js";
 
 import {
     onAuthStateChanged,
@@ -27,6 +27,11 @@ import {
     where
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
 // =====================================================
 // GLOBAL VARIABLES
@@ -491,38 +496,116 @@ window.deleteProduct=function(id){};
 
 
 // =====================================================
-// IMAGE PREVIEW
+// CAMERA + GALLERY
 // =====================================================
 
 let selectedImage = "";
+let stream = null;
 
-document
-
-.getElementById("productImage")
-
-.addEventListener("change",(e)=>{
+// Gallery
+document.getElementById("galleryInput").addEventListener("change",(e)=>{
 
     const file = e.target.files[0];
 
-    if(!file){
+    if(!file) return;
 
-        selectedImage = "";
+ selectedImage = file;
 
-        return;
+document.getElementById("imagePreview").src =
+URL.createObjectURL(file);
+
+document.getElementById("imagePreview").style.display = "block";
+
+document.getElementById("fileName").textContent =
+file.name;
+
+});
+// Open Gallery
+document.getElementById("galleryBtn").addEventListener("click", () => {
+    document.getElementById("galleryInput").click();
+});
+
+
+// Camera
+document.getElementById("cameraBtn").addEventListener("click",async()=>{
+
+    try{
+
+        stream = await navigator.mediaDevices.getUserMedia({
+
+            video:{
+                facingMode:"environment"
+            }
+
+        });
+
+        document.getElementById("camera").srcObject=stream;
+
+        document.getElementById("cameraContainer").style.display="block";
 
     }
 
-    const reader = new FileReader();
+    catch(error){
 
-    reader.onload = function(event){
+        alert("Unable to access camera.");
 
-        selectedImage = event.target.result;
+        console.error(error);
 
-    };
-
-    reader.readAsDataURL(file);
+    }
 
 });
+
+
+// Capture
+document.getElementById("capturePhoto").addEventListener("click",()=>{
+
+    const video=document.getElementById("camera");
+
+    const canvas=document.getElementById("canvas");
+
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+
+    const ctx=canvas.getContext("2d");
+
+    ctx.drawImage(video,0,0);
+
+canvas.toBlob(async(blob)=>{
+
+    selectedImage = blob;
+
+    document.getElementById("imagePreview").src =
+    URL.createObjectURL(blob);
+
+    document.getElementById("imagePreview").style.display = "block";
+
+    document.getElementById("fileName").textContent =
+    "Captured Image";
+
+    stopCamera();
+
+},"image/png");
+
+});
+
+
+// Close Camera
+document.getElementById("closeCamera").addEventListener("click",stopCamera);
+
+
+function stopCamera(){
+
+    if(stream){
+
+        stream.getTracks().forEach(track=>track.stop());
+
+        stream=null;
+
+    }
+
+    document.getElementById("cameraContainer").style.display="none";
+
+}
 
 
 // =====================================================
@@ -743,116 +826,117 @@ if (barcode !== "") {
 
 }
 
-        // ===================================
-        // PRODUCT OBJECT
-        // ===================================
+ // ===================================
+// UPLOAD IMAGE TO FIREBASE STORAGE
+// ===================================
 
-        const productData = {
+let imageURL = "";
 
-            name,
+// Upload only when a NEW image (File or Blob) is selected
+if (selectedImage instanceof File || selectedImage instanceof Blob) {
 
-          barcode: barcode === "" ? null : barcode,
+    const imageName =
+        Date.now() + "_" + Math.random().toString(36).substring(2);
 
-            category,
+    const storageRef = ref(
+        storage,
+        "products/" + imageName
+    );
 
-            supplier,
+    await uploadBytes(
+        storageRef,
+        selectedImage
+    );
 
-            buyingPrice,
+    imageURL = await getDownloadURL(storageRef);
 
-            minSellingPrice,
+}
 
-            maxSellingPrice,
+// ===================================
+// PRODUCT OBJECT
+// ===================================
 
-            quantity,
+const productData = {
 
-            minimumStock,
+    name,
 
-            image:selectedImage,
+    barcode: barcode === "" ? null : barcode,
 
-            updatedAt:serverTimestamp()
+    category,
 
-        };
+    supplier,
 
+    buyingPrice,
 
+    minSellingPrice,
 
-        // ===================================
-        // UPDATE PRODUCT
-        // ===================================
+    maxSellingPrice,
 
-        if(editingProductId){
+    quantity,
 
-            if(selectedImage===""){
+    minimumStock,
 
-                const oldProduct =
-                products.find(
-                    p=>p.id===editingProductId
-                );
+    image: imageURL || "",
 
-                if(oldProduct){
+    updatedAt: serverTimestamp()
 
-                    productData.image =
-                    oldProduct.image || "";
-
-                }
-
-            }
-
-            await updateDoc(
-
-                doc(
-                    db,
-                    "products",
-                    editingProductId
-                ),
-
-                productData
-
-            );
-
-            alert("Product updated successfully.");
-
-        }
+};
 
 
+// ===================================
+// SAVE / UPDATE PRODUCT
+// ===================================
 
-        // ===================================
-        // ADD PRODUCT
-        // ===================================
+if (editingProductId) {
 
-        else{
+    // Keep the existing image if a new one wasn't selected
+    if (!imageURL) {
+        const oldProduct = products.find(
+            p => p.id === editingProductId
+        );
 
-            productData.createdAt =
-            serverTimestamp();
+        productData.image = oldProduct?.image || "";
+    }
 
-            await addDoc(
+    await updateDoc(
+        doc(db, "products", editingProductId),
+        productData
+    );
 
-                collection(db,"products"),
+    alert("Product updated successfully.");
 
-                productData
+} else {
 
-            );
+    productData.createdAt = serverTimestamp();
 
-            alert("Product added successfully.");
+    await addDoc(
+        collection(db, "products"),
+        productData
+    );
 
-        }
+    alert("Product added successfully.");
+}
 
+
+    
 
 
         // ===================================
         // RESET FORM
         // ===================================
+editingProductId = null;
+selectedImage = "";
 
-        editingProductId = null;
+document.getElementById("productForm").reset();
 
-        selectedImage = "";
+document.getElementById("imagePreview").src = "";
+document.getElementById("imagePreview").style.display = "none";
 
-        document
-        .getElementById("productForm")
-        .reset();
+document.getElementById("fileName").textContent = "No image selected";
 
-        document
-        .getElementById("productModal")
-        .style.display="none";
+stopCamera();
+
+document.getElementById("productModal").style.display = "none";
 
     }
 
@@ -937,12 +1021,31 @@ product.maxSellingPrice || 0;
     .value =
     product.minimumStock || 5;
 
-    selectedImage =
-    product.image || "";
+selectedImage = product.image || "";
 
-    document
-    .getElementById("productModal")
-    .style.display = "flex";
+if (product.image) {
+
+    document.getElementById("imagePreview").src =
+        product.image;
+
+    document.getElementById("imagePreview").style.display =
+        "block";
+
+    document.getElementById("fileName").textContent =
+        "Current Image";
+
+} else {
+
+    document.getElementById("imagePreview").src = "";
+
+    document.getElementById("imagePreview").style.display =
+        "none";
+
+    document.getElementById("fileName").textContent =
+        "No image selected";
+
+}
+document.getElementById("productModal").style.display = "flex";
 
 };
 
@@ -1019,12 +1122,16 @@ window.deleteProduct = async function(id){
 function resetForm(){
 
     editingProductId = null;
-
     selectedImage = "";
 
-    document
-    .getElementById("productForm")
-    .reset();
+    document.getElementById("productForm").reset();
+
+    document.getElementById("imagePreview").src = "";
+    document.getElementById("imagePreview").style.display = "none";
+
+    document.getElementById("fileName").textContent = "No image selected";
+
+    stopCamera();
 
 }
 

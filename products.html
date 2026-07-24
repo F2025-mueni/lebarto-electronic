@@ -553,20 +553,100 @@ Loading products...
 
                 </div>
 
-                <div class="full-width">
+      <div class="full-width">
 
-                    <label>
+    <label>Product Image</label>
 
-                        Product Image
+    <div class="upload-buttons">
 
-                    </label>
+        <!-- Camera Button -->
+        <button
+            type="button"
+            id="cameraBtn"
+            class="camera-btn">
 
-                    <input
-                        type="file"
-                        id="productImage"
-                        accept="image/*">
+            <i class="fa-solid fa-camera"></i>
+            Camera
 
-                </div>
+        </button>
+
+        <!-- Gallery Button -->
+        <button
+            type="button"
+            id="galleryBtn"
+            class="gallery-btn">
+
+            <i class="fa-solid fa-image"></i>
+            Gallery
+
+        </button>
+
+        <!-- Hidden Gallery Input -->
+        <input
+            type="file"
+            id="galleryInput"
+            accept="image/*"
+            hidden>
+
+    </div>
+
+    <!-- Camera Preview -->
+    <div id="cameraContainer" style="display:none;margin-top:15px;">
+
+        <video
+            id="camera"
+            autoplay
+            playsinline
+            width="320"
+            height="240"
+            style="width:100%;max-width:320px;border-radius:10px;border:1px solid #ddd;">
+        </video>
+
+        <canvas
+            id="canvas"
+            style="display:none;">
+        </canvas>
+
+        <div style="margin-top:10px;">
+
+            <button
+                type="button"
+                id="capturePhoto"
+                class="camera-btn">
+
+                <i class="fa-solid fa-camera"></i>
+                Capture Photo
+
+            </button>
+
+            <button
+                type="button"
+                id="closeCamera"
+                class="gallery-btn">
+
+                <i class="fa-solid fa-xmark"></i>
+                Close Camera
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <p id="fileName">No image selected</p>
+
+    <img
+        id="imagePreview"
+        src=""
+        alt="Preview"
+        style="display:none;
+               width:160px;
+               height:160px;
+               object-fit:cover;
+               border-radius:10px;
+               margin-top:15px;">
+
+</div>
 
             </div>
 

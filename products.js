@@ -1408,6 +1408,211 @@ document
     });
 
 });
+// =====================================================
+// LOW STOCK REPORT
+// =====================================================
+
+let reportWindow = null;
+
+// Generate Report
+function generateLowStockReport() {
+
+    const lowStockProducts = products.filter(product => {
+
+        const quantity = Number(product.quantity || 0);
+        const minimum = Number(product.minimumStock || 5);
+
+        return quantity <= minimum;
+
+    });
+
+    if (lowStockProducts.length === 0) {
+
+        alert("No low stock products found.");
+
+        return;
+
+    }
+
+    let html = `
+    <!DOCTYPE html>
+
+    <html>
+
+    <head>
+
+        <title>Low Stock Report</title>
+
+        <style>
+
+            body{
+                font-family:Arial,sans-serif;
+                padding:30px;
+                color:#333;
+            }
+
+            h1,h2{
+                text-align:center;
+                margin:5px;
+            }
+
+            p{
+                margin:8px 0;
+            }
+
+            table{
+                width:100%;
+                border-collapse:collapse;
+                margin-top:20px;
+            }
+
+            th,td{
+                border:1px solid #999;
+                padding:10px;
+                text-align:left;
+                font-size:14px;
+            }
+
+            th{
+                background:#1565c0;
+                color:#fff;
+            }
+
+            tr:nth-child(even){
+                background:#f8f8f8;
+            }
+
+            .low{
+                color:red;
+                font-weight:bold;
+            }
+
+            .footer{
+                margin-top:20px;
+                font-weight:bold;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>LEBARTO ELECTRONICS</h1>
+
+        <h2>LOW STOCK REPORT</h2>
+
+        <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+
+        <table>
+
+            <tr>
+
+                <th>No.</th>
+                <th>Barcode</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Supplier</th>
+                <th>Buying Price</th>
+                <th>Quantity</th>
+                <th>Minimum</th>
+                <th>Status</th>
+
+            </tr>
+    `;
+
+    lowStockProducts.forEach((product,index)=>{
+
+        html += `
+
+        <tr>
+
+            <td>${index + 1}</td>
+
+            <td>${product.barcode || "-"}</td>
+
+            <td>${product.name}</td>
+
+            <td>${product.category || "-"}</td>
+
+            <td>${product.supplier || "-"}</td>
+
+            <td>KSh ${Number(product.buyingPrice || 0).toLocaleString()}</td>
+
+            <td>${product.quantity}</td>
+
+            <td>${product.minimumStock}</td>
+
+            <td class="low">LOW STOCK</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    html += `
+
+        </table>
+
+        <div class="footer">
+
+            Total Low Stock Products :
+            ${lowStockProducts.length}
+
+        </div>
+
+    </body>
+
+    </html>
+
+    `;
+
+    reportWindow = window.open("", "_blank");
+
+    reportWindow.document.open();
+
+    reportWindow.document.write(html);
+
+    reportWindow.document.close();
+
+    document.getElementById("printLowStockBtn").disabled = false;
+
+}
+
+
+// =====================================================
+// PRINT REPORT
+// =====================================================
+
+function printLowStockReport(){
+
+    if(!reportWindow || reportWindow.closed){
+
+        alert("Generate the report first.");
+
+        return;
+
+    }
+
+    reportWindow.focus();
+
+    reportWindow.print();
+
+}
+
+
+// =====================================================
+// BUTTON EVENTS
+// =====================================================
+
+document
+.getElementById("generateLowStockBtn")
+.addEventListener("click",generateLowStockReport);
+
+document
+.getElementById("printLowStockBtn")
+.addEventListener("click",printLowStockReport);
 
 
 // =====================================================

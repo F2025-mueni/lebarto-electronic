@@ -313,7 +313,7 @@
 </div>
 
 <!-- ========================= -->
-<!-- SEARCH BAR -->
+<!-- SEARCH BAR + REPORT BUTTONS -->
 <!-- ========================= -->
 
 <div class="toolbar">
@@ -323,17 +323,33 @@
         <i class="fa-solid fa-magnifying-glass"></i>
 
         <input
-
             type="text"
-
             id="searchProduct"
-
             placeholder="Search by product, barcode, supplier or category...">
 
     </div>
 
-</div>
+    <div class="toolbar-buttons">
 
+        <button id="generateLowStockBtn" class="report-btn">
+
+            <i class="fa-solid fa-file-lines"></i>
+
+            Generate Report
+
+        </button>
+
+        <button id="printLowStockBtn" class="print-btn" disabled>
+
+            <i class="fa-solid fa-print"></i>
+
+            Print
+
+        </button>
+
+    </div>
+
+</div>
 <!-- ========================= -->
 <!-- PRODUCTS TABLE -->
 <!-- ========================= -->

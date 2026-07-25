@@ -203,7 +203,77 @@ a{
     background:#0d47a1;
     transform:translateY(-2px);
 }
+/******************************
+    REPORT BUTTONS
+******************************/
 
+.report-btn,
+.print-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+
+    border:none;
+    border-radius:10px;
+
+    padding:13px 22px;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    color:#fff;
+
+    transition:.3s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+.report-btn{
+
+    background:#1565c0;
+
+}
+
+.report-btn:hover{
+
+    background:#0d47a1;
+    transform:translateY(-2px);
+
+}
+
+.print-btn{
+
+    background:#2e7d32;
+
+}
+
+.print-btn:hover{
+
+    background:#1b5e20;
+    transform:translateY(-2px);
+
+}
+
+.print-btn:disabled{
+
+    background:#bdbdbd;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+
+}
+
+.report-btn i,
+.print-btn i{
+
+    font-size:16px;
+
+}
 /* ==========================
    STATISTICS GRID
 ========================== */
@@ -281,8 +351,23 @@ a{
    TOOLBAR
 ========================== */
 
+/******************************
+    TOOLBAR
+******************************/
+
 .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
     margin-bottom:30px;
+    flex-wrap:wrap;
+}
+
+.toolbar-buttons{
+    display:flex;
+    gap:12px;
+    align-items:center;
 }
 
 /* ==========================
@@ -829,13 +914,28 @@ select{
         grid-template-columns:1fr;
     }
 
+    /* Toolbar */
     .toolbar{
+        display:flex;
         flex-direction:column;
+        align-items:stretch;
         gap:15px;
     }
 
     .search-box{
         width:100%;
+    }
+
+    .toolbar-buttons{
+        display:flex;
+        width:100%;
+        gap:10px;
+    }
+
+    .report-btn,
+    .print-btn{
+        flex:1;
+        justify-content:center;
     }
 
     #addProductBtn{

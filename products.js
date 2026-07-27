@@ -161,24 +161,53 @@ function loadProducts(){
     });
 
 }
+// =====================================================
+// FIND DUPLICATE PRODUCTS
+// =====================================================
+
+function getDuplicateProducts() {
+
+    const duplicates = new Set();
+    const seen = new Map();
+
+    products.forEach(product => {
+
+        const key = (
+            (product.name || "").trim().toLowerCase() +
+            "|" +
+            (product.category || "").trim().toLowerCase()
+        );
+
+        if (seen.has(key)) {
+            duplicates.add(product.id);
+            duplicates.add(seen.get(key));
+        } else {
+            seen.set(key, product.id);
+        }
+
+    });
+
+    return duplicates;
+
+}
 
 
 // =====================================================
 // DISPLAY PRODUCTS
 // =====================================================
-
 function displayProducts(productArray){
 
-    const tbody =
-    document.getElementById("productTable");
+    const duplicateProducts = getDuplicateProducts();
 
-    tbody.innerHTML="";
+    const tbody = document.getElementById("productTable");
+
+    tbody.innerHTML = "";
 
     if(productArray.length===0){
 
         tbody.innerHTML=`
 
-        <tr>
+   <tr>
 
             <td colspan="10"
             style="text-align:center;padding:30px;">
@@ -229,12 +258,11 @@ function displayProducts(productArray){
             statusClass="in-stock";
 
         }
+tbody.innerHTML += `
 
-        tbody.innerHTML += `
+<tr class="${duplicateProducts.has(product.id) ? 'duplicate-product' : ''}">
 
-        <tr>
-
-            <td>
+    <td>
 
                 <img
                 src="${
@@ -253,11 +281,15 @@ function displayProducts(productArray){
 
             </td>
 
-            <td>
+         <td>
+    ${product.name || "-"}
 
-                ${product.name || "-"}
-
-            </td>
+    ${
+        duplicateProducts.has(product.id)
+        ? '<br><span class="duplicate-label">Duplicate</span>'
+        : ""
+    }
+</td>
 
             <td>
 
@@ -823,6 +855,40 @@ if (barcode !== "") {
         return;
 
     }
+
+}
+// ===================================
+// CHECK DUPLICATE PRODUCT
+// (Same Name + Same Category)
+// ===================================
+
+const normalizedName = name.trim().toLowerCase();
+const normalizedCategory = category.trim().toLowerCase();
+
+const duplicateExists = products.some(product => {
+
+    if (product.id === editingProductId) {
+        return false; // Ignore the product being edited
+    }
+
+    const existingName =
+        (product.name || "").trim().toLowerCase();
+
+    const existingCategory =
+        (product.category || "").trim().toLowerCase();
+
+    return (
+        existingName === normalizedName &&
+        existingCategory === normalizedCategory
+    );
+
+});
+
+if (duplicateExists) {
+
+    alert("This product already exists.");
+
+    return;
 
 }
 

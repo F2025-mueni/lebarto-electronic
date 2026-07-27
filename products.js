@@ -1513,8 +1513,9 @@ function generateLowStockReport() {
                 <th>Product</th>
                 <th>Category</th>
                 <th>Supplier</th>
-                <th>Buying Price</th>
-                <th>Quantity</th>
+               <th>Buying Price</th>
+               <th>Selling Price</th>
+               <th>Quantity</th>
                 <th>Minimum</th>
                 <th>Status</th>
 
@@ -1537,9 +1538,15 @@ function generateLowStockReport() {
 
             <td>${product.supplier || "-"}</td>
 
-            <td>KSh ${Number(product.buyingPrice || 0).toLocaleString()}</td>
+           <td>KSh ${Number(product.buyingPrice || 0).toLocaleString()}</td>
 
-            <td>${product.quantity}</td>
+<td>
+KSh ${Number(product.minSellingPrice || 0).toLocaleString()}
+-
+KSh ${Number(product.maxSellingPrice || 0).toLocaleString()}
+</td>
+
+<td>${product.quantity}</td>
 
             <td>${product.minimumStock}</td>
 
@@ -1576,7 +1583,8 @@ function generateLowStockReport() {
 
     reportWindow.document.close();
 
-    document.getElementById("printLowStockBtn").disabled = false;
+   document.getElementById("printLowStockBtn").disabled = false;
+document.getElementById("downloadLowStockBtn").disabled = false;
 
 }
 
@@ -1613,6 +1621,334 @@ document
 document
 .getElementById("printLowStockBtn")
 .addEventListener("click",printLowStockReport);
+document
+    .getElementById("downloadLowStockBtn")
+    .addEventListener("click", downloadLowStockPDF);
+async function downloadLowStockPDF() {
+
+    const lowStockProducts = products.filter(product => {
+
+        const qty = Number(product.quantity || 0);
+        const minimum = Number(product.minimumStock || 5);
+
+        return qty <= minimum;
+
+    });
+
+    if (lowStockProducts.length === 0) {
+
+        alert("No low stock products found.");
+
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("LEBARTO ELECTRONICS", 14, 15);
+
+    doc.setFontSize(14);
+    doc.text("LOW STOCK REPORT", 14, 25);
+
+    doc.setFontSize(10);
+    doc.text(
+        "Date: " + new Date().toLocaleString(),
+        14,
+        33
+    );
+
+    const rows = lowStockProducts.map((product, index) => [
+
+        index + 1,
+
+        product.barcode || "-",
+
+        product.name,
+
+        product.category || "-",
+
+        product.supplier || "-",
+
+        "KSh " + Number(product.buyingPrice || 0).toLocaleString(),
+
+        "KSh " +
+        Number(product.minSellingPrice || 0).toLocaleString() +
+        " - " +
+        Number(product.maxSellingPrice || 0).toLocaleString(),
+
+        product.quantity,
+
+        product.minimumStock,
+
+        "LOW STOCK"
+
+    ]);
+
+    doc.autoTable({
+
+        startY: 40,
+
+        head: [[
+            "No",
+            "Barcode",
+            "Product",
+            "Category",
+            "Supplier",
+            "Buying Price",
+            "Selling Price",
+            "Qty",
+            "Minimum",
+            "Status"
+        ]],
+
+        body: rows
+
+    });
+
+    doc.save("Low_Stock_Report.pdf");
+}
+// =====================================================
+// PRODUCT PRICE REPORT
+// =====================================================
+
+let priceReportWindow = null;
+function generatePriceReport() {
+
+    if (products.length === 0) {
+        alert("No products found.");
+        return;
+    }
+
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Product Price Report</title>
+
+        <style>
+
+            body{
+                font-family:Arial,sans-serif;
+                padding:30px;
+                color:#333;
+            }
+
+            h1,h2{
+                text-align:center;
+                margin:5px;
+            }
+
+            table{
+                width:100%;
+                border-collapse:collapse;
+                margin-top:20px;
+            }
+
+            th,td{
+                border:1px solid #999;
+                padding:10px;
+                text-align:left;
+            }
+
+            th{
+                background:#1565c0;
+                color:#fff;
+            }
+
+            tr:nth-child(even){
+                background:#f8f8f8;
+            }
+
+            .footer{
+                margin-top:20px;
+                font-weight:bold;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+    <h1>LEBARTO ELECTRONICS</h1>
+    <h2>PRODUCT PRICE REPORT</h2>
+
+    <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+
+    <table>
+
+        <tr>
+
+            <th>No</th>
+            <th>Barcode</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Supplier</th>
+            <th>Buying Price</th>
+            <th>Minimum Selling Price</th>
+            <th>Maximum Selling Price</th>
+            <th>Stock</th>
+
+        </tr>
+    `;
+
+    products.forEach((product,index)=>{
+
+        html += `
+
+        <tr>
+
+            <td>${index+1}</td>
+
+            <td>${product.barcode || "-"}</td>
+
+            <td>${product.name}</td>
+
+            <td>${product.category || "-"}</td>
+
+            <td>${product.supplier || "-"}</td>
+
+            <td>KSh ${Number(product.buyingPrice || 0).toLocaleString()}</td>
+
+            <td>KSh ${Number(product.minSellingPrice || 0).toLocaleString()}</td>
+
+            <td>KSh ${Number(product.maxSellingPrice || 0).toLocaleString()}</td>
+
+            <td>${product.quantity}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    html += `
+
+        </table>
+
+        <div class="footer">
+
+            Total Products : ${products.length}
+
+        </div>
+
+    </body>
+
+    </html>
+
+    `;
+
+    priceReportWindow = window.open("", "_blank");
+
+    priceReportWindow.document.open();
+    priceReportWindow.document.write(html);
+    priceReportWindow.document.close();
+
+    document.getElementById("printPriceReportBtn").disabled = false;
+    document.getElementById("downloadPriceReportBtn").disabled = false;
+
+}
+function printPriceReport(){
+
+    if(!priceReportWindow || priceReportWindow.closed){
+
+        alert("Generate the report first.");
+
+        return;
+
+    }
+
+    priceReportWindow.focus();
+    priceReportWindow.print();
+
+}
+async function downloadPriceReportPDF(){
+
+    if(products.length===0){
+
+        alert("No products found.");
+
+        return;
+
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF("landscape");
+
+    doc.setFontSize(18);
+    doc.text("LEBARTO ELECTRONICS",14,15);
+
+    doc.setFontSize(14);
+    doc.text("PRODUCT PRICE REPORT",14,25);
+
+    doc.setFontSize(10);
+    doc.text("Date: " + new Date().toLocaleString(),14,33);
+
+    const rows = products.map((product,index)=>[
+
+        index+1,
+
+        product.barcode || "-",
+
+        product.name,
+
+        product.category || "-",
+
+        product.supplier || "-",
+
+        "KSh " + Number(product.buyingPrice || 0).toLocaleString(),
+
+        "KSh " + Number(product.minSellingPrice || 0).toLocaleString(),
+
+        "KSh " + Number(product.maxSellingPrice || 0).toLocaleString(),
+
+        product.quantity
+
+    ]);
+
+    doc.autoTable({
+
+        startY:40,
+
+        head:[[
+            "No",
+            "Barcode",
+            "Product",
+            "Category",
+            "Supplier",
+            "Buying Price",
+            "Min Selling",
+            "Max Selling",
+            "Stock"
+        ]],
+
+        body:rows,
+
+        theme:"grid",
+
+        headStyles:{
+            fillColor:[21,101,192]
+        }
+
+    });
+
+    doc.save("Product_Price_Report.pdf");
+
+}
+document
+.getElementById("generatePriceReportBtn")
+.addEventListener("click",generatePriceReport);
+
+document
+.getElementById("printPriceReportBtn")
+.addEventListener("click",printPriceReport);
+
+document
+.getElementById("downloadPriceReportBtn")
+.addEventListener("click",downloadPriceReportPDF);
 
 
 // =====================================================

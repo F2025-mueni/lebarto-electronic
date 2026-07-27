@@ -274,6 +274,58 @@ a{
     font-size:16px;
 
 }
+/******************************
+    DOWNLOAD BUTTON
+******************************/
+
+.download-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+
+    border:none;
+    border-radius:10px;
+
+    padding:13px 22px;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    color:#fff;
+
+    background:#7b1fa2;
+
+    transition:.3s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+.download-btn:hover{
+
+    background:#6a1b9a;
+    transform:translateY(-2px);
+
+}
+
+.download-btn:disabled{
+
+    background:#bdbdbd;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+
+}
+
+.download-btn i{
+
+    font-size:16px;
+
+}
 /* ==========================
    STATISTICS GRID
 ========================== */
@@ -932,11 +984,12 @@ select{
         gap:10px;
     }
 
-    .report-btn,
-    .print-btn{
-        flex:1;
-        justify-content:center;
-    }
+.report-btn,
+.download-btn,
+.print-btn{
+    flex:1;
+    justify-content:center;
+}
 
     #addProductBtn{
         width:100%;

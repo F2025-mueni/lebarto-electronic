@@ -13,12 +13,12 @@ import {
 
 import {
     collection,
-    doc,
-    getDoc,
     getDocs,
     query,
+    where,
     orderBy,
     limit,
+    doc,
     deleteDoc,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -28,41 +28,82 @@ import {
 // Check Authentication
 // ----------------------------
 
-onAuthStateChanged(auth, async(user)=>{
+onAuthStateChanged(auth, async (user) => {
 
-    if(!user){
+    if (!user) {
 
-        window.location.href="login.html";
-        return;
-
-    }
-
-    const userRef = doc(db,"users",user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if(!userSnap.exists()){
-
-        alert("User record not found.");
-        await signOut(auth);
-        return;
-
-    }
-
-    const userData = userSnap.data();
-
-    if(userData.role !== "admin"){
-
-        alert("Access denied.");
-
-        window.location.href="cashier.html";
+        window.location.href = "login.html";
 
         return;
 
     }
 
-    document.getElementById("adminName").textContent = userData.name;
+    try {
 
-    loadDashboard();
+        // Find the user's Firestore profile
+        // using the Firebase Authentication UID.
+
+        const userQuery = query(
+            collection(db, "users"),
+            where("uid", "==", user.uid)
+        );
+
+        const userSnapshot = await getDocs(userQuery);
+
+
+        if (userSnapshot.empty) {
+
+            alert("User record not found.");
+
+            await signOut(auth);
+
+            return;
+
+        }
+
+
+        const userData =
+            userSnapshot.docs[0].data();
+
+
+        // Check admin permission
+
+        if (userData.role !== "admin") {
+
+            alert("Access denied.");
+
+            window.location.href = "cashier.html";
+
+            return;
+
+        }
+
+
+        // Display admin name
+
+        document
+            .getElementById("adminName")
+            .textContent = userData.name || "Admin";
+
+
+        // Load dashboard
+
+        loadDashboard();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Authentication check error:",
+            error
+        );
+
+        alert(
+            "Unable to load your account information."
+        );
+
+    }
 
 });
 
@@ -71,7 +112,7 @@ onAuthStateChanged(auth, async(user)=>{
 // Dashboard
 // ----------------------------
 
-async function loadDashboard(){
+async function loadDashboard() {
 
     loadProducts();
 
@@ -90,11 +131,30 @@ async function loadDashboard(){
 // Total Products
 // ----------------------------
 
-async function loadProducts(){
+async function loadProducts() {
 
-    const snapshot = await getDocs(collection(db,"products"));
+    try {
 
-    document.getElementById("totalProducts").innerHTML = snapshot.size;
+        const snapshot =
+            await getDocs(
+                collection(db, "products")
+            );
+
+
+        document
+            .getElementById("totalProducts")
+            .innerHTML = snapshot.size;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Products error:",
+            error
+        );
+
+    }
 
 }
 
@@ -103,23 +163,46 @@ async function loadProducts(){
 // Cashiers
 // ----------------------------
 
-async function loadCashiers(){
+async function loadCashiers() {
 
-    const snapshot = await getDocs(collection(db,"users"));
+    try {
 
-    let count = 0;
+        const snapshot =
+            await getDocs(
+                collection(db, "users")
+            );
 
-    snapshot.forEach(doc=>{
 
-        if(doc.data().role==="cashier"){
+        let count = 0;
 
-            count++;
 
-        }
+        snapshot.forEach((userDoc) => {
 
-    });
+            if (
+                userDoc.data().role === "cashier"
+            ) {
 
-    document.getElementById("totalCashiers").innerHTML = count;
+                count++;
+
+            }
+
+        });
+
+
+        document
+            .getElementById("totalCashiers")
+            .innerHTML = count;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Cashiers error:",
+            error
+        );
+
+    }
 
 }
 
@@ -128,25 +211,52 @@ async function loadCashiers(){
 // Low Stock
 // ----------------------------
 
-async function loadLowStock(){
+async function loadLowStock() {
 
-    const snapshot = await getDocs(collection(db,"products"));
+    try {
 
-    let low = 0;
+        const snapshot = await getDocs(
+            collection(db, "products")
+        );
 
-    snapshot.forEach(doc=>{
+        let low = 0;
 
-        const product = doc.data();
+        snapshot.forEach((productDoc) => {
 
-        if(product.quantity <= product.reorderLevel){
+            const product = productDoc.data();
 
-            low++;
+            const quantity =
+                Number(product.quantity || 0);
 
-        }
+            const minimumStock =
+                Number(product.minimumStock || 5);
 
-    });
+            if (quantity <= minimumStock) {
 
-    document.getElementById("lowStock").innerHTML = low;
+                low++;
+
+            }
+
+        });
+
+        document
+            .getElementById("lowStock")
+            .textContent = low;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Low stock error:",
+            error
+        );
+
+        document
+            .getElementById("lowStock")
+            .textContent = "0";
+
+    }
 
 }
 
@@ -155,34 +265,65 @@ async function loadLowStock(){
 // Today's Sales
 // ----------------------------
 
-async function loadTodaySales(){
+async function loadTodaySales() {
 
-    const snapshot = await getDocs(collection(db,"sales"));
+    try {
 
-    const today = new Date().toDateString();
+        const snapshot =
+            await getDocs(
+                collection(db, "sales")
+            );
 
-    let total = 0;
 
-    snapshot.forEach(doc=>{
+        const today =
+            new Date().toDateString();
 
-        const sale = doc.data();
 
-        if(sale.date){
+        let total = 0;
 
-            const saleDate = sale.date.toDate().toDateString();
 
-            if(saleDate === today){
+        snapshot.forEach((saleDoc) => {
 
-                total += Number(sale.total) || 0;
+            const sale =
+                saleDoc.data();
+
+
+            if (sale.date) {
+
+                const saleDate =
+                    sale.date
+                        .toDate()
+                        .toDateString();
+
+
+                if (saleDate === today) {
+
+                    total +=
+                        Number(sale.total) || 0;
+
+                }
 
             }
 
-        }
+        });
 
-    });
 
-    document.getElementById("todaySales").innerHTML =
-        "KSh " + total.toLocaleString();
+        document
+            .getElementById("todaySales")
+            .innerHTML =
+                "KSh " +
+                total.toLocaleString();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Today's sales error:",
+            error
+        );
+
+    }
 
 }
 
@@ -191,117 +332,259 @@ async function loadTodaySales(){
 // Recent Sales
 // ----------------------------
 
-async function loadRecentSales(){
+async function loadRecentSales() {
 
-    const salesBody = document.getElementById("salesTable");
+    try {
 
-    salesBody.innerHTML = "";
+        const salesBody =
+            document.getElementById(
+                "salesTable"
+            );
 
-   const q = query(
-    collection(db,"sales"),
-    orderBy("date","desc"),
-    limit(10)
-);
 
-    const snapshot = await getDocs(q);
+        salesBody.innerHTML = "";
 
-    snapshot.forEach((saleDoc) => {
 
-    const sale = saleDoc.data();
+        const q = query(
 
-    salesBody.innerHTML += `
-    <tr>
-        <td>${sale.receiptNo}</td>
-        <td>${sale.date ? sale.date.toDate().toLocaleString() : "N/A"}</td>
-        <td>${sale.cashier}</td>
-        <td>KSh ${Number(sale.total).toLocaleString()}</td>
-        <td>
+            collection(db, "sales"),
 
-    <button class="action-btn edit-btn" onclick="editSale('${saleDoc.id}')">
-        <i class="fa-solid fa-pen"></i> Edit
-    </button>
+            orderBy("date", "desc"),
 
-    <button class="action-btn delete-btn" onclick="deleteSale('${saleDoc.id}')">
-        <i class="fa-solid fa-trash"></i> Delete
-    </button>
+            limit(10)
 
-</td>
-    </tr>
-    `;
-});
+        );
 
-}
-window.deleteSale = async function(id){
 
-    if(!confirm("Delete this sale?")) return;
+        const snapshot =
+            await getDocs(q);
 
-    try{
 
-        await deleteDoc(doc(db,"sales",id));
+        snapshot.forEach((saleDoc) => {
 
-        alert("Sale deleted.");
+            const sale =
+                saleDoc.data();
 
-        loadRecentSales();
-        loadTodaySales();
 
-    }catch(error){
+            salesBody.innerHTML += `
 
-        console.error(error);
-        alert("Failed to delete sale.");
+                <tr>
+
+                    <td>
+                        ${sale.receiptNo || "N/A"}
+                    </td>
+
+                    <td>
+                        ${
+                            sale.date
+                            ?
+                            sale.date
+                                .toDate()
+                                .toLocaleString()
+                            :
+                            "N/A"
+                        }
+                    </td>
+
+                    <td>
+                        ${sale.cashier || "N/A"}
+                    </td>
+
+                    <td>
+                        KSh ${
+                            Number(sale.total || 0)
+                                .toLocaleString()
+                        }
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action-btn edit-btn"
+                            onclick="editSale('${saleDoc.id}')">
+
+                            <i class="fa-solid fa-pen"></i>
+                            Edit
+
+                        </button>
+
+
+                        <button
+                            class="action-btn delete-btn"
+                            onclick="deleteSale('${saleDoc.id}')">
+
+                            <i class="fa-solid fa-trash"></i>
+                            Delete
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Recent sales error:",
+            error
+        );
 
     }
 
 }
-window.editSale = async function(id){
 
-    const newTotal = prompt("Enter new sale total:");
 
-    if(newTotal === null) return;
+// ----------------------------
+// Delete Sale
+// ----------------------------
 
-    const total = Number(newTotal);
+window.deleteSale = async function(id) {
 
-    if(isNaN(total) || total < 0){
+    if (!confirm("Delete this sale?")) {
 
-        alert("Please enter a valid amount.");
         return;
 
     }
 
-    try{
 
-        await updateDoc(doc(db,"sales",id),{
+    try {
 
-            total: total
+        await deleteDoc(
+            doc(
+                db,
+                "sales",
+                id
+            )
+        );
 
-        });
 
-        alert("Sale updated successfully.");
+        alert("Sale deleted.");
+
 
         loadRecentSales();
+
         loadTodaySales();
-
-    }catch(error){
-
-        console.error(error);
-
-        alert("Failed to update sale.");
 
     }
 
-}
+    catch (error) {
+
+        console.error(
+            "Delete sale error:",
+            error
+        );
+
+        alert(
+            "Failed to delete sale."
+        );
+
+    }
+
+};
+
+
+// ----------------------------
+// Edit Sale
+// ----------------------------
+
+window.editSale = async function(id) {
+
+    const newTotal =
+        prompt(
+            "Enter new sale total:"
+        );
+
+
+    if (newTotal === null) {
+
+        return;
+
+    }
+
+
+    const total =
+        Number(newTotal);
+
+
+    if (
+        isNaN(total) ||
+        total < 0
+    ) {
+
+        alert(
+            "Please enter a valid amount."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await updateDoc(
+            doc(
+                db,
+                "sales",
+                id
+            ),
+            {
+                total: total
+            }
+        );
+
+
+        alert(
+            "Sale updated successfully."
+        );
+
+
+        loadRecentSales();
+
+        loadTodaySales();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Edit sale error:",
+            error
+        );
+
+        alert(
+            "Failed to update sale."
+        );
+
+    }
+
+};
 
 
 // ----------------------------
 // Logout
 // ----------------------------
 
-document.getElementById("logoutBtn")
-.addEventListener("click", async(e)=>{
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
+        "click",
+        async (e) => {
 
-    e.preventDefault();
+            e.preventDefault();
 
-    await signOut(auth);
 
-    window.location.href="login.html";
+            await signOut(auth);
 
-});
+
+            window.location.href =
+                "login.html";
+
+        }
+    );

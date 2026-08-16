@@ -73,49 +73,60 @@ onAuthStateChanged(auth, async(user)=>{
 // LOAD CURRENT USER
 // =====================================================
 
-async function loadCurrentUser(){
+async function loadCurrentUser() {
 
-    try{
+    try {
 
-        const userRef = doc(
-            db,
-            "users",
-            currentUser.uid
+        const userQuery = query(
+            collection(db, "users"),
+            where("uid", "==", currentUser.uid)
         );
 
-        const userSnap = await getDoc(userRef);
+        const userSnapshot = await getDocs(userQuery);
 
-        if(!userSnap.exists()){
+
+        if (userSnapshot.empty) {
 
             alert("User account not found.");
 
             await signOut(auth);
 
-            window.location.href="login.html";
+            window.location.href = "login.html";
 
-            return;
+            return false;
 
         }
 
-        currentUserData = userSnap.data();
 
-        if(currentUserData.role !== "admin"){
+        currentUserData =
+            userSnapshot.docs[0].data();
+
+
+        if (currentUserData.role !== "admin") {
 
             alert("Access denied.");
 
-            window.location.href="cashier.html";
+            window.location.href = "cashier.html";
 
-            return;
+            return false;
 
         }
 
+
+        return true;
+
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error(error);
+        console.error(
+            "Load current user error:",
+            error
+        );
 
         alert(error.message);
+
+        return false;
 
     }
 

@@ -14,24 +14,15 @@ import {
 import {
 
     collection,
-
     query,
-
+    where,
     orderBy,
-
     onSnapshot,
-
     doc,
-
-    getDoc,
-
+    getDocs,
     addDoc,
-
     updateDoc,
-
-    serverTimestamp,
-
-    increment
+    serverTimestamp
 
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
@@ -64,11 +55,17 @@ onAuthStateChanged(auth, async(user)=>{
 
     }
 
-    currentUser=user;
+  currentUser = user;
 
-    await loadCurrentUser();
+const userLoaded = await loadCurrentUser();
 
-    loadProducts();
+if(!userLoaded){
+
+    return;
+
+}
+
+loadProducts();
 
 });
 
@@ -81,23 +78,54 @@ async function loadCurrentUser(){
 
     try{
 
-        const userRef=
-        doc(db,"users",currentUser.uid);
+        const userQuery = query(
+            collection(db, "users"),
+            where("uid", "==", currentUser.uid)
+        );
 
-        const userSnap=
-        await getDoc(userRef);
+        const userSnapshot =
+            await getDocs(userQuery);
 
-        if(userSnap.exists()){
 
-            currentUserData=userSnap.data();
+        if(userSnapshot.empty){
+
+            alert("User account not found.");
+
+            return false;
 
         }
+
+
+        currentUserData =
+            userSnapshot.docs[0].data();
+
+
+        // Make sure this is actually a cashier
+        if(currentUserData.role !== "cashier"){
+
+            alert("Access denied.");
+
+            window.location.href = "admin.html";
+
+            return false;
+
+        }
+
+
+        return true;
 
     }
 
     catch(error){
 
-        console.error(error);
+        console.error(
+            "Load current user error:",
+            error
+        );
+
+        alert(error.message);
+
+        return false;
 
     }
 

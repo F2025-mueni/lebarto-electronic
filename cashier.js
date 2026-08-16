@@ -16,93 +16,93 @@ import {
 import {
     collection,
     doc,
-    getDoc,
     getDocs,
     query,
+    where,
     orderBy,
     limit
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
 
 // =============================================
 // AUTH CHECK
 // =============================================
 
 
-onAuthStateChanged(auth, async(user)=>{
+onAuthStateChanged(auth, async (user) => {
 
+    if (!user) {
 
-    if(!user){
-
-        window.location.href="login.html";
+        window.location.href = "login.html";
 
         return;
 
     }
 
+    try {
 
-
-    try{
-
-
-        const userSnap =
-        await getDoc(
-            doc(db,"users",user.uid)
+        // Find Firestore user profile using Firebase Auth UID
+        const userQuery = query(
+            collection(db, "users"),
+            where("uid", "==", user.uid)
         );
 
+        const userSnapshot =
+            await getDocs(userQuery);
 
 
-        if(!userSnap.exists()){
+        if (userSnapshot.empty) {
 
+            console.error(
+                "Cashier Firestore profile not found."
+            );
 
             await signOut(auth);
 
-            window.location.href="login.html";
+            window.location.href = "login.html";
 
             return;
 
         }
-
 
 
         const userData =
-        userSnap.data();
+            userSnapshot.docs[0].data();
 
 
+        // Only cashiers can use cashier dashboard
+        if (userData.role !== "cashier") {
 
-        if(userData.role !== "cashier"){
-
-
-            window.location.href="admin.html";
+            window.location.href = "admin.html";
 
             return;
 
         }
 
 
-
         document
-        .getElementById("cashierName")
-        .textContent =
-        userData.name || "Cashier";
+            .getElementById("cashierName")
+            .textContent =
+            userData.name || "Cashier";
 
 
-
-        loadDashboard(
+        await loadDashboard(
             userData.name
         );
 
-
-
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error(error);
+        console.error(
+            "Cashier authentication error:",
+            error
+        );
+
+        alert(
+            "Unable to load cashier account."
+        );
 
     }
-
 
 });
 

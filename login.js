@@ -11,10 +11,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
-    doc,
-    getDoc
+    collection,
+    query,
+    where,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
 // Show / Hide Password
 
 const togglePassword = document.getElementById("togglePassword");
@@ -57,19 +58,21 @@ loginForm.addEventListener("submit",async(e)=>{
 
         const userCredential=await signInWithEmailAndPassword(auth,email,pass);
 
-        const uid=userCredential.user.uid;
+     const uid = userCredential.user.uid;
 
-        const userDoc=await getDoc(doc(db,"users",uid));
+const userQuery = query(
+    collection(db, "users"),
+    where("uid", "==", uid)
+);
 
-        if(!userDoc.exists()){
+const userSnapshot = await getDocs(userQuery);
 
-            message.innerHTML="User record not found.";
-            return;
+if (userSnapshot.empty) {
+    message.innerHTML = "User record not found.";
+    return;
+}
 
-        }
-
-        const data=userDoc.data();
-
+const data = userSnapshot.docs[0].data();
         localStorage.setItem("userRole",data.role);
         localStorage.setItem("userName",data.name);
 

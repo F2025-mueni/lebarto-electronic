@@ -1,23 +1,37 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Point of Sale | Lebarto Electronics</title>
 
-    <link rel="stylesheet" href="pos.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>
+        Point of Sale | Lebarto Electronics
+    </title>
 
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="pos.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 </head>
+
 <body>
 
 <div class="container">
 
-    <!-- Left Side -->
+    <!-- ================= LEFT PANEL ================= -->
 
     <div class="left-panel">
 
@@ -26,11 +40,15 @@
             <h2>New Sale</h2>
 
             <button id="backBtn">
+
                 <i class="fa-solid fa-arrow-left"></i>
+
                 Dashboard
+
             </button>
 
         </div>
+
 
         <div class="search-section">
 
@@ -41,7 +59,10 @@
 
         </div>
 
-        <div id="productList" class="product-list">
+
+        <div
+            id="productList"
+            class="product-list">
 
             <!-- Products loaded from Firebase -->
 
@@ -49,11 +70,15 @@
 
     </div>
 
-    <!-- Right Side -->
+
+    <!-- ================= RIGHT PANEL ================= -->
 
     <div class="right-panel">
 
         <h2>Shopping Cart</h2>
+
+
+        <!-- ================= CART ================= -->
 
         <table>
 
@@ -62,14 +87,19 @@
                 <tr>
 
                     <th>Product</th>
+
                     <th>Qty</th>
+
                     <th>Price</th>
+
                     <th>Total</th>
+
                     <th></th>
 
                 </tr>
 
             </thead>
+
 
             <tbody id="cartTable">
 
@@ -77,9 +107,14 @@
 
         </table>
 
+
+        <!-- ================= CUSTOMER ================= -->
+
         <div class="customer-section">
 
-            <label>Customer</label>
+            <label>
+                Customer
+            </label>
 
             <input
                 type="text"
@@ -88,41 +123,19 @@
 
         </div>
 
-       <div class="payment-section">
 
-    <label>Payment Method(s)</label>
-
-    <div class="payment-methods">
-
-        <label>
-            <input type="checkbox" name="paymentMethod" value="Cash">
-            Cash
-        </label>
-
-        <label>
-            <input type="checkbox" name="paymentMethod" value="M-Pesa">
-            M-Pesa
-        </label>
-
-        <label>
-            <input type="checkbox" name="paymentMethod" value="Card">
-            Card
-        </label>
-
-        <label>
-            <input type="checkbox" name="paymentMethod" value="Bank Transfer">
-            Bank Transfer
-        </label>
-
-    </div>
-
-</div>
+        <!-- ================= SUMMARY ================= -->
 
         <div class="summary">
 
+
+            <!-- SUBTOTAL -->
+
             <div>
 
-                <span>Subtotal</span>
+                <span>
+                    Subtotal
+                </span>
 
                 <strong id="subtotal">
                     KSh 0
@@ -130,20 +143,31 @@
 
             </div>
 
+
+            <!-- DISCOUNT -->
+
             <div>
 
-                <span>Discount</span>
+                <span>
+                    Discount
+                </span>
 
                 <input
                     type="number"
                     id="discount"
-                    value="0">
+                    value="0"
+                    readonly>
 
             </div>
 
+
+            <!-- TOTAL -->
+
             <div>
 
-                <span>Total</span>
+                <span>
+                    Total
+                </span>
 
                 <strong id="grandTotal">
                     KSh 0
@@ -151,19 +175,93 @@
 
             </div>
 
+
+            <!-- AMOUNT PAID -->
+
             <div>
 
-                <span>Amount Paid</span>
+                <span>
+                    Amount Paid
+                </span>
 
-                <input
-                    type="number"
-                    id="amountPaid">
+                <strong id="amountPaid">
+                    KSh 0
+                </strong>
 
             </div>
 
+
+            <!-- ================= PAYMENT METHODS ================= -->
+
+            <div class="payment-section">
+
+                <label>
+                    Payment Method(s)
+                </label>
+
+
+                <div class="payment-methods">
+
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            name="paymentMethod"
+                            value="Cash">
+
+                        Cash
+
+                    </label>
+
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            name="paymentMethod"
+                            value="M-Pesa">
+
+                        M-Pesa
+
+                    </label>
+
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            name="paymentMethod"
+                            value="Bank">
+
+                        Bank
+
+                    </label>
+
+
+                </div>
+
+
+                <!-- PAYMENT AMOUNTS APPEAR HERE -->
+
+                <div
+                    id="paymentAmounts"
+                    class="payment-amounts">
+
+                    <!-- Dynamically generated -->
+
+                </div>
+
+            </div>
+
+
+            <!-- BALANCE -->
+
             <div>
 
-                <span>Balance</span>
+                <span>
+                    Balance
+                </span>
 
                 <strong id="balance">
                     KSh 0
@@ -171,14 +269,22 @@
 
             </div>
 
+
         </div>
+
+
+        <!-- ================= BUTTONS ================= -->
 
         <div class="buttons">
 
             <button id="clearCart">
+
                 <i class="fa-solid fa-trash"></i>
+
                 Clear
+
             </button>
+
 
             <button id="completeSale">
 
@@ -187,6 +293,7 @@
                 Complete Sale
 
             </button>
+
 
             <button id="printReceipt">
 
@@ -202,8 +309,12 @@
 
 </div>
 
-<script type="module" src="pos.js"></script>
+
+<script
+    type="module"
+    src="pos.js">
+</script>
 
 </body>
+
 </html>
-```

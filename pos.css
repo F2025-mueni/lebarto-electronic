@@ -10,8 +10,9 @@
 }
 
 body{
-    background:#87CEEB; /* Sky Blue */
+    background:#87CEEB;
 }
+
 
 /* ================= Layout ================= */
 
@@ -21,10 +22,11 @@ body{
     height:100vh;
 }
 
+
 /* ================= Left Panel ================= */
 
 .left-panel{
-     background:linear-gradient(135deg,#87CEEB,#EAF6FF);
+    background:linear-gradient(135deg,#87CEEB,#EAF6FF);
     padding:20px;
     border-right:2px solid #e5e5e5;
     display:flex;
@@ -69,6 +71,12 @@ body{
     outline:none;
     font-size:15px;
 }
+
+.search-section input:focus{
+    border-color:#0D6EFD;
+    box-shadow:0 0 0 3px rgba(13,110,253,.12);
+}
+
 
 /* ================= Product List ================= */
 
@@ -138,6 +146,7 @@ body{
     cursor:not-allowed;
 }
 
+
 /* ================= Right Panel ================= */
 
 .right-panel{
@@ -153,6 +162,7 @@ body{
     color:#0D6EFD;
     margin-bottom:15px;
 }
+
 
 /* ================= Cart ================= */
 
@@ -171,13 +181,14 @@ thead{
 
 th,
 td{
-    padding:12px;
+    padding:10px 6px;
     text-align:center;
+    vertical-align:middle;
 }
 
 tbody{
     display:block;
-    max-height:180px;
+    max-height:220px;
     overflow-y:auto;
 }
 
@@ -188,6 +199,109 @@ tbody tr{
     table-layout:fixed;
 }
 
+
+/* ================= Quantity Controls ================= */
+
+.quantity-control{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:4px;
+    white-space:nowrap;
+}
+
+.quantity-control button{
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:6px;
+    background:#0D6EFD;
+    color:#fff;
+    font-size:18px;
+    font-weight:600;
+    line-height:30px;
+    padding:0;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.quantity-control button:hover{
+    background:#0b5ed7;
+    transform:scale(1.05);
+}
+
+.quantity-control button:active{
+    transform:scale(.95);
+}
+
+.quantity-control input{
+    width:48px !important;
+    height:30px;
+    padding:3px 4px;
+    text-align:center;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:600;
+    outline:none;
+}
+
+.quantity-control input:focus{
+    border-color:#0D6EFD;
+    box-shadow:0 0 0 2px rgba(13,110,253,.12);
+}
+
+
+/* Remove number-input arrows */
+
+.quantity-control input::-webkit-inner-spin-button,
+.quantity-control input::-webkit-outer-spin-button{
+    opacity:1;
+}
+
+
+/* ================= Selling Price ================= */
+
+td input[type="number"]{
+    outline:none;
+}
+
+td input[type="number"]:focus{
+    border-color:#0D6EFD !important;
+    box-shadow:0 0 0 2px rgba(13,110,253,.10);
+}
+
+
+/* ================= Cart Small Text ================= */
+
+td small{
+    color:#777;
+    font-size:10px;
+}
+
+
+/* ================= Remove Button ================= */
+
+td button{
+    border:none;
+    cursor:pointer;
+}
+
+td button[onclick*="removeItem"]{
+    width:32px;
+    height:32px;
+    border-radius:6px;
+    background:#dc3545;
+    color:#fff;
+    transition:.2s;
+}
+
+td button[onclick*="removeItem"]:hover{
+    background:#bb2d3b;
+    transform:scale(1.05);
+}
+
+
 /* ================= Customer ================= */
 
 .customer-section,
@@ -196,19 +310,57 @@ tbody tr{
 }
 
 .customer-section label,
-.payment-section label{
+.payment-section > label{
     display:block;
     font-weight:600;
     margin-bottom:6px;
 }
 
-.customer-section input,
-.payment-section select{
+.customer-section input{
     width:100%;
     padding:12px;
     border:1px solid #ccc;
     border-radius:8px;
+    outline:none;
 }
+
+.customer-section input:focus{
+    border-color:#0D6EFD;
+    box-shadow:0 0 0 3px rgba(13,110,253,.10);
+}
+
+
+/* ================= Payment Methods ================= */
+
+.payment-methods{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    padding:10px 0;
+}
+
+.payment-methods label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#fff;
+    padding:8px 12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.2s;
+}
+
+.payment-methods label:hover{
+    border-color:#0D6EFD;
+    background:#f0f7ff;
+}
+
+.payment-methods input{
+    accent-color:#0D6EFD;
+}
+
 
 /* ================= Summary ================= */
 
@@ -217,6 +369,7 @@ tbody tr{
     padding:20px;
     border-radius:12px;
     margin-top:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
 }
 
 .summary div{
@@ -226,17 +379,55 @@ tbody tr{
     margin-bottom:15px;
 }
 
+.summary div:last-child{
+    margin-bottom:0;
+}
+
+.summary span{
+    font-weight:500;
+    color:#444;
+}
+
 .summary input{
     width:140px;
     padding:10px;
     border:1px solid #ccc;
     border-radius:8px;
+    outline:none;
 }
+
+.summary input:focus{
+    border-color:#0D6EFD;
+}
+
+
+/* Automatic discount */
+
+#discount{
+    background:#f1f8f4;
+    color:#198754;
+    font-weight:600;
+    border-color:#b7dfc8;
+    cursor:not-allowed;
+}
+
+
+/* Summary totals */
 
 .summary strong{
     color:#198754;
     font-size:18px;
 }
+
+#grandTotal{
+    color:#0D6EFD;
+    font-size:20px;
+}
+
+#balance{
+    color:#198754;
+}
+
 
 /* ================= Buttons ================= */
 
@@ -287,6 +478,12 @@ tbody tr{
     background:#0b5ed7;
 }
 
+.buttons button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+
 /* ================= Scrollbars ================= */
 
 ::-webkit-scrollbar{
@@ -299,58 +496,113 @@ tbody tr{
     border-radius:10px;
 }
 
+::-webkit-scrollbar-track{
+    background:#eaf0f5;
+}
+
+
 /* ================= Responsive ================= */
 
 @media(max-width:1100px){
 
-.container{
-grid-template-columns:1fr;
-height:auto;
+    .container{
+        grid-template-columns:1fr;
+        height:auto;
+    }
+
+    .left-panel,
+    .right-panel{
+        height:auto;
+        min-height:600px;
+    }
+
+    .right-panel{
+        overflow-y:visible;
+    }
+
 }
 
-.left-panel,
-.right-panel{
-height:auto;
-}
-
-}
 
 @media(max-width:768px){
 
-.product-list{
-grid-template-columns:1fr;
+    .product-list{
+        grid-template-columns:1fr;
+    }
+
+    .buttons{
+        grid-template-columns:1fr;
+        position:static;
+    }
+
+    .summary div{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+
+    .summary input{
+        width:100%;
+    }
+
+    .payment-methods{
+        flex-direction:column;
+    }
+
+    .payment-methods label{
+        width:100%;
+    }
+
+    table{
+        font-size:12px;
+    }
+
+    th,
+    td{
+        padding:7px 3px;
+    }
+
 }
 
-.buttons{
-grid-template-columns:1fr;
-}
-
-.summary div{
-flex-direction:column;
-align-items:flex-start;
-gap:8px;
-}
-
-.summary input{
-width:100%;
-}
-
-}
 
 @media(max-width:500px){
 
-.top-bar{
-flex-direction:column;
-align-items:flex-start;
-gap:15px;
-}
+    .left-panel,
+    .right-panel{
+        padding:12px;
+    }
 
-.top-bar h2{
-font-size:24px;
-}
+    .top-bar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
 
-#backBtn{
-width:100%;
-}
+    .top-bar h2{
+        font-size:24px;
+    }
+
+    #backBtn{
+        width:100%;
+    }
+
+    .quantity-control{
+        gap:2px;
+    }
+
+    .quantity-control button{
+        width:27px;
+        height:27px;
+        line-height:27px;
+    }
+
+    .quantity-control input{
+        width:42px !important;
+        height:27px;
+    }
+
+    th,
+    td{
+        padding:5px 2px;
+    }
 
 }

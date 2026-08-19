@@ -1,8 +1,11 @@
 // =====================================================
 // LEBARTO ELECTRONICS
 // POS.JS
-// PART 1
-// Authentication • Products • Search • Cart
+// COMPLETE VERSION
+// =====================================================
+
+// =====================================================
+// IMPORTS
 // =====================================================
 
 import { auth, db } from "./firebase-config.js";
@@ -12,7 +15,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
-
     collection,
     query,
     where,
@@ -23,8 +25,8 @@ import {
     addDoc,
     updateDoc,
     serverTimestamp
-
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
 
 // =====================================================
 // GLOBAL VARIABLES
@@ -45,27 +47,27 @@ let cart = [];
 // CHECK LOGIN
 // =====================================================
 
-onAuthStateChanged(auth, async(user)=>{
+onAuthStateChanged(auth, async (user) => {
 
-    if(!user){
+    if (!user) {
 
-        window.location.href="login.html";
+        window.location.href = "login.html";
 
         return;
 
     }
 
-  currentUser = user;
+    currentUser = user;
 
-const userLoaded = await loadCurrentUser();
+    const userLoaded = await loadCurrentUser();
 
-if(!userLoaded){
+    if (!userLoaded) {
 
-    return;
+        return;
 
-}
+    }
 
-loadProducts();
+    loadProducts();
 
 });
 
@@ -74,20 +76,18 @@ loadProducts();
 // LOAD CURRENT USER
 // =====================================================
 
-async function loadCurrentUser(){
+async function loadCurrentUser() {
 
-    try{
+    try {
 
         const userQuery = query(
             collection(db, "users"),
             where("uid", "==", currentUser.uid)
         );
 
-        const userSnapshot =
-            await getDocs(userQuery);
+        const userSnapshot = await getDocs(userQuery);
 
-
-        if(userSnapshot.empty){
+        if (userSnapshot.empty) {
 
             alert("User account not found.");
 
@@ -95,13 +95,11 @@ async function loadCurrentUser(){
 
         }
 
-
         currentUserData =
             userSnapshot.docs[0].data();
 
-
         // Make sure this is actually a cashier
-        if(currentUserData.role !== "cashier"){
+        if (currentUserData.role !== "cashier") {
 
             alert("Access denied.");
 
@@ -111,12 +109,11 @@ async function loadCurrentUser(){
 
         }
 
-
         return true;
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.error(
             "Load current user error:",
@@ -136,33 +133,33 @@ async function loadCurrentUser(){
 // LOAD PRODUCTS
 // =====================================================
 
-function loadProducts(){
+function loadProducts() {
 
-    const q=query(
+    const q = query(
 
-        collection(db,"products"),
+        collection(db, "products"),
 
         orderBy("name")
 
     );
 
-    onSnapshot(q,(snapshot)=>{
+    onSnapshot(q, (snapshot) => {
 
-        products=[];
+        products = [];
 
-        snapshot.forEach(doc=>{
+        snapshot.forEach(productDoc => {
 
             products.push({
 
-                id:doc.id,
+                id: productDoc.id,
 
-                ...doc.data()
+                ...productDoc.data()
 
             });
 
         });
 
-        filteredProducts=[...products];
+        filteredProducts = [...products];
 
         displayProducts(filteredProducts);
 
@@ -175,22 +172,22 @@ function loadProducts(){
 // DISPLAY PRODUCTS
 // =====================================================
 
-function displayProducts(productArray){
+function displayProducts(productArray) {
 
-    const container=
-    document.getElementById("productList");
+    const container =
+        document.getElementById("productList");
 
-    container.innerHTML="";
+    container.innerHTML = "";
 
-    if(productArray.length===0){
+    if (productArray.length === 0) {
 
-        container.innerHTML=`
+        container.innerHTML = `
 
-        <p class="empty">
+            <p class="empty">
 
-        No products found.
+                No products found.
 
-        </p>
+            </p>
 
         `;
 
@@ -198,70 +195,76 @@ function displayProducts(productArray){
 
     }
 
-    productArray.forEach(product=>{
+    productArray.forEach(product => {
 
-        const stock=
-        Number(product.quantity);
+        const stock =
+            Number(product.quantity) || 0;
 
-        container.innerHTML+=`
+        const minSellingPrice =
+            Number(product.minSellingPrice) || 0;
 
-        <div class="product-card">
+        const maxSellingPrice =
+            Number(product.maxSellingPrice) || 0;
 
-            <h3>
+        container.innerHTML += `
 
-                ${product.name}
+            <div class="product-card">
 
-            </h3>
+                <h3>
 
-            <p>
+                    ${product.name || ""}
 
-                Barcode:
+                </h3>
 
-                ${product.barcode}
+                <p>
 
-            </p>
+                    Barcode:
 
-            <p>
+                    ${product.barcode || ""}
 
-                Category:
+                </p>
 
-                ${product.category}
+                <p>
 
-            </p>
+                    Category:
 
-            <p>
+                    ${product.category || ""}
 
-                Stock:
+                </p>
 
-                ${stock}
+                <p>
 
-            </p>
+                    Stock:
 
-           <h4>
+                    ${stock}
 
-KSh ${Number(product.minSellingPrice).toLocaleString()}
+                </p>
 
--
+                <h4>
 
-KSh ${Number(product.maxSellingPrice).toLocaleString()}
+                    KSh ${minSellingPrice.toLocaleString()}
 
-</h4>
+                    -
 
-            <button
+                    KSh ${maxSellingPrice.toLocaleString()}
 
-            onclick="addToCart('${product.id}')"
+                </h4>
 
-            ${stock<=0?"disabled":""}
+                <button
 
-            >
+                    onclick="addToCart('${product.id}')"
 
-            <i class="fa-solid fa-cart-plus"></i>
+                    ${stock <= 0 ? "disabled" : ""}
 
-            Add
+                >
 
-            </button>
+                    <i class="fa-solid fa-cart-plus"></i>
 
-        </div>
+                    Add
+
+                </button>
+
+            </div>
 
         `;
 
@@ -275,64 +278,62 @@ KSh ${Number(product.maxSellingPrice).toLocaleString()}
 // =====================================================
 
 document
+    .getElementById("searchProduct")
+    .addEventListener("keyup", function () {
 
-.getElementById("searchProduct")
+        const value =
+            this.value.toLowerCase().trim();
 
-.addEventListener("keyup",function(){
+        filteredProducts =
+            products.filter(product => {
 
-    const value=
+                return (
 
-    this.value.toLowerCase();
+                    (product.name || "")
+                        .toLowerCase()
+                        .includes(value)
 
-    filteredProducts=
+                    ||
 
-   products.filter(product=>{
+                    (product.barcode || "")
+                        .toString()
+                        .toLowerCase()
+                        .includes(value)
 
-    return(
+                    ||
 
-        (product.name || "")
-        .toLowerCase()
-        .includes(value)
+                    (product.category || "")
+                        .toLowerCase()
+                        .includes(value)
 
-        ||
+                );
 
-        (product.barcode || "")
-        .toString()
-        .toLowerCase()
-        .includes(value)
+            });
 
-        ||
+        displayProducts(filteredProducts);
 
-        (product.category || "")
-        .toLowerCase()
-        .includes(value)
-
-    );
-
-});
-
-    displayProducts(filteredProducts);
-
-});
+    });
 
 
 // =====================================================
 // ADD TO CART
 // =====================================================
 
-window.addToCart=function(id){
+window.addToCart = function (id) {
 
-    const product=
+    const product =
+        products.find(p => p.id === id);
 
-    products.find(p=>p.id===id);
-
-    if(!product){
+    if (!product) {
 
         return;
 
     }
 
-    if(Number(product.quantity)<=0){
+    const stock =
+        Number(product.quantity) || 0;
+
+    if (stock <= 0) {
 
         alert("Product is out of stock.");
 
@@ -340,13 +341,12 @@ window.addToCart=function(id){
 
     }
 
-    const existing=
+    const existing =
+        cart.find(item => item.id === id);
 
-    cart.find(item=>item.id===id);
+    if (existing) {
 
-    if(existing){
-
-        if(existing.quantity>=Number(product.quantity)){
+        if (existing.quantity >= stock) {
 
             alert("Not enough stock.");
 
@@ -358,29 +358,33 @@ window.addToCart=function(id){
 
     }
 
-    else{
+    else {
 
-     cart.push({
+        cart.push({
 
-    id:product.id,
+            id: product.id,
 
-    barcode:product.barcode,
+            barcode: product.barcode || "",
 
-    name:product.name,
+            name: product.name || "",
 
-    minPrice:Number(product.minSellingPrice),
+            minPrice:
+                Number(product.minSellingPrice) || 0,
 
-    maxPrice:Number(product.maxSellingPrice),
+            maxPrice:
+                Number(product.maxSellingPrice) || 0,
 
-    price:Number(product.minSellingPrice),
+            price:
+                Number(product.minSellingPrice) || 0,
 
-    buyingPrice:Number(product.buyingPrice),
+            buyingPrice:
+                Number(product.buyingPrice) || 0,
 
-    quantity:1,
+            quantity: 1,
 
-    stock:Number(product.quantity)
+            stock: stock
 
-});
+        });
 
     }
 
@@ -393,27 +397,26 @@ window.addToCart=function(id){
 // UPDATE CART
 // =====================================================
 
-function updateCart(){
+function updateCart() {
 
-    const table=
+    const table =
+        document.getElementById("cartTable");
 
-    document.getElementById("cartTable");
+    table.innerHTML = "";
 
-    table.innerHTML="";
+    if (cart.length === 0) {
 
-    if(cart.length===0){
+        table.innerHTML = `
 
-        table.innerHTML=`
+            <tr>
 
-        <tr>
+                <td colspan="5">
 
-        <td colspan="5">
+                    Cart is empty
 
-        Cart is empty
+                </td>
 
-        </td>
-
-        </tr>
+            </tr>
 
         `;
 
@@ -423,84 +426,157 @@ function updateCart(){
 
     }
 
-    cart.forEach(item=>{
+    cart.forEach(item => {
 
-        table.innerHTML+=`
+        table.innerHTML += `
 
-        <tr>
+            <tr>
 
-        <td>
+                <!-- PRODUCT -->
 
-        ${item.name}
+                <td>
 
-        </td>
+                    ${item.name}
 
-        <td>
+                </td>
 
-        <button
-        onclick="decreaseQty('${item.id}')">
 
-        -
+                <!-- QUANTITY -->
 
-        </button>
+                <td>
 
-        ${item.quantity}
+                    <div class="quantity-control">
 
-        <button
-        onclick="increaseQty('${item.id}')">
+                        <button
 
-        +
+                            type="button"
 
-        </button>
+                            onclick="decreaseQty('${item.id}')"
 
-        </td>
+                        >
 
-      <td>
+                            −
 
-<input
+                        </button>
 
-type="number"
 
-value="${item.price}"
+                        <input
 
-min="${item.minPrice}"
+                            type="number"
 
-oninput="updateSellingPrice('${item.id}',this.value)"
+                            value="${item.quantity}"
 
-style="width:90px;">
+                            min="1"
 
-<br>
+                            max="${item.stock}"
 
-<small>
+                            step="1"
 
-Min:
-KSh ${item.minPrice.toLocaleString()}
+                            onchange="updateQuantity('${item.id}', this.value)"
 
-</small>
+                            oninput="updateQuantity('${item.id}', this.value)"
 
-</td>
+                            style="width:55px; text-align:center;"
 
-        <td>
+                        >
 
-        KSh
 
-        ${(item.price*item.quantity).toLocaleString()}
+                        <button
 
-        </td>
+                            type="button"
 
-        <td>
+                            onclick="increaseQty('${item.id}')"
 
-        <button
+                        >
 
-        onclick="removeItem('${item.id}')">
+                            +
 
-        <i class="fa-solid fa-trash"></i>
+                        </button>
 
-        </button>
+                    </div>
 
-        </td>
+                </td>
 
-        </tr>
+
+                <!-- PRICE -->
+
+                <td>
+
+                    <input
+
+                        type="number"
+
+                        value="${item.price}"
+
+                        min="${item.minPrice}"
+
+                        max="${item.maxPrice}"
+
+                        step="0.01"
+
+                        oninput="updateSellingPrice('${item.id}', this.value)"
+
+                        style="width:90px;"
+
+                    >
+
+                    <br>
+
+                    <small>
+
+                        Min:
+
+                        KSh ${item.minPrice.toLocaleString()}
+
+                    </small>
+
+                    <br>
+
+                    <small>
+
+                        Max:
+
+                        KSh ${item.maxPrice.toLocaleString()}
+
+                    </small>
+
+                </td>
+
+
+                <!-- TOTAL -->
+
+                <td>
+
+                    KSh
+
+                    ${moneyValue(
+
+                        item.price * item.quantity
+
+                    )}
+
+                </td>
+
+
+                <!-- REMOVE -->
+
+                <td>
+
+                    <button
+
+                        type="button"
+
+                        onclick="removeItem('${item.id}')"
+
+                    >
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </td>
+
+            </tr>
 
         `;
 
@@ -512,36 +588,21 @@ KSh ${item.minPrice.toLocaleString()}
 
 
 // =====================================================
-// PLACEHOLDERS
-// (Implemented in Part 2)
-// =====================================================
-
-
-
-
-// =====================================================
-// POS.JS
-// PART 2
-// CART MANAGEMENT • TOTALS • PAYMENT
-// =====================================================
-
-
-// =====================================================
 // INCREASE QUANTITY
 // =====================================================
 
-window.increaseQty = function(id){
+window.increaseQty = function (id) {
 
     const item =
-    cart.find(product=>product.id===id);
+        cart.find(product => product.id === id);
 
-    if(!item){
+    if (!item) {
 
         return;
 
     }
 
-    if(item.quantity >= item.stock){
+    if (item.quantity >= item.stock) {
 
         alert("Insufficient stock.");
 
@@ -554,31 +615,138 @@ window.increaseQty = function(id){
     updateCart();
 
 };
-window.updateSellingPrice = function(id,value){
 
-    const item = cart.find(p=>p.id===id);
 
-    if(!item){
+// =====================================================
+// DECREASE QUANTITY
+// =====================================================
+
+window.decreaseQty = function (id) {
+
+    const item =
+        cart.find(product => product.id === id);
+
+    if (!item) {
 
         return;
 
     }
 
-    const price = Number(value);
+    item.quantity--;
 
-    if(isNaN(price)){
+    if (item.quantity <= 0) {
+
+        cart =
+            cart.filter(product => product.id !== id);
+
+    }
+
+    updateCart();
+
+};
+
+
+// =====================================================
+// DIRECT QUANTITY INPUT
+// =====================================================
+
+window.updateQuantity = function (id, value) {
+
+    const item =
+        cart.find(product => product.id === id);
+
+    if (!item) {
 
         return;
 
     }
 
-    if(price < item.minPrice){
+    let quantity =
+        Number(value);
+
+    // Empty or invalid quantity
+    if (
+        value === "" ||
+        !Number.isInteger(quantity) ||
+        quantity < 1
+    ) {
+
+        quantity = 1;
+
+    }
+
+    // Prevent selling more than stock
+    if (quantity > item.stock) {
 
         alert(
-
-            `Selling price cannot be below KSh ${item.minPrice.toLocaleString()}`
-
+            `Only ${item.stock} items are available in stock.`
         );
+
+        quantity = item.stock;
+
+    }
+
+    item.quantity = quantity;
+
+    updateCart();
+
+};
+
+
+// =====================================================
+// UPDATE SELLING PRICE
+// =====================================================
+
+window.updateSellingPrice = function (id, value) {
+
+    const item =
+        cart.find(product => product.id === id);
+
+    if (!item) {
+
+        return;
+
+    }
+
+    // Allow the field to temporarily be empty
+    if (value === "") {
+
+        return;
+
+    }
+
+    const price =
+        Number(value);
+
+    if (isNaN(price)) {
+
+        return;
+
+    }
+
+    // Price cannot be below minimum
+    if (price < item.minPrice) {
+
+        alert(
+            `Selling price cannot be below KSh ${item.minPrice.toLocaleString()}`
+        );
+
+        item.price = item.minPrice;
+
+        updateCart();
+
+        return;
+
+    }
+
+    // Price cannot be above maximum
+    if (price > item.maxPrice) {
+
+        alert(
+            `Selling price cannot be above KSh ${item.maxPrice.toLocaleString()}`
+        );
+
+        item.price = item.maxPrice;
 
         updateCart();
 
@@ -587,36 +755,6 @@ window.updateSellingPrice = function(id,value){
     }
 
     item.price = price;
-
-    calculateTotals();
-
-    updateCart();
-
-};
-
-
-// =====================================================
-// DECREASE QUANTITY
-// =====================================================
-
-window.decreaseQty = function(id){
-
-    const item =
-    cart.find(product=>product.id===id);
-
-    if(!item){
-
-        return;
-
-    }
-
-    item.quantity--;
-
-    if(item.quantity <= 0){
-
-        cart = cart.filter(product=>product.id!==id);
-
-    }
 
     updateCart();
 
@@ -627,9 +765,10 @@ window.decreaseQty = function(id){
 // REMOVE ITEM
 // =====================================================
 
-window.removeItem = function(id){
+window.removeItem = function (id) {
 
-    cart = cart.filter(product=>product.id!==id);
+    cart =
+        cart.filter(product => product.id !== id);
 
     updateCart();
 
@@ -637,60 +776,84 @@ window.removeItem = function(id){
 
 
 // =====================================================
-// CALCULATE TOTALS
+// CALCULATE AUTOMATIC DISCOUNT
+// =====================================================
+//
+// Discount is calculated from:
+//
+// Maximum Selling Price - Actual Selling Price
+//
+// Example:
+//
+// Max price = 2,000
+// Seller price = 1,800
+// Quantity = 2
+//
+// Discount = (2,000 - 1,800) × 2
+//          = 400
+//
 // =====================================================
 
-function calculateTotals(){
+function calculateTotals() {
 
     let subtotal = 0;
 
-    cart.forEach(item=>{
+    let automaticDiscount = 0;
+
+    cart.forEach(item => {
+
+        const price =
+            Number(item.price) || 0;
+
+        const quantity =
+            Number(item.quantity) || 0;
+
+        const maxPrice =
+            Number(item.maxPrice) || 0;
 
         subtotal +=
-        item.price * item.quantity;
+            price * quantity;
+
+
+        if (maxPrice > price) {
+
+            automaticDiscount +=
+                (maxPrice - price) * quantity;
+
+        }
 
     });
 
-    let discount = Number(
 
-        document
-        .getElementById("discount")
-        .value
+    const discount =
+        automaticDiscount;
 
-    ) || 0;
-
-    if(discount < 0){
-
-        discount = 0;
-
-        document
-        .getElementById("discount")
-        .value = 0;
-
-    }
-
-    if(discount > subtotal){
-
-        discount = subtotal;
-
-        document
-        .getElementById("discount")
-        .value = subtotal;
-
-    }
 
     const grandTotal =
-    subtotal - discount;
+        subtotal - discount;
 
-    document
-    .getElementById("subtotal")
-    .textContent =
-    "KSh " + subtotal.toLocaleString();
 
+    // Show automatic discount
     document
-    .getElementById("grandTotal")
-    .textContent =
-    "KSh " + grandTotal.toLocaleString();
+        .getElementById("discount")
+        .value = discount;
+
+
+    // Show subtotal
+    document
+        .getElementById("subtotal")
+        .textContent =
+        "KSh " +
+        moneyValue(subtotal);
+
+
+    // Show total
+    document
+        .getElementById("grandTotal")
+        .textContent =
+        "KSh " +
+        moneyValue(grandTotal);
+
 
     calculateBalance();
 
@@ -701,65 +864,63 @@ function calculateTotals(){
 // CALCULATE BALANCE
 // =====================================================
 
-function calculateBalance(){
+function calculateBalance() {
 
     let subtotal = 0;
 
-    cart.forEach(item=>{
+    let automaticDiscount = 0;
+
+    cart.forEach(item => {
+
+        const price =
+            Number(item.price) || 0;
+
+        const maxPrice =
+            Number(item.maxPrice) || 0;
+
+        const quantity =
+            Number(item.quantity) || 0;
+
 
         subtotal +=
-        item.price * item.quantity;
+            price * quantity;
+
+
+        if (maxPrice > price) {
+
+            automaticDiscount +=
+                (maxPrice - price) * quantity;
+
+        }
 
     });
 
-    const discount =
-    Number(
-
-        document
-        .getElementById("discount")
-        .value
-
-    ) || 0;
 
     const total =
-    subtotal - discount;
+        subtotal - automaticDiscount;
+
 
     const paid =
-    Number(
+        Number(
+            document
+                .getElementById("amountPaid")
+                .value
+        ) || 0;
 
-        document
-        .getElementById("amountPaid")
-        .value
-
-    ) || 0;
 
     const balance =
-    paid - total;
+        paid - total;
+
 
     document
-    .getElementById("balance")
-    .textContent =
+        .getElementById("balance")
+        .textContent =
 
-    "KSh " +
+        "KSh " +
 
-    balance.toLocaleString();
+        moneyValue(balance);
 
 }
-
-
-// =====================================================
-// DISCOUNT CHANGE
-// =====================================================
-
-document
-
-.getElementById("discount")
-
-.addEventListener("input",()=>{
-
-    calculateTotals();
-
-});
 
 
 // =====================================================
@@ -767,14 +928,12 @@ document
 // =====================================================
 
 document
+    .getElementById("amountPaid")
+    .addEventListener("input", () => {
 
-.getElementById("amountPaid")
+        calculateBalance();
 
-.addEventListener("input",()=>{
-
-    calculateBalance();
-
-});
+    });
 
 
 // =====================================================
@@ -782,34 +941,50 @@ document
 // =====================================================
 
 document
+    .getElementById("clearCart")
+    .addEventListener("click", () => {
 
-.getElementById("clearCart")
+        if (cart.length === 0) {
 
-.addEventListener("click",()=>{
+            return;
 
-    if(cart.length===0){
+        }
 
-        return;
+        if (confirm("Clear cart?")) {
 
-    }
+            cart = [];
 
-    if(confirm("Clear cart?")){
+            updateCart();
 
-        cart=[];
 
-        updateCart();
+            document
+                .getElementById("discount")
+                .value = 0;
 
-        document
-        .getElementById("discount")
-        .value=0;
 
-        document
-        .getElementById("amountPaid")
-        .value="";
+            document
+                .getElementById("amountPaid")
+                .value = "";
 
-    }
 
-});
+            document
+                .getElementById("customerName")
+                .value = "";
+
+
+            document
+                .querySelectorAll(
+                    'input[name="paymentMethod"]'
+                )
+                .forEach(box => {
+
+                    box.checked = false;
+
+                });
+
+        }
+
+    });
 
 
 // =====================================================
@@ -817,39 +992,80 @@ document
 // =====================================================
 
 document
+    .getElementById("backBtn")
+    .addEventListener("click", () => {
 
-.getElementById("backBtn")
+        window.location.href = "cashier.html";
 
-.addEventListener("click",()=>{
+    });
 
-    window.location.href="cashier.html";
 
-});
+// =====================================================
+// GET AUTOMATIC DISCOUNT
+// =====================================================
+
+function getAutomaticDiscount() {
+
+    let discount = 0;
+
+    cart.forEach(item => {
+
+        const maxPrice =
+            Number(item.maxPrice) || 0;
+
+        const price =
+            Number(item.price) || 0;
+
+        const quantity =
+            Number(item.quantity) || 0;
+
+
+        if (maxPrice > price) {
+
+            discount +=
+                (maxPrice - price) * quantity;
+
+        }
+
+    });
+
+    return discount;
+
+}
+
+
+// =====================================================
+// GET SUBTOTAL
+// =====================================================
+
+function getSubtotal() {
+
+    let subtotal = 0;
+
+    cart.forEach(item => {
+
+        subtotal +=
+            (Number(item.price) || 0) *
+            (Number(item.quantity) || 0);
+
+    });
+
+    return subtotal;
+
+}
 
 
 // =====================================================
 // GET GRAND TOTAL
 // =====================================================
 
-function getGrandTotal(){
+function getGrandTotal() {
 
-    let subtotal = 0;
-
-    cart.forEach(item=>{
-
-        subtotal +=
-        item.price * item.quantity;
-
-    });
+    const subtotal =
+        getSubtotal();
 
     const discount =
-    Number(
-
-        document
-        .getElementById("discount")
-        .value
-
-    ) || 0;
+        getAutomaticDiscount();
 
     return subtotal - discount;
 
@@ -860,9 +1076,9 @@ function getGrandTotal(){
 // PAYMENT VALIDATION
 // =====================================================
 
-function validateSale(){
+function validateSale() {
 
-    if(cart.length===0){
+    if (cart.length === 0) {
 
         alert("Cart is empty.");
 
@@ -870,35 +1086,33 @@ function validateSale(){
 
     }
 
+
     const paid =
-    Number(
+        Number(
+            document
+                .getElementById("amountPaid")
+                .value
+        ) || 0;
 
-        document
-        .getElementById("amountPaid")
-        .value
-
-    ) || 0;
 
     const total =
-    getGrandTotal();
+        getGrandTotal();
 
-    if(paid < total){
 
-        alert("Amount paid is less than total.");
+    if (paid < total) {
+
+        alert(
+            "Amount paid is less than total."
+        );
 
         return false;
 
     }
 
+
     return true;
 
 }
-// =====================================================
-// POS.JS
-// PART 3A-1
-// COMPLETE SALE
-// =====================================================
-
 
 
 // =====================================================
@@ -906,283 +1120,287 @@ function validateSale(){
 // =====================================================
 
 document
+    .getElementById("completeSale")
+    .addEventListener("click", async () => {
 
-.getElementById("completeSale")
+        if (!validateSale()) {
 
-.addEventListener("click",async()=>{
+            return;
 
-    if(!validateSale()){
+        }
 
-        return;
 
-    }
+        const btn =
+            document.getElementById("completeSale");
 
-    const btn =
-    document.getElementById("completeSale");
 
-    btn.disabled = true;
+        btn.disabled = true;
 
-    try{
 
-        await completeSale();
+        try {
 
-    }
+            await completeSale();
 
-    finally{
+        }
 
-        btn.disabled = false;
+        finally {
 
-    }
+            btn.disabled = false;
 
-});
+        }
+
+    });
 
 
 // =====================================================
 // COMPLETE SALE
 // =====================================================
 
-async function completeSale(){
+async function completeSale() {
 
-    try{
+    try {
 
         const customerName =
 
-        document
-        .getElementById("customerName")
-        .value
-        .trim()
+            document
+                .getElementById("customerName")
+                .value
+                .trim()
 
-        ||
+            ||
 
-        "Walk-in Customer";
+            "Walk-in Customer";
 
 
+        // =================================================
+        // PAYMENT METHODS
+        // =================================================
 
-      const paymentMethods = [...document.querySelectorAll(
-    'input[name="paymentMethod"]:checked'
-)].map(item => item.value);
+        const paymentMethods = [
 
-console.log(paymentMethods);
-if (paymentMethods.length === 0) {
-    alert("Please select at least one payment method.");
-    return;
-}
+            ...document.querySelectorAll(
+                'input[name="paymentMethod"]:checked'
+            )
+
+        ].map(item => item.value);
+
+
+        if (paymentMethods.length === 0) {
+
+            alert(
+                "Please select at least one payment method."
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // CALCULATE SALE TOTALS
+        // =================================================
+
+        const subtotal =
+            getSubtotal();
+
 
         const discount =
+            getAutomaticDiscount();
 
-        Number(
 
-            document
-            .getElementById("discount")
-            .value
-
-        ) || 0;
-
+        const grandTotal =
+            subtotal - discount;
 
 
         const amountPaid =
-
-        Number(
-
-            document
-            .getElementById("amountPaid")
-            .value
-
-        ) || 0;
-
-
-
-     let subtotal = 0;
-let profit = 0;
-
-cart.forEach(item => {
-
-    const price = Number(item.price) || 0;
-    const buyingPrice = Number(item.buyingPrice) || 0;
-    const qty = Number(item.quantity) || 0;
-
-    subtotal += price * qty;
-    profit += (price - buyingPrice) * qty;
-
-});
-
-
-
-      const grandTotal = Number(subtotal) - Number(discount);
-
+            Number(
+                document
+                    .getElementById("amountPaid")
+                    .value
+            ) || 0;
 
 
         const balance =
-
-        amountPaid -
-
-        grandTotal;
+            amountPaid - grandTotal;
 
 
+        // =================================================
+        // CALCULATE PROFIT
+        // =================================================
+        //
+        // Actual profit uses the actual selling price.
+        //
+        // Profit = Actual Selling Price - Buying Price
+        //
+        // =================================================
+
+        let profit = 0;
+
+
+        cart.forEach(item => {
+
+            const price =
+                Number(item.price) || 0;
+
+            const buyingPrice =
+                Number(item.buyingPrice) || 0;
+
+            const qty =
+                Number(item.quantity) || 0;
+
+
+            profit +=
+                (price - buyingPrice) * qty;
+
+        });
+
+
+        // =================================================
+        // RECEIPT NUMBER
+        // =================================================
 
         const receiptNo =
-
-        generateReceiptNumber();
-
+            generateReceiptNumber();
 
 
-  const saleItems = [];
+        // =================================================
+        // SALE ITEMS
+        // =================================================
 
-cart.forEach(item=>{
+        const saleItems = [];
 
-    saleItems.push({
 
-        productId: item.id,
+        cart.forEach(item => {
 
-        barcode: item.barcode,
+            saleItems.push({
 
-        name: item.name,
+                productId:
+                    item.id,
 
-        quantity: item.quantity,
+                barcode:
+                    item.barcode,
 
-        price: item.price,
+                name:
+                    item.name,
 
-        total: item.price * item.quantity
+                quantity:
+                    Number(item.quantity),
 
-    });
+                price:
+                    Number(item.price),
 
-});
-// =====================================================
-// SALE OBJECT
-// =====================================================
+                total:
+                    Number(item.price) *
+                    Number(item.quantity)
+
+            });
+
+        });
+
+
+        // =================================================
+        // SALE OBJECT
+        // =================================================
 
         const saleData = {
 
             receiptNo:
-
-            receiptNo,
-
-
+                receiptNo,
 
             customerName:
+                customerName,
 
-            customerName,
-
-
-
-         cashier:
-
-currentUserData?.name || currentUser.email || "Unknown Cashier",
-
+            cashier:
+                currentUserData?.name ||
+                currentUser.email ||
+                "Unknown Cashier",
 
             cashierId:
-
-            currentUser.uid,
-
-
+                currentUser.uid,
 
             paymentMethods:
-
-            paymentMethods,
-
-
+                paymentMethods,
 
             subtotal:
-
-            subtotal,
-
-
+                subtotal,
 
             discount:
-
-            discount,
-
-
+                discount,
 
             total:
+                grandTotal,
 
-            grandTotal,
             profit:
-
-            profit,
-
-
+                profit,
 
             amountPaid:
-
-            amountPaid,
-
-
+                amountPaid,
 
             balance:
-
-            balance,
-
-
+                balance,
 
             items:
-
-            saleItems,
-
-
+                saleItems,
 
             status:
-
-            "Completed",
-
-
+                "Completed",
 
             date:
-
-            serverTimestamp()
+                serverTimestamp()
 
         };
 
 
-
-
-// =====================================================
-// SAVE SALE
-// =====================================================
+        // =================================================
+        // SAVE SALE
+        // =================================================
 
         await addDoc(
 
-            collection(db,"sales"),
+            collection(db, "sales"),
 
             saleData
 
         );
 
 
+        // =================================================
+        // UPDATE PRODUCT STOCK
+        // =================================================
 
-
-// =====================================================
-// UPDATE PRODUCT STOCK
-// =====================================================
-
-        for(const item of cart){
+        for (const item of cart) {
 
             const product =
+                products.find(
+                    p => p.id === item.id
+                );
 
-            products.find(
 
-                p=>p.id===item.id
+            if (product) {
 
-            );
+                const currentStock =
+                    Number(product.quantity) || 0;
 
-            if(product){
+                const soldQuantity =
+                    Number(item.quantity) || 0;
+
+
+                const newStock =
+                    currentStock - soldQuantity;
+
 
                 await updateDoc(
 
                     doc(
-
                         db,
-
                         "products",
-
                         item.id
-
                     ),
 
                     {
 
-                    quantity:
-Number(product.quantity)-Number(item.quantity)
+                        quantity:
+                            Math.max(0, newStock)
 
                     }
 
@@ -1193,473 +1411,631 @@ Number(product.quantity)-Number(item.quantity)
         }
 
 
+        // =================================================
+        // SALE SUCCESS
+        // =================================================
 
-        // Continue in Part 3A-2...
+        alert(
+            "Sale completed successfully!"
+        );
 
-            alert("Sale completed successfully!");
 
-        // Save last completed sale for printing
+        // =================================================
+        // SAVE LAST SALE FOR PRINTING
+        // =================================================
+
         window.lastSale = {
 
-            receiptNo: receiptNo,
+            receiptNo:
+                receiptNo,
 
-            customerName: customerName,
+            customerName:
+                customerName,
 
-            cashier: currentUser.email,
+            cashier:
+                currentUserData?.name ||
+                currentUser.email ||
+                "Unknown Cashier",
 
-            paymentMethods: paymentMethods,
+            paymentMethods:
+                paymentMethods,
 
-            subtotal: subtotal,
+            subtotal:
+                subtotal,
 
-            discount: discount,
-            profit: profit,
+            discount:
+                discount,
 
-            total: grandTotal,
+            profit:
+                profit,
 
-            amountPaid: amountPaid,
+            total:
+                grandTotal,
 
-            balance: balance,
+            amountPaid:
+                amountPaid,
 
-            items: [...saleItems],
+            balance:
+                balance,
 
-            date: new Date()
+            items:
+                [...saleItems],
+
+            date:
+                new Date()
 
         };
 
-        // Print automatically
+
+        // =================================================
+        // PRINT RECEIPT
+        // =================================================
+
         generateReceipt();
 
-        // Clear cart
+
+        // =================================================
+        // CLEAR CART
+        // =================================================
+
         cart = [];
 
         updateCart();
 
-        // Reset form
-        document.getElementById("customerName").value = "";
-        document.getElementById("discount").value = 0;
-        document.getElementById("amountPaid").value = "";
-        document.getElementById("balance").textContent = "KSh 0";
-       document.querySelectorAll('input[name="paymentMethod"]').forEach(box => {
-    box.checked = false;
-});
+
+        // =================================================
+        // RESET FORM
+        // =================================================
+
+        document
+            .getElementById("customerName")
+            .value = "";
+
+
+        document
+            .getElementById("discount")
+            .value = 0;
+
+
+        document
+            .getElementById("amountPaid")
+            .value = "";
+
+
+        document
+            .getElementById("balance")
+            .textContent =
+            "KSh 0";
+
+
+        document
+            .querySelectorAll(
+                'input[name="paymentMethod"]'
+            )
+            .forEach(box => {
+
+                box.checked = false;
+
+            });
+
 
         calculateTotals();
 
-       
-
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error(error);
+        console.error(
+            "Complete sale error:",
+            error
+        );
 
-        alert("Unable to complete sale.");
+        alert(
+            "Unable to complete sale."
+        );
 
     }
 
 }
+
 
 // =====================================================
 // RECEIPT NUMBER
 // =====================================================
 
-function generateReceiptNumber(){
+function generateReceiptNumber() {
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     return "INV-" +
 
         now.getFullYear() +
 
-        String(now.getMonth()+1).padStart(2,"0") +
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0") +
 
-        String(now.getDate()).padStart(2,"0") +
+        String(
+            now.getDate()
+        ).padStart(2, "0") +
 
-        String(now.getHours()).padStart(2,"0") +
+        String(
+            now.getHours()
+        ).padStart(2, "0") +
 
-        String(now.getMinutes()).padStart(2,"0") +
+        String(
+            now.getMinutes()
+        ).padStart(2, "0") +
 
-        String(now.getSeconds()).padStart(2,"0");
+        String(
+            now.getSeconds()
+        ).padStart(2, "0");
 
 }
+
+
 // =====================================================
 // PRINT RECEIPT BUTTON
 // =====================================================
 
 document
+    .getElementById("printReceipt")
+    .addEventListener("click", () => {
 
-.getElementById("printReceipt")
+        if (!window.lastSale) {
 
-.addEventListener("click",()=>{
+            alert(
+                "No completed sale available to print."
+            );
 
-    if(!window.lastSale){
+            return;
 
-        alert("No completed sale available to print.");
+        }
 
-        return;
+        generateReceipt();
 
-    }
-
-    generateReceipt();
-
-});
-
+    });
 
 
 // =====================================================
-// FORMAT CURRENCY
+// MONEY FORMAT
 // =====================================================
 
-function money(value){
+function moneyValue(value) {
 
-    return "KSh " +
-
-    Number(value)
-
-    .toLocaleString();
+    return Number(value || 0)
+        .toLocaleString(
+            "en-KE",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        );
 
 }
 
+
+function money(value) {
+
+    return "KSh " +
+        moneyValue(value);
+
+}
 
 
 // =====================================================
 // FORMAT DATE
 // =====================================================
 
-function formatDate(date){
+function formatDate(date) {
 
     return new Date(date)
-
-    .toLocaleString();
+        .toLocaleString();
 
 }
-// =====================================================
-// POS.JS
-// PART 3B
-// RECEIPT GENERATION & PRINTING
-// =====================================================
 
 
 // =====================================================
 // GENERATE RECEIPT
 // =====================================================
 
-function generateReceipt(){
+function generateReceipt() {
 
-    if(!window.lastSale){
+    if (!window.lastSale) {
 
-        alert("No receipt available.");
+        alert(
+            "No receipt available."
+        );
 
         return;
 
     }
 
-    const sale = window.lastSale;
+
+    const sale =
+        window.lastSale;
+
 
     let itemsHTML = "";
 
-    sale.items.forEach(item=>{
+
+    sale.items.forEach(item => {
 
         itemsHTML += `
 
-        <tr>
+            <tr>
 
-            <td>${item.name}</td>
+                <td>
 
-            <td style="text-align:center;">
-                ${item.quantity}
-            </td>
+                    ${item.name}
 
-            <td style="text-align:right;">
-                ${money(item.total)}
-            </td>
+                </td>
 
-        </tr>
+                <td
+                    style="text-align:center;"
+                >
+
+                    ${item.quantity}
+
+                </td>
+
+                <td
+                    style="text-align:right;"
+                >
+
+                    ${money(item.total)}
+
+                </td>
+
+            </tr>
 
         `;
 
     });
 
 
-    const receipt = window.open(
+    const receipt =
+        window.open(
+            "",
+            "_blank",
+            "width=400,height=700"
+        );
 
-    "",
 
-    "_blank",
+    if (!receipt) {
 
-    "width=400,height=700"
+        alert(
+            "Please allow pop-ups to print receipts."
+        );
 
-);
+        return;
 
-if(!receipt){
-
-    alert("Please allow pop-ups to print receipts.");
-
-    return;
-
-}
+    }
 
 
     receipt.document.write(`
 
-<!DOCTYPE html>
+        <!DOCTYPE html>
 
-<html>
+        <html>
 
-<head>
+        <head>
 
-<title>Receipt</title>
+            <title>Receipt</title>
 
-<style>
+            <style>
 
-body{
+                body {
 
-    font-family:Arial,sans-serif;
+                    font-family:
+                        Arial, sans-serif;
 
-    width:300px;
+                    width: 300px;
 
-    margin:auto;
+                    margin: auto;
 
-    padding:10px;
+                    padding: 10px;
 
-    font-size:13px;
+                    font-size: 13px;
 
-}
+                }
 
-h2{
 
-    text-align:center;
+                h2 {
 
-    margin-bottom:5px;
+                    text-align: center;
 
-}
+                    margin-bottom: 5px;
 
-p{
+                }
 
-    margin:3px 0;
 
-}
+                p {
 
-hr{
+                    margin: 3px 0;
 
-    border:none;
+                }
 
-    border-top:1px dashed #000;
 
-}
+                hr {
 
-table{
+                    border: none;
 
-    width:100%;
+                    border-top:
+                        1px dashed #000;
 
-    border-collapse:collapse;
+                }
 
-}
 
-td{
+                table {
 
-    padding:3px 0;
+                    width: 100%;
 
-}
+                    border-collapse:
+                        collapse;
 
-.total{
+                }
 
-    font-size:16px;
 
-    font-weight:bold;
+                td {
 
-}
+                    padding: 3px 0;
 
-.center{
+                }
 
-    text-align:center;
 
-}
+                .total {
 
-.right{
+                    font-size: 16px;
 
-    text-align:right;
+                    font-weight: bold;
 
-}
+                }
 
-</style>
 
-</head>
+                .center {
 
-<body>
+                    text-align: center;
 
-<h2>LEBARTO ELECTRONICS</h2>
+                }
 
-<p class="center">
 
-Quality Electronics & Accessories
+                .right {
 
-</p>
+                    text-align: right;
 
-<hr>
+                }
 
-<p>
+            </style>
 
-<strong>Receipt:</strong>
+        </head>
 
-${sale.receiptNo}
 
-</p>
+        <body>
 
-<p>
 
-<strong>Date:</strong>
+            <h2>
 
-${formatDate(sale.date)}
+                LEBARTO ELECTRONICS
 
-</p>
+            </h2>
 
-<p>
 
-<strong>Cashier:</strong>
+            <p class="center">
 
-${sale.cashier}
+                Quality Electronics & Accessories
 
-</p>
+            </p>
 
-<p>
 
-<strong>Customer:</strong>
+            <hr>
 
-${sale.customerName}
 
-</p>
+            <p>
 
-<p>
+                <strong>
+                    Receipt:
+                </strong>
 
-<strong>Payment:</strong>
+                ${sale.receiptNo}
 
-${sale.paymentMethods.join(", ")}
+            </p>
 
-</p>
 
-<hr>
+            <p>
 
-<table>
+                <strong>
+                    Date:
+                </strong>
 
-<tr>
+                ${formatDate(sale.date)}
 
-<th align="left">
+            </p>
 
-Item
 
-</th>
+            <p>
 
-<th>
+                <strong>
+                    Cashier:
+                </strong>
 
-Qty
+                ${sale.cashier}
 
-</th>
+            </p>
 
-<th align="right">
 
-Total
+            <p>
 
-</th>
+                <strong>
+                    Customer:
+                </strong>
 
-</tr>
+                ${sale.customerName}
 
-${itemsHTML}
+            </p>
 
-</table>
 
-<hr>
+            <p>
 
-<p>
+                <strong>
+                    Payment:
+                </strong>
 
-Subtotal
+                ${sale.paymentMethods.join(", ")}
 
-<span class="right" style="float:right;">
+            </p>
 
-${money(sale.subtotal)}
 
-</span>
+            <hr>
 
-</p>
 
-<p>
+            <table>
 
-Discount
+                <tr>
 
-<span class="right" style="float:right;">
+                    <th align="left">
 
-${money(sale.discount)}
+                        Item
 
-</span>
+                    </th>
 
-</p>
+                    <th>
 
-<p class="total">
+                        Qty
 
-TOTAL
+                    </th>
 
-<span style="float:right;">
+                    <th align="right">
 
-${money(sale.total)}
+                        Total
 
-</span>
+                    </th>
 
-</p>
+                </tr>
 
-<p>
 
-Paid
+                ${itemsHTML}
 
-<span style="float:right;">
+            </table>
 
-${money(sale.amountPaid)}
 
-</span>
+            <hr>
 
-</p>
 
-<p>
+            <p>
 
-Balance
+                Subtotal
 
-<span style="float:right;">
+                <span
+                    class="right"
+                    style="float:right;"
+                >
 
-${money(sale.balance)}
+                    ${money(sale.subtotal)}
 
-</span>
+                </span>
 
-</p>
+            </p>
 
-<hr>
 
-<p class="center">
+            <p>
 
-Thank You For Shopping!
+                Discount
 
-</p>
+                <span
+                    class="right"
+                    style="float:right;"
+                >
 
-<p class="center">
+                    ${money(sale.discount)}
 
-Please Come Again
+                </span>
 
-</p>
+            </p>
 
-</body>
 
-</html>
+            <p class="total">
+
+                TOTAL
+
+                <span
+                    style="float:right;"
+                >
+
+                    ${money(sale.total)}
+
+                </span>
+
+            </p>
+
+
+            <p>
+
+                Paid
+
+                <span
+                    style="float:right;"
+                >
+
+                    ${money(sale.amountPaid)}
+
+                </span>
+
+            </p>
+
+
+            <p>
+
+                Balance
+
+                <span
+                    style="float:right;"
+                >
+
+                    ${money(sale.balance)}
+
+                </span>
+
+            </p>
+
+
+            <hr>
+
+
+            <p class="center">
+
+                Thank You For Shopping!
+
+            </p>
+
+
+            <p class="center">
+
+                Please Come Again
+
+            </p>
+
+
+        </body>
+
+        </html>
 
     `);
+
 
     receipt.document.close();
 
     receipt.focus();
 
-    setTimeout(()=>{
+
+    setTimeout(() => {
 
         receipt.print();
 
         receipt.close();
 
-    },500);
+    }, 500);
 
 }

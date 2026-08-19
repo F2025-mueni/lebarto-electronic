@@ -59,6 +59,9 @@ body{
     background:#0b5ed7;
 }
 
+
+/* ================= Search ================= */
+
 .search-section{
     margin-bottom:20px;
 }
@@ -246,19 +249,6 @@ tbody tr{
     outline:none;
 }
 
-.quantity-control input:focus{
-    border-color:#0D6EFD;
-    box-shadow:0 0 0 2px rgba(13,110,253,.12);
-}
-
-
-/* Remove number-input arrows */
-
-.quantity-control input::-webkit-inner-spin-button,
-.quantity-control input::-webkit-outer-spin-button{
-    opacity:1;
-}
-
 
 /* ================= Selling Price ================= */
 
@@ -304,13 +294,11 @@ td button[onclick*="removeItem"]:hover{
 
 /* ================= Customer ================= */
 
-.customer-section,
-.payment-section{
+.customer-section{
     margin-top:18px;
 }
 
-.customer-section label,
-.payment-section > label{
+.customer-section label{
     display:block;
     font-weight:600;
     margin-bottom:6px;
@@ -330,13 +318,91 @@ td button[onclick*="removeItem"]:hover{
 }
 
 
+/* ================= Summary ================= */
+
+.summary{
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    margin-top:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
+}
+
+.summary > div{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.summary > div:last-child{
+    margin-bottom:0;
+}
+
+.summary span{
+    font-weight:500;
+    color:#444;
+}
+
+
+/* ================= Discount ================= */
+
+#discount{
+    width:140px;
+    padding:10px;
+    background:#f1f8f4;
+    color:#198754;
+    font-weight:600;
+    border:1px solid #b7dfc8;
+    border-radius:8px;
+    cursor:not-allowed;
+}
+
+
+/* ================= Totals ================= */
+
+.summary strong{
+    color:#198754;
+    font-size:18px;
+}
+
+#grandTotal{
+    color:#0D6EFD;
+    font-size:20px;
+}
+
+#amountPaid{
+    color:#198754;
+    font-size:18px;
+}
+
+#balance{
+    color:#198754;
+}
+
+
+/* ================= PAYMENT SECTION ================= */
+
+.payment-section{
+    display:block !important;
+    margin-top:10px;
+    width:100%;
+}
+
+.payment-section > label{
+    display:block;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+
 /* ================= Payment Methods ================= */
 
 .payment-methods{
     display:flex;
     flex-wrap:wrap;
-    gap:12px;
-    padding:10px 0;
+    gap:10px;
+    padding:5px 0 10px;
 }
 
 .payment-methods label{
@@ -362,70 +428,41 @@ td button[onclick*="removeItem"]:hover{
 }
 
 
-/* ================= Summary ================= */
+/* ================= Payment Amounts ================= */
 
-.summary{
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    margin-top:20px;
-    box-shadow:0 3px 10px rgba(0,0,0,.05);
+.payment-amounts{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    width:100%;
 }
 
-.summary div{
+.payment-amount-row{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:15px;
+    gap:10px;
+    margin:0 !important;
 }
 
-.summary div:last-child{
-    margin-bottom:0;
-}
-
-.summary span{
+.payment-amount-row label{
     font-weight:500;
     color:#444;
 }
 
-.summary input{
+.payment-amount-row input{
     width:140px;
-    padding:10px;
+    padding:9px;
     border:1px solid #ccc;
     border-radius:8px;
     outline:none;
+    text-align:right;
+    font-size:14px;
 }
 
-.summary input:focus{
+.payment-amount-row input:focus{
     border-color:#0D6EFD;
-}
-
-
-/* Automatic discount */
-
-#discount{
-    background:#f1f8f4;
-    color:#198754;
-    font-weight:600;
-    border-color:#b7dfc8;
-    cursor:not-allowed;
-}
-
-
-/* Summary totals */
-
-.summary strong{
-    color:#198754;
-    font-size:18px;
-}
-
-#grandTotal{
-    color:#0D6EFD;
-    font-size:20px;
-}
-
-#balance{
-    color:#198754;
+    box-shadow:0 0 0 2px rgba(13,110,253,.10);
 }
 
 
@@ -534,13 +571,14 @@ td button[onclick*="removeItem"]:hover{
         position:static;
     }
 
-    .summary div{
+    .summary > div{
         flex-direction:column;
         align-items:flex-start;
         gap:8px;
     }
 
-    .summary input{
+    #discount,
+    .payment-amount-row input{
         width:100%;
     }
 
@@ -550,6 +588,10 @@ td button[onclick*="removeItem"]:hover{
 
     .payment-methods label{
         width:100%;
+    }
+
+    .payment-amount-row{
+        align-items:flex-start;
     }
 
     table{

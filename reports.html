@@ -3,19 +3,24 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Lebarto Electronics - Reports</title>
+    <title>Lebarto Electronics - Reports</title>
 
+    <link
+        rel="stylesheet"
+        href="reports.css"
+    >
 
-<link rel="stylesheet" href="reports.css">
-
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 
 </head>
 
@@ -23,398 +28,675 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <body>
 
 
-<!-- ================= SIDEBAR ================= -->
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
 
+<aside class="sidebar">
 
-<div class="sidebar">
+    <h2>
 
+        <i class="fa-solid fa-store"></i>
 
-<h2>
+        LEBARTO
 
-<i class="fa-solid fa-store"></i>
+    </h2>
 
-Lebarto
 
-</h2>
+    <a href="admin.html">
 
+        <i class="fa-solid fa-gauge"></i>
 
+        Dashboard
 
-<a href="admin.html">
+    </a>
 
-<i class="fa-solid fa-chart-line"></i>
 
-Dashboard
+    <a href="products.html">
 
-</a>
+        <i class="fa-solid fa-box"></i>
 
+        Products
 
+    </a>
 
-<a href="products.html">
 
-<i class="fa-solid fa-box"></i>
+    <a href="sales.html">
 
-Products
+        <i class="fa-solid fa-receipt"></i>
 
-</a>
+        Sales
 
+    </a>
 
 
-<a href="categories.html">
+    <a
+        href="reports.html"
+        class="active"
+    >
 
-<i class="fa-solid fa-list"></i>
+        <i class="fa-solid fa-chart-line"></i>
 
-Categories
+        Reports
 
-</a>
+    </a>
 
 
+    <a href="cashier.html">
 
-<a href="suppliers.html">
+        <i class="fa-solid fa-cash-register"></i>
 
-<i class="fa-solid fa-truck"></i>
+        POS
 
-Suppliers
+    </a>
 
-</a>
 
+    <a
+        href="#"
+        id="logoutBtn"
+    >
 
+        <i class="fa-solid fa-right-from-bracket"></i>
 
-<a href="customers.html">
+        Logout
 
-<i class="fa-solid fa-users"></i>
+    </a>
 
-Customers
+</aside>
 
-</a>
 
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
 
+<main class="main">
 
-<a href="sales.html">
 
-<i class="fa-solid fa-cart-shopping"></i>
+    <!-- =================================================
+         TOP BAR
+    ================================================== -->
 
-Sales
+    <div class="topbar">
 
-</a>
+        <h1>
 
+            <i class="fa-solid fa-chart-line"></i>
 
+            Sales Reports
 
-<a href="reports.html" class="active">
+        </h1>
 
-<i class="fa-solid fa-chart-column"></i>
 
-Reports
+        <div class="admin-info">
 
-</a>
+            <i class="fa-solid fa-user-circle"></i>
 
+            <span id="adminName">
+                Admin
+            </span>
 
+        </div>
 
-<a href="users.html">
+    </div>
 
-<i class="fa-solid fa-user-gear"></i>
 
-Users
+    <!-- =================================================
+         STATISTICS CARDS
+    ================================================== -->
 
-</a>
+    <section class="cards">
 
 
+        <!-- TOTAL SALES -->
 
-<a href="#" id="logoutBtn">
+        <div class="card">
 
-<i class="fa-solid fa-right-from-bracket"></i>
+            <i class="fa-solid fa-money-bill-trend-up"></i>
 
-Logout
+            <div>
 
-</a>
+                <h3>
+                    Total Sales
+                </h3>
 
+                <p id="totalSales">
+                    KSh 0
+                </p>
 
-</div>
+            </div>
 
+        </div>
 
 
+        <!-- TRANSACTIONS -->
 
+        <div class="card">
 
+            <i class="fa-solid fa-receipt"></i>
 
+            <div>
 
-<!-- ================= MAIN ================= -->
+                <h3>
+                    Transactions
+                </h3>
 
+                <p id="totalTransactions">
+                    0
+                </p>
 
-<div class="main">
+            </div>
 
+        </div>
 
 
-<div class="topbar">
+        <!-- CASH -->
 
+        <div class="card cash-card">
 
-<h1>
-Reports Dashboard
-</h1>
+            <i class="fa-solid fa-money-bill"></i>
 
+            <div>
 
-<div class="admin-info">
+                <h3>
+                    Cash
+                </h3>
 
-<i class="fa-solid fa-user-shield"></i>
+                <p id="cashSales">
+                    KSh 0
+                </p>
 
-<span id="adminName">
-Admin
-</span>
+            </div>
 
-</div>
+        </div>
 
 
-</div>
+        <!-- MPESA -->
 
+        <div class="card mpesa-card">
 
+            <i class="fa-solid fa-mobile-screen-button"></i>
 
+            <div>
 
+                <h3>
+                    M-Pesa
+                </h3>
 
+                <p id="mpesaSales">
+                    KSh 0
+                </p>
 
+            </div>
 
+        </div>
 
-<!-- ================= REPORT CARDS ================= -->
 
+        <!-- BANK -->
 
-<div class="cards">
+        <div class="card bank-card">
 
+            <i class="fa-solid fa-building-columns"></i>
 
-<div class="card">
+            <div>
 
+                <h3>
+                    Bank
+                </h3>
 
-<i class="fa-solid fa-money-bill-wave"></i>
+                <p id="bankSales">
+                    KSh 0
+                </p>
 
+            </div>
 
-<div>
+        </div>
 
-<h3>Total Revenue</h3>
 
-<p id="totalRevenue">
+        <!-- GRAND TOTAL -->
 
-KSh 0
+        <div class="card grand-card">
 
-</p>
+            <i class="fa-solid fa-coins"></i>
 
-</div>
+            <div>
 
+                <h3>
+                    Grand Total
+                </h3>
 
-</div>
+                <p id="grandTotal">
+                    KSh 0
+                </p>
 
+            </div>
 
+        </div>
 
 
+    </section>
 
-<div class="card">
 
+    <!-- =================================================
+         FILTER
+    ================================================== -->
 
-<i class="fa-solid fa-chart-line"></i>
+    <section class="filter-box">
 
 
-<div>
+        <!-- FROM DATE -->
 
-<h3>Total Profit</h3>
+        <div class="filter-group">
 
-<p id="totalProfit">
+            <label>
+                From Date
+            </label>
 
-KSh 0
+            <input
+                type="date"
+                id="fromDate"
+            >
 
-</p>
+        </div>
 
-</div>
 
+        <!-- TO DATE -->
 
-</div>
+        <div class="filter-group">
 
+            <label>
+                To Date
+            </label>
 
+            <input
+                type="date"
+                id="toDate"
+            >
 
+        </div>
 
 
-<div class="card">
+        <!-- PAYMENT METHOD -->
 
+        <div class="filter-group">
 
-<i class="fa-solid fa-box"></i>
+            <label>
+                Payment Method
+            </label>
 
+            <select id="paymentFilter">
 
-<div>
+                <option value="">
+                    All Payments
+                </option>
 
-<h3>Products Sold</h3>
+                <option value="Cash">
+                    Cash
+                </option>
 
-<p id="productsSold">
+                <option value="M-Pesa">
+                    M-Pesa
+                </option>
 
-0
+                <option value="Bank">
+                    Bank
+                </option>
 
-</p>
+            </select>
 
-</div>
+        </div>
 
 
-</div>
+        <!-- SEARCH -->
 
+        <div class="filter-group">
 
+            <label>
+                Search
+            </label>
 
+            <input
+                type="text"
+                id="searchReport"
+                placeholder="Customer, receipt, product..."
+            >
 
+        </div>
 
-<div class="card">
 
+        <!-- GENERATE -->
 
-<i class="fa-solid fa-users"></i>
+        <button id="generateReportBtn">
 
+            <i class="fa-solid fa-filter"></i>
 
-<div>
+            Generate Report
 
-<h3>Customers</h3>
+        </button>
 
-<p id="customersCount">
 
-0
+    </section>
 
-</p>
 
-</div>
+    <!-- =================================================
+         REPORT HEADING
+    ================================================== -->
 
+    <section class="report-heading">
 
-</div>
+        <div>
 
+            <h2>
+                Sales Report
+            </h2>
 
-</div>
+            <p id="reportPeriod">
+                All Sales
+            </p>
 
+        </div>
 
 
+        <div class="report-actions">
 
+            <button id="printReportBtn">
 
+                <i class="fa-solid fa-print"></i>
 
+                Print
 
+            </button>
 
-<!-- ================= FILTER ================= -->
 
+            <button id="downloadReportBtn">
 
-<div class="filter-box">
+                <i class="fa-solid fa-download"></i>
 
+                Download CSV
 
-<label>
+            </button>
 
-Start Date
+        </div>
 
-</label>
+    </section>
 
 
-<input 
-type="date"
-id="startDate">
+    <!-- =================================================
+         REPORT SUMMARY
+    ================================================== -->
 
+    <section class="report-summary">
 
+        <h2>
+            Report Summary
+        </h2>
 
 
+        <div class="summary-grid">
 
-<label>
 
-End Date
+            <!-- TOTAL SALES -->
 
-</label>
+            <div class="summary-item">
 
+                <span>
+                    Total Sales
+                </span>
 
-<input
-type="date"
-id="endDate">
+                <strong id="summarySales">
+                    KSh 0
+                </strong>
 
+            </div>
 
 
+            <!-- TRANSACTIONS -->
 
+            <div class="summary-item">
 
-<button id="generateReportBtn">
+                <span>
+                    Transactions
+                </span>
 
-<i class="fa-solid fa-filter"></i>
+                <strong id="summaryTransactions">
+                    0
+                </strong>
 
-Generate Report
+            </div>
 
-</button>
 
+            <!-- CASH -->
 
+            <div class="summary-item">
 
-<button id="printReportBtn">
+                <span>
+                    Cash
+                </span>
 
-<i class="fa-solid fa-print"></i>
+                <strong id="summaryCash">
+                    KSh 0
+                </strong>
 
-Print
+            </div>
 
-</button>
 
+            <!-- MPESA -->
 
-</div>
+            <div class="summary-item">
 
+                <span>
+                    M-Pesa
+                </span>
 
+                <strong id="summaryMpesa">
+                    KSh 0
+                </strong>
 
+            </div>
 
 
+            <!-- BANK -->
 
+            <div class="summary-item">
 
-<!-- ================= REPORT TABLE ================= -->
+                <span>
+                    Bank
+                </span>
 
+                <strong id="summaryBank">
+                    KSh 0
+                </strong>
 
-<div class="table-container">
+            </div>
 
 
-<h2>
-Sales Summary
-</h2>
+            <!-- AMOUNT PAID -->
 
+            <div class="summary-item">
 
+                <span>
+                    Amount Paid
+                </span>
 
-<table>
+                <strong id="summaryPaid">
+                    KSh 0
+                </strong>
 
+            </div>
 
-<thead>
 
+            <!-- BALANCE -->
 
-<tr>
+            <div class="summary-item">
 
+                <span>
+                    Balance
+                </span>
 
-<th>#</th>
+                <strong id="summaryBalance">
+                    KSh 0
+                </strong>
 
-<th>Date</th>
+            </div>
 
-<th>Customer</th>
 
-<th>Items</th>
+        </div>
 
-<th>Total</th>
 
-<th>Payment</th>
+        <!-- GRAND TOTAL -->
 
+        <div class="grand-total">
 
-</tr>
+            Grand Total:
 
+            <span id="summaryGrandTotal">
+                KSh 0
+            </span>
 
-</thead>
+        </div>
 
+    </section>
 
 
-<tbody id="reportTable">
+    <!-- =================================================
+         DETAILED SALES TABLE
+    ================================================== -->
 
+    <section class="table-container">
 
-</tbody>
 
+        <div class="table-header">
 
-</table>
+            <h2>
+                Detailed Sales Report
+            </h2>
 
 
-</div>
+            <input
+                type="text"
+                id="tableSearch"
+                placeholder="Search report..."
+            >
 
+        </div>
 
 
+        <div class="table-scroll">
 
+            <table>
 
+                <thead>
 
-</div>
+                    <tr>
 
+                        <th>
+                            #
+                        </th>
 
+                        <th>
+                            Products
+                        </th>
 
+                        <th>
+                            Receipt
+                        </th>
 
+                        <th>
+                            Customer
+                        </th>
 
+                        <th>
+                            Cashier
+                        </th>
 
+                        <th>
+                            Payment
+                        </th>
 
-<script type="module" src="reports.js"></script>
+                        <th>
+                            Sales
+                        </th>
+
+                        <th>
+                            Paid
+                        </th>
+
+                        <th>
+                            Balance
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="reportTable">
+
+                    <tr>
+
+                        <td
+                            colspan="10"
+                            class="no-data"
+                        >
+
+                            Loading report...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="6">
+                            TOTAL
+                        </th>
+
+                        <th id="footerSales">
+                            KSh 0
+                        </th>
+
+                        <th id="footerPaid">
+                            KSh 0
+                        </th>
+
+                        <th id="footerBalance">
+                            KSh 0
+                        </th>
+
+                        <th></th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script
+    type="module"
+    src="reports.js"
+></script>
 
 
 </body>
-
 
 </html>

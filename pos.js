@@ -1,11 +1,8 @@
 // =====================================================
 // LEBARTO ELECTRONICS
 // POS.JS
-// =====================================================
-
-
-// =====================================================
-// IMPORTS
+// COMPLETE VERSION
+// SELLING PRICE + BUYING/COST PRICE + PROFIT
 // =====================================================
 
 import { auth, db } from "./firebase-config.js";
@@ -47,21 +44,16 @@ let cart = [];
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
-
         window.location.href = "login.html";
-
         return;
-
     }
 
     currentUser = user;
 
-    const userLoaded = await loadCurrentUser();
+    const loaded = await loadCurrentUser();
 
-    if (!userLoaded) {
-
+    if (!loaded) {
         return;
-
     }
 
     loadProducts();
@@ -79,15 +71,14 @@ async function loadCurrentUser() {
 
     try {
 
-        const userQuery = query(
+        const q = query(
             collection(db, "users"),
             where("uid", "==", currentUser.uid)
         );
 
-        const userSnapshot =
-            await getDocs(userQuery);
+        const snapshot = await getDocs(q);
 
-        if (userSnapshot.empty) {
+        if (snapshot.empty) {
 
             alert("User account not found.");
 
@@ -96,8 +87,7 @@ async function loadCurrentUser() {
         }
 
         currentUserData =
-            userSnapshot.docs[0].data();
-
+            snapshot.docs[0].data();
 
         if (currentUserData.role !== "cashier") {
 
@@ -160,6 +150,17 @@ function loadProducts() {
 
         displayProducts(filteredProducts);
 
+    }, (error) => {
+
+        console.error(
+            "Load products error:",
+            error
+        );
+
+        alert(
+            "Unable to load products."
+        );
+
     });
 
 }
@@ -175,28 +176,22 @@ function displayProducts(productArray) {
         document.getElementById("productList");
 
     if (!container) {
-
         return;
-
     }
 
     container.innerHTML = "";
 
-
     if (productArray.length === 0) {
 
         container.innerHTML = `
-
             <p class="empty">
                 No products found.
             </p>
-
         `;
 
         return;
 
     }
-
 
     productArray.forEach(product => {
 
@@ -204,11 +199,10 @@ function displayProducts(productArray) {
             Number(product.quantity) || 0;
 
         const minSellingPrice =
-            Number(product.minSellingPrice) || 0;
+            getSellingMin(product);
 
         const maxSellingPrice =
-            Number(product.maxSellingPrice) || 0;
-
+            getSellingMax(product);
 
         container.innerHTML += `
 
@@ -220,12 +214,16 @@ function displayProducts(productArray) {
 
                 <p>
                     Barcode:
-                    ${escapeHTML(String(product.barcode || ""))}
+                    ${escapeHTML(
+                        String(product.barcode || "")
+                    )}
                 </p>
 
                 <p>
                     Category:
-                    ${escapeHTML(product.category || "")}
+                    ${escapeHTML(
+                        product.category || ""
+                    )}
                 </p>
 
                 <p>
@@ -234,9 +232,13 @@ function displayProducts(productArray) {
                 </p>
 
                 <h4>
+
                     KSh ${moneyValue(minSellingPrice)}
+
                     -
+
                     KSh ${moneyValue(maxSellingPrice)}
+
                 </h4>
 
                 <button
@@ -260,12 +262,68 @@ function displayProducts(productArray) {
 
 
 // =====================================================
+// GET SELLING PRICE MIN
+// =====================================================
+
+function getSellingMin(product) {
+
+    return Number(
+        product.minSellingPrice ??
+        product.sellingPrice ??
+        product.price ??
+        0
+    ) || 0;
+
+}
+
+
+// =====================================================
+// GET SELLING PRICE MAX
+// =====================================================
+
+function getSellingMax(product) {
+
+    return Number(
+        product.maxSellingPrice ??
+        product.sellingPrice ??
+        product.price ??
+        getSellingMin(product)
+    ) || 0;
+
+}
+
+
+// =====================================================
+// GET BUYING / COST PRICE
+// =====================================================
+
+function getBuyingPrice(product) {
+
+    const value =
+
+        product.buyingPrice ??
+
+        product.costPrice ??
+
+        product.purchasePrice ??
+
+        product.buyPrice ??
+
+        product.cost ??
+
+        0;
+
+    return Number(value) || 0;
+
+}
+
+
+// =====================================================
 // SEARCH PRODUCTS
 // =====================================================
 
 const searchProduct =
     document.getElementById("searchProduct");
-
 
 if (searchProduct) {
 
@@ -277,7 +335,6 @@ if (searchProduct) {
                 this.value
                     .toLowerCase()
                     .trim();
-
 
             filteredProducts =
                 products.filter(product => {
@@ -304,7 +361,6 @@ if (searchProduct) {
 
                 });
 
-
             displayProducts(filteredProducts);
 
         }
@@ -320,19 +376,20 @@ if (searchProduct) {
 window.addToCart = function (id) {
 
     const product =
-        products.find(p => p.id === id);
-
+        products.find(
+            p => p.id === id
+        );
 
     if (!product) {
+
+        alert("Product not found.");
 
         return;
 
     }
 
-
     const stock =
         Number(product.quantity) || 0;
-
 
     if (stock <= 0) {
 
@@ -342,10 +399,10 @@ window.addToCart = function (id) {
 
     }
 
-
     const existing =
-        cart.find(item => item.id === id);
-
+        cart.find(
+            item => item.id === id
+        );
 
     if (existing) {
 
@@ -363,34 +420,52 @@ window.addToCart = function (id) {
 
     else {
 
+        const buyingPrice =
+            getBuyingPrice(product);
+
+        const minPrice =
+            getSellingMin(product);
+
+        const maxPrice =
+            getSellingMax(product);
+
         cart.push({
 
-            id: product.id,
+            id:
+                product.id,
 
-            barcode: product.barcode || "",
+            barcode:
+                product.barcode || "",
 
-            name: product.name || "",
+            name:
+                product.name || "",
 
             minPrice:
-                Number(product.minSellingPrice) || 0,
+                minPrice,
 
             maxPrice:
-                Number(product.maxSellingPrice) || 0,
+                maxPrice,
 
             price:
-                Number(product.minSellingPrice) || 0,
+                minPrice,
 
+            // IMPORTANT
             buyingPrice:
-                Number(product.buyingPrice) || 0,
+                buyingPrice,
 
-            quantity: 1,
+            // SAME VALUE FOR REPORTING
+            costPrice:
+                buyingPrice,
 
-            stock: stock
+            quantity:
+                1,
+
+            stock:
+                stock
 
         });
 
     }
-
 
     updateCart();
 
@@ -406,16 +481,11 @@ function updateCart() {
     const table =
         document.getElementById("cartTable");
 
-
     if (!table) {
-
         return;
-
     }
 
-
     table.innerHTML = "";
-
 
     if (cart.length === 0) {
 
@@ -424,7 +494,9 @@ function updateCart() {
             <tr>
 
                 <td colspan="5">
+
                     Cart is empty
+
                 </td>
 
             </tr>
@@ -437,17 +509,21 @@ function updateCart() {
 
     }
 
-
     cart.forEach(item => {
+
+        const lineTotal =
+            Number(item.price || 0) *
+            Number(item.quantity || 0);
 
         table.innerHTML += `
 
             <tr>
 
                 <td>
-                    ${escapeHTML(item.name)}
-                </td>
 
+                    ${escapeHTML(item.name)}
+
+                </td>
 
                 <td>
 
@@ -460,7 +536,6 @@ function updateCart() {
                             −
                         </button>
 
-
                         <input
                             type="number"
                             value="${item.quantity}"
@@ -468,9 +543,7 @@ function updateCart() {
                             max="${item.stock}"
                             step="1"
                             onchange="updateQuantity('${item.id}', this.value)"
-                            oninput="updateQuantity('${item.id}', this.value)"
                         >
-
 
                         <button
                             type="button"
@@ -483,7 +556,6 @@ function updateCart() {
 
                 </td>
 
-
                 <td>
 
                     <input
@@ -492,8 +564,6 @@ function updateCart() {
                         min="${item.minPrice}"
                         max="${item.maxPrice}"
                         step="0.01"
-                        oninput="editSellingPrice('${item.id}', this)"
-                        onchange="finishSellingPrice('${item.id}', this)"
                         onblur="finishSellingPrice('${item.id}', this)"
                         style="width:90px;"
                     >
@@ -514,15 +584,11 @@ function updateCart() {
 
                 </td>
 
-
                 <td>
 
-                    KSh ${moneyValue(
-                        item.price * item.quantity
-                    )}
+                    KSh ${moneyValue(lineTotal)}
 
                 </td>
-
 
                 <td>
 
@@ -543,74 +609,47 @@ function updateCart() {
 
     });
 
-
     calculateTotals();
 
 }
 
 
 // =====================================================
-// EDIT SELLING PRICE
-// =====================================================
-
-window.editSellingPrice = function (id, input) {
-
-    const item =
-        cart.find(product => product.id === id);
-
-    if (!item) {
-
-        return;
-
-    }
-
-    if (input.value === "") {
-
-        return;
-
-    }
-
-};
-
-
-// =====================================================
 // FINISH SELLING PRICE
 // =====================================================
 
-window.finishSellingPrice = function (id, input) {
+window.finishSellingPrice =
+function (id, input) {
 
     const item =
-        cart.find(product => product.id === id);
-
+        cart.find(
+            product => product.id === id
+        );
 
     if (!item) {
-
         return;
-
     }
-
 
     if (input.value === "") {
 
-        input.value = item.price;
+        input.value =
+            item.price;
 
         return;
 
     }
-
 
     const price =
         Number(input.value);
 
-
     if (isNaN(price)) {
 
-        input.value = item.price;
+        input.value =
+            item.price;
 
         return;
 
     }
-
 
     if (price < item.minPrice) {
 
@@ -618,12 +657,12 @@ window.finishSellingPrice = function (id, input) {
             `Selling price cannot be below KSh ${moneyValue(item.minPrice)}`
         );
 
-        input.value = item.price;
+        input.value =
+            item.price;
 
         return;
 
     }
-
 
     if (price > item.maxPrice) {
 
@@ -631,14 +670,15 @@ window.finishSellingPrice = function (id, input) {
             `Selling price cannot be above KSh ${moneyValue(item.maxPrice)}`
         );
 
-        input.value = item.price;
+        input.value =
+            item.price;
 
         return;
 
     }
 
-
-    item.price = price;
+    item.price =
+        price;
 
     updateCart();
 
@@ -652,15 +692,13 @@ window.finishSellingPrice = function (id, input) {
 window.increaseQty = function (id) {
 
     const item =
-        cart.find(product => product.id === id);
-
+        cart.find(
+            product => product.id === id
+        );
 
     if (!item) {
-
         return;
-
     }
-
 
     if (item.quantity >= item.stock) {
 
@@ -669,7 +707,6 @@ window.increaseQty = function (id) {
         return;
 
     }
-
 
     item.quantity++;
 
@@ -685,18 +722,15 @@ window.increaseQty = function (id) {
 window.decreaseQty = function (id) {
 
     const item =
-        cart.find(product => product.id === id);
-
+        cart.find(
+            product => product.id === id
+        );
 
     if (!item) {
-
         return;
-
     }
 
-
     item.quantity--;
-
 
     if (item.quantity <= 0) {
 
@@ -707,7 +741,6 @@ window.decreaseQty = function (id) {
 
     }
 
-
     updateCart();
 
 };
@@ -717,22 +750,20 @@ window.decreaseQty = function (id) {
 // DIRECT QUANTITY INPUT
 // =====================================================
 
-window.updateQuantity = function (id, value) {
+window.updateQuantity =
+function (id, value) {
 
     const item =
-        cart.find(product => product.id === id);
-
+        cart.find(
+            product => product.id === id
+        );
 
     if (!item) {
-
         return;
-
     }
-
 
     let quantity =
         Number(value);
-
 
     if (
         value === "" ||
@@ -744,19 +775,19 @@ window.updateQuantity = function (id, value) {
 
     }
 
-
     if (quantity > item.stock) {
 
         alert(
             `Only ${item.stock} items are available in stock.`
         );
 
-        quantity = item.stock;
+        quantity =
+            item.stock;
 
     }
 
-
-    item.quantity = quantity;
+    item.quantity =
+        quantity;
 
     updateCart();
 
@@ -780,6 +811,29 @@ window.removeItem = function (id) {
 
 
 // =====================================================
+// GET SUBTOTAL
+// =====================================================
+
+function getSubtotal() {
+
+    let subtotal = 0;
+
+    cart.forEach(item => {
+
+        subtotal +=
+
+            (Number(item.price) || 0) *
+
+            (Number(item.quantity) || 0);
+
+    });
+
+    return subtotal;
+
+}
+
+
+// =====================================================
 // CALCULATE TOTALS
 // =====================================================
 
@@ -788,44 +842,43 @@ function calculateTotals() {
     const subtotal =
         getSubtotal();
 
-    const grandTotal =
-        subtotal;
-
-
     const discountElement =
         document.getElementById("discount");
 
+    let discount = 0;
 
     if (discountElement) {
 
-        discountElement.value = 0;
+        discount =
+            Number(discountElement.value) || 0;
 
     }
 
+    const grandTotal =
+        Math.max(
+            0,
+            subtotal - discount
+        );
 
     const subtotalElement =
         document.getElementById("subtotal");
 
-
     if (subtotalElement) {
 
         subtotalElement.textContent =
-            "KSh " + moneyValue(subtotal);
+            money(subtotal);
 
     }
-
 
     const totalElement =
         document.getElementById("grandTotal");
 
-
     if (totalElement) {
 
         totalElement.textContent =
-            "KSh " + moneyValue(grandTotal);
+            money(grandTotal);
 
     }
-
 
     calculatePaymentTotal();
 
@@ -833,26 +886,15 @@ function calculateTotals() {
 
 
 // =====================================================
-// GET SUBTOTAL
+// DISCOUNT LISTENER
 // =====================================================
 
-function getSubtotal() {
-
-    let subtotal = 0;
-
-
-    cart.forEach(item => {
-
-        subtotal +=
-            (Number(item.price) || 0) *
-            (Number(item.quantity) || 0);
-
-    });
-
-
-    return subtotal;
-
-}
+document
+    .getElementById("discount")
+    ?.addEventListener(
+        "input",
+        calculateTotals
+    );
 
 
 // =====================================================
@@ -863,26 +905,31 @@ function getPaymentAmounts() {
 
     const cash =
         Number(
-            document.getElementById("cashAmount")?.value
+            document
+                .getElementById("cashAmount")
+                ?.value
         ) || 0;
-
 
     const mpesa =
         Number(
-            document.getElementById("mpesaAmount")?.value
+            document
+                .getElementById("mpesaAmount")
+                ?.value
         ) || 0;
-
 
     const bank =
         Number(
-            document.getElementById("bankAmount")?.value
+            document
+                .getElementById("bankAmount")
+                ?.value
         ) || 0;
-
 
     return {
 
         cash,
+
         mpesa,
+
         bank,
 
         totalPaid:
@@ -900,7 +947,9 @@ function getPaymentAmounts() {
 // =====================================================
 
 document
-    .querySelectorAll('input[name="paymentMethod"]')
+    .querySelectorAll(
+        'input[name="paymentMethod"]'
+    )
     .forEach(checkbox => {
 
         checkbox.addEventListener(
@@ -918,88 +967,79 @@ document
 function handlePaymentMethods() {
 
     const container =
-        document.getElementById("paymentAmounts");
-
+        document.getElementById(
+            "paymentAmounts"
+        );
 
     if (!container) {
-
         return;
-
     }
-
 
     const selectedMethods =
         [
             ...document.querySelectorAll(
                 'input[name="paymentMethod"]:checked'
             )
-        ].map(input => input.value);
-
-
-    /*
-       Save existing amounts before rebuilding
-       the payment fields.
-    */
+        ].map(
+            input => input.value
+        );
 
     const oldPayments =
         getPaymentAmounts();
 
-
     container.innerHTML = "";
-
 
     selectedMethods.forEach(method => {
 
         let id = "";
 
-
-        if (method === "Cash") {
+        if (
+            method.toLowerCase() === "cash"
+        ) {
 
             id = "cashAmount";
 
         }
 
-        else if (method === "M-Pesa") {
+        else if (
+            method.toLowerCase() === "m-pesa" ||
+            method.toLowerCase() === "mpesa"
+        ) {
 
             id = "mpesaAmount";
 
         }
 
-        else if (method === "Bank") {
+        else if (
+            method.toLowerCase() === "bank"
+        ) {
 
             id = "bankAmount";
 
         }
 
-
         let oldValue = 0;
 
-
-        if (method === "Cash") {
-
+        if (id === "cashAmount") {
             oldValue = oldPayments.cash;
-
         }
 
-        else if (method === "M-Pesa") {
-
+        else if (id === "mpesaAmount") {
             oldValue = oldPayments.mpesa;
-
         }
 
-        else if (method === "Bank") {
-
+        else if (id === "bankAmount") {
             oldValue = oldPayments.bank;
-
         }
-
 
         container.innerHTML += `
 
             <div class="payment-amount-row">
 
                 <label>
-                    ${method} Paid
+
+                    ${escapeHTML(method)} Paid
+
                 </label>
 
                 <input
@@ -1017,11 +1057,6 @@ function handlePaymentMethods() {
 
     });
 
-
-    /*
-       Attach input listeners.
-    */
-
     container
         .querySelectorAll("input")
         .forEach(input => {
@@ -1032,7 +1067,6 @@ function handlePaymentMethods() {
             );
 
         });
-
 
     calculatePaymentTotal();
 
@@ -1048,53 +1082,49 @@ function calculatePaymentTotal() {
     const payments =
         getPaymentAmounts();
 
-
     const amountPaidElement =
-        document.getElementById("amountPaid");
-
+        document.getElementById(
+            "amountPaid"
+        );
 
     if (amountPaidElement) {
 
         amountPaidElement.textContent =
-            "KSh " +
-            moneyValue(payments.totalPaid);
+            money(payments.totalPaid);
 
     }
 
+    const discount =
+        Number(
+            document.getElementById(
+                "discount"
+            )?.value
+        ) || 0;
 
     const total =
-        getSubtotal();
-
+        Math.max(
+            0,
+            getSubtotal() - discount
+        );
 
     const balance =
         payments.totalPaid -
         total;
 
-
     const balanceElement =
-        document.getElementById("balance");
-
+        document.getElementById(
+            "balance"
+        );
 
     if (balanceElement) {
 
         balanceElement.textContent =
-            "KSh " +
-            moneyValue(balance);
+            money(balance);
 
-
-        if (balance < 0) {
-
-            balanceElement.style.color =
-                "#dc3545";
-
-        }
-
-        else {
-
-            balanceElement.style.color =
-                "#198754";
-
-        }
+        balanceElement.style.color =
+            balance < 0
+            ? "#dc3545"
+            : "#198754";
 
     }
 
@@ -1112,37 +1142,34 @@ document
         () => {
 
             if (cart.length === 0) {
-
                 return;
-
             }
-
 
             if (!confirm("Clear cart?")) {
-
                 return;
-
             }
-
 
             cart = [];
 
-
             updateCart();
-
 
             const customer =
                 document.getElementById(
                     "customerName"
                 );
 
-
             if (customer) {
-
                 customer.value = "";
-
             }
 
+            const discount =
+                document.getElementById(
+                    "discount"
+                );
+
+            if (discount) {
+                discount.value = 0;
+            }
 
             document
                 .querySelectorAll(
@@ -1154,19 +1181,14 @@ document
 
                 });
 
-
             const paymentAmounts =
                 document.getElementById(
                     "paymentAmounts"
                 );
 
-
             if (paymentAmounts) {
-
                 paymentAmounts.innerHTML = "";
-
             }
-
 
             calculatePaymentTotal();
 
@@ -1205,27 +1227,35 @@ function validateSale() {
 
     }
 
-
-    // Validate prices.
-
     for (const item of cart) {
 
-        const price =
+        const sellingPrice =
             Number(item.price);
 
+        const buyingPrice =
+            Number(item.buyingPrice);
 
         if (
-            isNaN(price) ||
-            price < item.minPrice ||
-            price > item.maxPrice
+            isNaN(sellingPrice) ||
+            sellingPrice < item.minPrice ||
+            sellingPrice > item.maxPrice
         ) {
 
             alert(
+                `Invalid selling price for ${item.name}.`
+            );
 
-                `Invalid selling price for ${item.name}.\n\n` +
+            return false;
 
-                `Price must be between KSh ${moneyValue(item.minPrice)} and KSh ${moneyValue(item.maxPrice)}.`
+        }
 
+        if (
+            isNaN(buyingPrice) ||
+            buyingPrice < 0
+        ) {
+
+            alert(
+                `Invalid buying price for ${item.name}.`
             );
 
             return false;
@@ -1234,33 +1264,42 @@ function validateSale() {
 
     }
 
-
     const payments =
         getPaymentAmounts();
 
+    const discount =
+        Number(
+            document.getElementById(
+                "discount"
+            )?.value
+        ) || 0;
 
     const total =
-        getSubtotal();
+        Math.max(
+            0,
+            getSubtotal() - discount
+        );
 
-
-    if (payments.totalPaid <= 0) {
+    if (
+        payments.totalPaid <= 0
+    ) {
 
         alert(
-            "Please select a payment method and enter the amount paid."
+            "Please enter the amount paid."
         );
 
         return false;
 
     }
 
-
     const selectedMethods =
         document.querySelectorAll(
             'input[name="paymentMethod"]:checked'
         );
 
-
-    if (selectedMethods.length === 0) {
+    if (
+        selectedMethods.length === 0
+    ) {
 
         alert(
             "Please select at least one payment method."
@@ -1270,23 +1309,19 @@ function validateSale() {
 
     }
 
-
-    if (payments.totalPaid < total) {
+    if (
+        payments.totalPaid < total
+    ) {
 
         alert(
-
             `Amount paid is less than total.\n\n` +
-
-            `Total: KSh ${moneyValue(total)}\n` +
-
-            `Total Paid: KSh ${moneyValue(payments.totalPaid)}`
-
+            `Total: ${money(total)}\n` +
+            `Paid: ${money(payments.totalPaid)}`
         );
 
         return false;
 
     }
-
 
     return true;
 
@@ -1304,20 +1339,17 @@ document
         async () => {
 
             if (!validateSale()) {
-
                 return;
-
             }
-
 
             const btn =
                 document.getElementById(
                     "completeSale"
                 );
 
-
-            btn.disabled = true;
-
+            if (btn) {
+                btn.disabled = true;
+            }
 
             try {
 
@@ -1327,7 +1359,9 @@ document
 
             finally {
 
-                btn.disabled = false;
+                if (btn) {
+                    btn.disabled = false;
+                }
 
             }
 
@@ -1348,100 +1382,96 @@ async function completeSale() {
                 "customerName"
             );
 
-
         const customerName =
             customerElement?.value?.trim()
             ||
             "Walk-in Customer";
-
-
-        // ================= PAYMENT METHODS =================
 
         const paymentMethods =
             [
                 ...document.querySelectorAll(
                     'input[name="paymentMethod"]:checked'
                 )
-            ].map(item => item.value);
-
-
-        // ================= PAYMENT AMOUNTS =================
+            ].map(
+                item => item.value
+            );
 
         const payments =
             getPaymentAmounts();
 
-
         const cashAmount =
             payments.cash;
-
 
         const mpesaAmount =
             payments.mpesa;
 
-
         const bankAmount =
             payments.bank;
-
 
         const amountPaid =
             payments.totalPaid;
 
-
-        // ================= TOTALS =================
-
         const subtotal =
             getSubtotal();
 
-
-        const discount = 0;
-
+        const discount =
+            Number(
+                document.getElementById(
+                    "discount"
+                )?.value
+            ) || 0;
 
         const grandTotal =
-            subtotal;
-
+            Math.max(
+                0,
+                subtotal - discount
+            );
 
         const balance =
             amountPaid -
             grandTotal;
 
 
-        // ================= PROFIT =================
+        // =================================================
+        // BUILD SALE ITEMS
+        // =================================================
 
-        let profit = 0;
+        const saleItems = [];
+
+        let totalCost = 0;
+
+        let totalProfit = 0;
 
 
         cart.forEach(item => {
 
-            const price =
-                Number(item.price) || 0;
+            const quantity =
+                Number(item.quantity) || 0;
 
+            const sellingPrice =
+                Number(item.price) || 0;
 
             const buyingPrice =
                 Number(item.buyingPrice) || 0;
 
+            const lineRevenue =
+                sellingPrice *
+                quantity;
 
-            const qty =
-                Number(item.quantity) || 0;
+            const lineCost =
+                buyingPrice *
+                quantity;
 
+            const lineProfit =
+                lineRevenue -
+                lineCost;
 
-            profit +=
-                (price - buyingPrice) * qty;
+            totalCost +=
+                lineCost;
 
-        });
+            totalProfit +=
+                lineProfit;
 
-
-        // ================= RECEIPT NUMBER =================
-
-        const receiptNo =
-            generateReceiptNumber();
-
-
-        // ================= SALE ITEMS =================
-
-        const saleItems = [];
-
-
-        cart.forEach(item => {
 
             saleItems.push({
 
@@ -1449,27 +1479,63 @@ async function completeSale() {
                     item.id,
 
                 barcode:
-                    item.barcode,
+                    item.barcode || "",
 
                 name:
-                    item.name,
+                    item.name || "",
 
                 quantity:
-                    Number(item.quantity),
+                    quantity,
 
+                // SELLING PRICE
                 price:
-                    Number(item.price),
+                    sellingPrice,
 
+                sellingPrice:
+                    sellingPrice,
+
+                // BUYING PRICE
+                buyingPrice:
+                    buyingPrice,
+
+                // COST PRICE
+                costPrice:
+                    buyingPrice,
+
+                // TOTAL SELLING VALUE
                 total:
-                    Number(item.price) *
-                    Number(item.quantity)
+                    lineRevenue,
+
+                revenue:
+                    lineRevenue,
+
+                // TOTAL COST
+                costTotal:
+                    lineCost,
+
+                totalCost:
+                    lineCost,
+
+                // PROFIT
+                profit:
+                    lineProfit
 
             });
 
         });
 
 
-        // ================= SALE DATA =================
+        // =================================================
+        // RECEIPT NUMBER
+        // =================================================
+
+        const receiptNo =
+            generateReceiptNumber();
+
+
+        // =================================================
+        // SALE DATA
+        // =================================================
 
         const saleData = {
 
@@ -1485,9 +1551,7 @@ async function completeSale() {
             cashierId:
                 currentUser.uid,
 
-
             paymentMethods,
-
 
             cashAmount,
 
@@ -1495,9 +1559,7 @@ async function completeSale() {
 
             bankAmount,
 
-
             amountPaid,
-
 
             subtotal,
 
@@ -1506,19 +1568,22 @@ async function completeSale() {
             total:
                 grandTotal,
 
+            // IMPORTANT REPORT FIELDS
+            totalCost,
 
-            profit,
+            cost:
+                totalCost,
+
+            profit:
+                totalProfit,
 
             balance,
-
 
             items:
                 saleItems,
 
-
             status:
                 "Completed",
-
 
             date:
                 serverTimestamp()
@@ -1526,45 +1591,42 @@ async function completeSale() {
         };
 
 
-        // ================= SAVE SALE =================
+        // =================================================
+        // SAVE SALE
+        // =================================================
 
         await addDoc(
-
             collection(db, "sales"),
-
             saleData
-
         );
 
 
-        // ================= UPDATE STOCK =================
+        // =================================================
+        // UPDATE STOCK
+        // =================================================
 
         for (const item of cart) {
 
-            const product =
+            const currentProduct =
                 products.find(
                     p => p.id === item.id
                 );
 
-
-            if (!product) {
-
+            if (!currentProduct) {
                 continue;
-
             }
 
-
             const currentStock =
-                Number(product.quantity) || 0;
-
+                Number(
+                    currentProduct.quantity
+                ) || 0;
 
             const soldQuantity =
                 Number(item.quantity) || 0;
 
-
             const newStock =
-                currentStock - soldQuantity;
-
+                currentStock -
+                soldQuantity;
 
             await updateDoc(
 
@@ -1575,13 +1637,11 @@ async function completeSale() {
                 ),
 
                 {
-
                     quantity:
                         Math.max(
                             0,
                             newStock
                         )
-
                 }
 
             );
@@ -1589,96 +1649,76 @@ async function completeSale() {
         }
 
 
-        // ================= SAVE LAST SALE =================
+        // =================================================
+        // SAVE LAST SALE
+        // =================================================
 
         window.lastSale = {
 
-            receiptNo,
-
-            customerName,
-
-            cashier:
-                currentUserData?.name ||
-                currentUser.email ||
-                "Unknown Cashier",
-
-            paymentMethods,
-
-            cashAmount,
-
-            mpesaAmount,
-
-            bankAmount,
-
-            amountPaid,
-
-            subtotal,
-
-            discount,
-
-            total:
-                grandTotal,
-
-            profit,
-
-            balance,
-
-            items:
-                [...saleItems],
+            ...saleData,
 
             date:
-                new Date()
+                new Date(),
+
+            items:
+                [...saleItems]
 
         };
 
+
+        // =================================================
+        // SUCCESS
+        // =================================================
 
         alert(
             "Sale completed successfully!"
         );
 
 
-        // ================= PRINT RECEIPT =================
+        // =================================================
+        // PRINT RECEIPT
+        // =================================================
 
         generateReceipt();
 
 
-        // ================= RESET =================
+        // =================================================
+        // RESET
+        // =================================================
 
         cart = [];
 
         updateCart();
 
-
         if (customerElement) {
-
             customerElement.value = "";
-
         }
 
+        const discountElement =
+            document.getElementById(
+                "discount"
+            );
+
+        if (discountElement) {
+            discountElement.value = 0;
+        }
 
         document
             .querySelectorAll(
                 'input[name="paymentMethod"]'
             )
             .forEach(box => {
-
                 box.checked = false;
-
             });
-
 
         const paymentAmounts =
             document.getElementById(
                 "paymentAmounts"
             );
 
-
         if (paymentAmounts) {
-
             paymentAmounts.innerHTML = "";
-
         }
-
 
         calculateTotals();
 
@@ -1690,7 +1730,6 @@ async function completeSale() {
             "Complete sale error:",
             error
         );
-
 
         alert(
             "Unable to complete sale: " +
@@ -1710,7 +1749,6 @@ function generateReceiptNumber() {
 
     const now =
         new Date();
-
 
     return "INV-" +
 
@@ -1759,7 +1797,6 @@ document
 
             }
 
-
             generateReceipt();
 
         }
@@ -1767,7 +1804,7 @@ document
 
 
 // =====================================================
-// MONEY FORMAT
+// MONEY
 // =====================================================
 
 function moneyValue(value) {
@@ -1783,7 +1820,6 @@ function moneyValue(value) {
 
 }
 
-
 function money(value) {
 
     return "KSh " +
@@ -1793,10 +1829,23 @@ function money(value) {
 
 
 // =====================================================
-// FORMAT DATE
+// DATE
 // =====================================================
 
 function formatDate(date) {
+
+    if (!date) {
+        return "";
+    }
+
+    if (
+        typeof date.toDate === "function"
+    ) {
+
+        date =
+            date.toDate();
+
+    }
 
     return new Date(date)
         .toLocaleString(
@@ -1822,13 +1871,10 @@ function generateReceipt() {
 
     }
 
-
     const sale =
         window.lastSale;
 
-
     let itemsHTML = "";
-
 
     sale.items.forEach(item => {
 
@@ -1840,15 +1886,15 @@ function generateReceipt() {
                     ${escapeHTML(item.name)}
                 </td>
 
-                <td
-                    style="text-align:center;"
-                >
+                <td style="text-align:center;">
                     ${item.quantity}
                 </td>
 
-                <td
-                    style="text-align:right;"
-                >
+                <td style="text-align:right;">
+                    ${money(item.price)}
+                </td>
+
+                <td style="text-align:right;">
                     ${money(item.total)}
                 </td>
 
@@ -1863,9 +1909,8 @@ function generateReceipt() {
         window.open(
             "",
             "_blank",
-            "width=400,height=700"
+            "width=450,height=750"
         );
-
 
     if (!receipt) {
 
@@ -1886,84 +1931,56 @@ function generateReceipt() {
 
         <head>
 
-            <title>Receipt</title>
+            <title>
+                Receipt ${escapeHTML(sale.receiptNo)}
+            </title>
 
             <style>
 
                 body {
-
-                    font-family:Arial,sans-serif;
-
-                    width:300px;
-
-                    margin:auto;
-
-                    padding:10px;
-
-                    font-size:13px;
-
+                    font-family: Arial, sans-serif;
+                    width: 350px;
+                    margin: auto;
+                    padding: 10px;
+                    font-size: 13px;
                 }
 
                 h2 {
-
-                    text-align:center;
-
-                    margin-bottom:5px;
-
+                    text-align: center;
+                    margin-bottom: 5px;
                 }
 
                 p {
-
-                    margin:3px 0;
-
+                    margin: 4px 0;
                 }
 
                 hr {
-
-                    border:none;
-
-                    border-top:1px dashed #000;
-
+                    border: none;
+                    border-top: 1px dashed #000;
                 }
 
                 table {
-
-                    width:100%;
-
-                    border-collapse:collapse;
-
+                    width: 100%;
+                    border-collapse: collapse;
                 }
 
+                th,
                 td {
-
-                    padding:3px 0;
-
+                    padding: 4px 2px;
                 }
 
                 .total {
-
-                    font-size:16px;
-
-                    font-weight:bold;
-
+                    font-size: 16px;
+                    font-weight: bold;
                 }
 
                 .center {
-
-                    text-align:center;
-
-                }
-
-                .right {
-
-                    text-align:right;
-
+                    text-align: center;
                 }
 
             </style>
 
         </head>
-
 
         <body>
 
@@ -1979,7 +1996,7 @@ function generateReceipt() {
 
             <p>
                 <strong>Receipt:</strong>
-                ${sale.receiptNo}
+                ${escapeHTML(sale.receiptNo)}
             </p>
 
             <p>
@@ -2000,7 +2017,7 @@ function generateReceipt() {
             <p>
                 <strong>Payment:</strong>
                 ${
-                    sale.paymentMethods.length > 0
+                    sale.paymentMethods?.length
                     ? sale.paymentMethods.join(", ")
                     : "None"
                 }
@@ -2021,6 +2038,10 @@ function generateReceipt() {
                     </th>
 
                     <th align="right">
+                        Price
+                    </th>
+
+                    <th align="right">
                         Total
                     </th>
 
@@ -2036,83 +2057,63 @@ function generateReceipt() {
 
                 Subtotal
 
-                <span
-                    class="right"
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.subtotal)}
-
                 </span>
 
             </p>
 
+            <p>
+
+                Discount
+
+                <span style="float:right;">
+                    ${money(sale.discount)}
+                </span>
+
+            </p>
 
             <p class="total">
 
                 TOTAL
 
-                <span
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.total)}
-
                 </span>
 
             </p>
 
-
             <hr>
-
 
             <p>
 
                 Cash
 
-                <span
-                    class="right"
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.cashAmount)}
-
                 </span>
 
             </p>
-
 
             <p>
 
                 M-Pesa
 
-                <span
-                    class="right"
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.mpesaAmount)}
-
                 </span>
 
             </p>
-
 
             <p>
 
                 Bank
 
-                <span
-                    class="right"
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.bankAmount)}
-
                 </span>
 
             </p>
-
 
             <p>
 
@@ -2120,10 +2121,7 @@ function generateReceipt() {
                     Total Paid
                 </strong>
 
-                <span
-                    class="right"
-                    style="float:right;"
-                >
+                <span style="float:right;">
 
                     <strong>
                         ${money(sale.amountPaid)}
@@ -2133,24 +2131,17 @@ function generateReceipt() {
 
             </p>
 
-
             <p>
 
                 Balance
 
-                <span
-                    style="float:right;"
-                >
-
+                <span style="float:right;">
                     ${money(sale.balance)}
-
                 </span>
 
             </p>
 
-
             <hr>
-
 
             <p class="center">
                 Thank You For Shopping!
@@ -2160,18 +2151,15 @@ function generateReceipt() {
                 Please Come Again
             </p>
 
-
         </body>
 
         </html>
 
     `);
 
-
     receipt.document.close();
 
     receipt.focus();
-
 
     setTimeout(() => {
 
@@ -2191,10 +2179,39 @@ function generateReceipt() {
 function escapeHTML(value) {
 
     return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
+
+
+// =====================================================
+// END
+// =====================================================
+
+console.log(
+    "LEBARTO POS MODULE LOADED SUCCESSFULLY."
+);

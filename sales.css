@@ -512,3 +512,29 @@ tr:hover{
 
 
 }
+/* =====================
+   PRODUCTS IN SALES TABLE
+===================== */
+
+.products-column {
+    min-width: 220px;
+}
+
+.sale-product {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.sale-product:last-child {
+    border-bottom: none;
+}
+
+.sale-product strong {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.sale-product span {
+    font-weight: bold;
+    color: #2563eb;
+}

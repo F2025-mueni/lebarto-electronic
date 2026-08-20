@@ -4,12 +4,15 @@
 // admin.js
 // ==========================================
 
+
 import { auth, db } from "./firebase-config.js";
+
 
 import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
 
 import {
     collection,
@@ -24,11 +27,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
-// ----------------------------
-// Check Authentication
-// ----------------------------
+
+
+
+// ==========================================
+// CHECK AUTHENTICATION
+// ==========================================
+
 
 onAuthStateChanged(auth, async (user) => {
+
 
     if (!user) {
 
@@ -38,24 +46,38 @@ onAuthStateChanged(auth, async (user) => {
 
     }
 
+
     try {
 
-        // Find the user's Firestore profile
-        // using the Firebase Authentication UID.
+
+        // ==========================================
+        // FIND USER PROFILE
+        // ==========================================
+
 
         const userQuery = query(
+
             collection(db, "users"),
+
             where("uid", "==", user.uid)
+
         );
 
-        const userSnapshot = await getDocs(userQuery);
+
+        const userSnapshot =
+            await getDocs(userQuery);
 
 
         if (userSnapshot.empty) {
 
-            alert("User record not found.");
+
+            alert(
+                "User record not found."
+            );
+
 
             await signOut(auth);
+
 
             return;
 
@@ -66,38 +88,67 @@ onAuthStateChanged(auth, async (user) => {
             userSnapshot.docs[0].data();
 
 
-        // Check admin permission
+
+
+
+        // ==========================================
+        // CHECK ADMIN PERMISSION
+        // ==========================================
+
 
         if (userData.role !== "admin") {
 
-            alert("Access denied.");
 
-            window.location.href = "cashier.html";
+            alert(
+                "Access denied."
+            );
+
+
+            window.location.href =
+                "cashier.html";
+
 
             return;
 
         }
 
 
-        // Display admin name
+
+
+
+        // ==========================================
+        // DISPLAY ADMIN NAME
+        // ==========================================
+
 
         document
             .getElementById("adminName")
-            .textContent = userData.name || "Admin";
+            .textContent =
+            userData.name || "Admin";
 
 
-        // Load dashboard
+
+
+
+        // ==========================================
+        // LOAD DASHBOARD
+        // ==========================================
+
 
         loadDashboard();
 
+
     }
 
+
     catch (error) {
+
 
         console.error(
             "Authentication check error:",
             error
         );
+
 
         alert(
             "Unable to load your account information."
@@ -108,11 +159,16 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 
-// ----------------------------
-// Dashboard
-// ----------------------------
+
+
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
 
 async function loadDashboard() {
+
 
     loadProducts();
 
@@ -127,49 +183,72 @@ async function loadDashboard() {
 }
 
 
-// ----------------------------
-// Total Products
-// ----------------------------
+
+
+
+// ==========================================
+// TOTAL PRODUCTS
+// ==========================================
+
 
 async function loadProducts() {
 
+
     try {
+
 
         const snapshot =
             await getDocs(
-                collection(db, "products")
+                collection(
+                    db,
+                    "products"
+                )
             );
 
 
         document
             .getElementById("totalProducts")
-            .innerHTML = snapshot.size;
+            .textContent =
+            snapshot.size;
+
 
     }
 
+
     catch (error) {
+
 
         console.error(
             "Products error:",
             error
         );
 
+
     }
 
 }
 
 
-// ----------------------------
-// Cashiers
-// ----------------------------
+
+
+
+// ==========================================
+// CASHIERS
+// ==========================================
+
 
 async function loadCashiers() {
 
+
     try {
+
 
         const snapshot =
             await getDocs(
-                collection(db, "users")
+                collection(
+                    db,
+                    "users"
+                )
             );
 
 
@@ -178,8 +257,10 @@ async function loadCashiers() {
 
         snapshot.forEach((userDoc) => {
 
+
             if (
-                userDoc.data().role === "cashier"
+                userDoc.data().role ===
+                "cashier"
             ) {
 
                 count++;
@@ -191,47 +272,75 @@ async function loadCashiers() {
 
         document
             .getElementById("totalCashiers")
-            .innerHTML = count;
+            .textContent =
+            count;
+
 
     }
 
+
     catch (error) {
+
 
         console.error(
             "Cashiers error:",
             error
         );
 
+
     }
 
 }
 
 
-// ----------------------------
-// Low Stock
-// ----------------------------
+
+
+
+// ==========================================
+// LOW STOCK
+// ==========================================
+
 
 async function loadLowStock() {
 
+
     try {
 
-        const snapshot = await getDocs(
-            collection(db, "products")
-        );
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "products"
+                )
+            );
+
 
         let low = 0;
 
+
         snapshot.forEach((productDoc) => {
 
-            const product = productDoc.data();
+
+            const product =
+                productDoc.data();
+
 
             const quantity =
-                Number(product.quantity || 0);
+                Number(
+                    product.quantity || 0
+                );
+
 
             const minimumStock =
-                Number(product.minimumStock || 5);
+                Number(
+                    product.minimumStock || 5
+                );
 
-            if (quantity <= minimumStock) {
+
+            if (
+                quantity <= minimumStock
+            ) {
 
                 low++;
 
@@ -239,39 +348,56 @@ async function loadLowStock() {
 
         });
 
+
         document
             .getElementById("lowStock")
-            .textContent = low;
+            .textContent =
+            low;
+
 
     }
 
+
     catch (error) {
+
 
         console.error(
             "Low stock error:",
             error
         );
 
+
         document
             .getElementById("lowStock")
-            .textContent = "0";
+            .textContent =
+            "0";
+
 
     }
 
 }
 
 
-// ----------------------------
-// Today's Sales
-// ----------------------------
+
+
+
+// ==========================================
+// TODAY'S SALES
+// ==========================================
+
 
 async function loadTodaySales() {
 
+
     try {
+
 
         const snapshot =
             await getDocs(
-                collection(db, "sales")
+                collection(
+                    db,
+                    "sales"
+                )
             );
 
 
@@ -284,11 +410,13 @@ async function loadTodaySales() {
 
         snapshot.forEach((saleDoc) => {
 
+
             const sale =
                 saleDoc.data();
 
 
             if (sale.date) {
+
 
                 const saleDate =
                     sale.date
@@ -296,10 +424,15 @@ async function loadTodaySales() {
                         .toDateString();
 
 
-                if (saleDate === today) {
+                if (
+                    saleDate === today
+                ) {
+
 
                     total +=
-                        Number(sale.total) || 0;
+                        Number(
+                            sale.total
+                        ) || 0;
 
                 }
 
@@ -310,31 +443,41 @@ async function loadTodaySales() {
 
         document
             .getElementById("todaySales")
-            .innerHTML =
-                "KSh " +
-                total.toLocaleString();
+            .textContent =
+            "KSh " +
+            total.toLocaleString();
+
 
     }
 
+
     catch (error) {
+
 
         console.error(
             "Today's sales error:",
             error
         );
 
+
     }
 
 }
 
 
-// ----------------------------
-// Recent Sales
-// ----------------------------
+
+
+
+// ==========================================
+// RECENT SALES
+// ==========================================
+
 
 async function loadRecentSales() {
 
+
     try {
+
 
         const salesBody =
             document.getElementById(
@@ -347,9 +490,18 @@ async function loadRecentSales() {
 
         const q = query(
 
-            collection(db, "sales"),
 
-            orderBy("date", "desc"),
+            collection(
+                db,
+                "sales"
+            ),
+
+
+            orderBy(
+                "date",
+                "desc"
+            ),
+
 
             limit(10)
 
@@ -360,65 +512,274 @@ async function loadRecentSales() {
             await getDocs(q);
 
 
+
+
+
+        // ==========================================
+        // NO SALES
+        // ==========================================
+
+
+        if (snapshot.empty) {
+
+
+            salesBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        style="text-align:center;"
+                    >
+
+                        No recent sales found.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            return;
+
+        }
+
+
+
+
+
+        // ==========================================
+        // DISPLAY SALES
+        // ==========================================
+
+
         snapshot.forEach((saleDoc) => {
+
 
             const sale =
                 saleDoc.data();
+
+
+
+
+
+            // ==========================================
+            // PRODUCTS
+            // ==========================================
+
+
+            let products = "-";
+
+
+            if (
+                Array.isArray(
+                    sale.items
+                )
+                &&
+                sale.items.length > 0
+            ) {
+
+
+                products =
+                    sale.items
+                        .map((item) => {
+
+
+                            return `
+
+                                <div class="sale-product">
+
+                                    <strong>
+                                        ${
+                                            item.name ||
+                                            "Unknown Product"
+                                        }
+                                    </strong>
+
+                                    <span>
+                                        × ${
+                                            Number(
+                                                item.quantity ||
+                                                0
+                                            )
+                                        }
+                                    </span>
+
+                                </div>
+
+                            `;
+
+                        })
+                        .join("");
+
+            }
+
+
+
+
+
+            // ==========================================
+            // DATE
+            // ==========================================
+
+
+            let saleDate = "N/A";
+
+
+            if (sale.date) {
+
+
+                try {
+
+
+                    saleDate =
+                        sale.date
+                            .toDate()
+                            .toLocaleString();
+
+
+                }
+
+
+                catch (error) {
+
+
+                    saleDate = "N/A";
+
+
+                }
+
+            }
+
+
+
+
+
+            // ==========================================
+            // ADD ROW
+            // ==========================================
 
 
             salesBody.innerHTML += `
 
                 <tr>
 
-                    <td>
-                        ${sale.receiptNo || "N/A"}
+
+                    <!-- PRODUCTS -->
+
+
+                    <td class="products-column">
+
+                        ${products}
+
                     </td>
 
+
+
+                    <!-- RECEIPT NUMBER -->
+
+
                     <td>
+
                         ${
-                            sale.date
-                            ?
-                            sale.date
-                                .toDate()
-                                .toLocaleString()
-                            :
+                            sale.receiptNo ||
                             "N/A"
                         }
+
                     </td>
 
-                    <td>
-                        ${sale.cashier || "N/A"}
-                    </td>
+
+
+                    <!-- DATE -->
+
 
                     <td>
-                        KSh ${
-                            Number(sale.total || 0)
-                                .toLocaleString()
+
+                        ${saleDate}
+
+                    </td>
+
+
+
+                    <!-- CASHIER -->
+
+
+                    <td>
+
+                        ${
+                            sale.cashier ||
+                            "N/A"
                         }
+
                     </td>
 
+
+
+                    <!-- TOTAL -->
+
+
                     <td>
+
+                        KSh ${
+                            Number(
+                                sale.total ||
+                                0
+                            )
+                            .toLocaleString()
+                        }
+
+                    </td>
+
+
+
+                    <!-- ACTIONS -->
+
+
+                    <td>
+
 
                         <button
-                            class="action-btn edit-btn"
-                            onclick="editSale('${saleDoc.id}')">
 
-                            <i class="fa-solid fa-pen"></i>
+                            class="action-btn edit-btn"
+
+                            onclick="
+                                editSale(
+                                    '${saleDoc.id}'
+                                )
+                            ">
+
+                            <i
+                                class="fa-solid fa-pen"
+                            ></i>
+
                             Edit
 
                         </button>
 
 
-                        <button
-                            class="action-btn delete-btn"
-                            onclick="deleteSale('${saleDoc.id}')">
 
-                            <i class="fa-solid fa-trash"></i>
+                        <button
+
+                            class="action-btn delete-btn"
+
+                            onclick="
+                                deleteSale(
+                                    '${saleDoc.id}'
+                                )
+                            ">
+
+                            <i
+                                class="fa-solid fa-trash"
+                            ></i>
+
                             Delete
 
                         </button>
 
+
                     </td>
+
 
                 </tr>
 
@@ -428,148 +789,197 @@ async function loadRecentSales() {
 
     }
 
+
     catch (error) {
+
 
         console.error(
             "Recent sales error:",
             error
         );
 
+
     }
 
 }
 
 
-// ----------------------------
-// Delete Sale
-// ----------------------------
-
-window.deleteSale = async function(id) {
-
-    if (!confirm("Delete this sale?")) {
-
-        return;
-
-    }
 
 
-    try {
 
-        await deleteDoc(
-            doc(
-                db,
-                "sales",
-                id
+// ==========================================
+// DELETE SALE
+// ==========================================
+
+
+window.deleteSale =
+    async function(id) {
+
+
+        if (
+            !confirm(
+                "Delete this sale?"
             )
-        );
+        ) {
+
+            return;
+
+        }
 
 
-        alert("Sale deleted.");
+        try {
 
 
-        loadRecentSales();
+            await deleteDoc(
 
-        loadTodaySales();
+                doc(
+                    db,
+                    "sales",
+                    id
+                )
 
-    }
-
-    catch (error) {
-
-        console.error(
-            "Delete sale error:",
-            error
-        );
-
-        alert(
-            "Failed to delete sale."
-        );
-
-    }
-
-};
+            );
 
 
-// ----------------------------
-// Edit Sale
-// ----------------------------
-
-window.editSale = async function(id) {
-
-    const newTotal =
-        prompt(
-            "Enter new sale total:"
-        );
+            alert(
+                "Sale deleted."
+            );
 
 
-    if (newTotal === null) {
+            loadRecentSales();
 
-        return;
-
-    }
+            loadTodaySales();
 
 
-    const total =
-        Number(newTotal);
+        }
 
 
-    if (
-        isNaN(total) ||
-        total < 0
-    ) {
-
-        alert(
-            "Please enter a valid amount."
-        );
-
-        return;
-
-    }
+        catch (error) {
 
 
-    try {
-
-        await updateDoc(
-            doc(
-                db,
-                "sales",
-                id
-            ),
-            {
-                total: total
-            }
-        );
+            console.error(
+                "Delete sale error:",
+                error
+            );
 
 
-        alert(
-            "Sale updated successfully."
-        );
+            alert(
+                "Failed to delete sale."
+            );
 
 
-        loadRecentSales();
+        }
 
-        loadTodaySales();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Edit sale error:",
-            error
-        );
-
-        alert(
-            "Failed to update sale."
-        );
-
-    }
-
-};
+    };
 
 
-// ----------------------------
-// Logout
-// ----------------------------
+
+
+
+// ==========================================
+// EDIT SALE
+// ==========================================
+
+
+window.editSale =
+    async function(id) {
+
+
+        const newTotal =
+            prompt(
+                "Enter new sale total:"
+            );
+
+
+        if (
+            newTotal === null
+        ) {
+
+            return;
+
+        }
+
+
+        const total =
+            Number(newTotal);
+
+
+        if (
+            isNaN(total)
+            ||
+            total < 0
+        ) {
+
+
+            alert(
+                "Please enter a valid amount."
+            );
+
+
+            return;
+
+        }
+
+
+        try {
+
+
+            await updateDoc(
+
+                doc(
+                    db,
+                    "sales",
+                    id
+                ),
+
+                {
+
+                    total: total
+
+                }
+
+            );
+
+
+            alert(
+                "Sale updated successfully."
+            );
+
+
+            loadRecentSales();
+
+            loadTodaySales();
+
+
+        }
+
+
+        catch (error) {
+
+
+            console.error(
+                "Edit sale error:",
+                error
+            );
+
+
+            alert(
+                "Failed to update sale."
+            );
+
+
+        }
+
+    };
+
+
+
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
 
 document
     .getElementById("logoutBtn")
@@ -577,14 +987,38 @@ document
         "click",
         async (e) => {
 
+
             e.preventDefault();
 
 
-            await signOut(auth);
+            try {
 
 
-            window.location.href =
-                "login.html";
+                await signOut(auth);
+
+
+                window.location.href =
+                    "login.html";
+
+
+            }
+
+
+            catch (error) {
+
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to logout."
+                );
+
+
+            }
 
         }
     );

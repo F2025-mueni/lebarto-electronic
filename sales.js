@@ -1,7 +1,7 @@
 // =====================================================
 // LEBARTO ELECTRONICS
 // SALES.JS
-// SALES HISTORY • FILTER • RECEIPTS
+// SALES HISTORY • PRODUCTS • FILTER • RECEIPTS
 // =====================================================
 
 
@@ -44,25 +44,24 @@ let selectedSale = null;
 
 
 
-
 // =====================================================
 // AUTH CHECK
 // =====================================================
 
 
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth, (user) => {
 
 
-    if(!user){
+    if (!user) {
 
-        window.location.href="login.html";
+        window.location.href = "login.html";
 
         return;
 
     }
 
 
-    currentUser=user;
+    currentUser = user;
 
 
     loadSales();
@@ -74,44 +73,37 @@ onAuthStateChanged(auth,(user)=>{
 
 
 
-
-
 // =====================================================
 // LOAD SALES
 // =====================================================
 
 
-async function loadSales(){
+async function loadSales() {
+
+    try {
 
 
-    try{
+        const q = query(
 
+            collection(db, "sales"),
 
-        const q=query(
-
-            collection(db,"sales"),
-
-            orderBy("date","desc")
+            orderBy("date", "desc")
 
         );
 
 
-
-        const snapshot =
-        await getDocs(q);
+        const snapshot = await getDocs(q);
 
 
-
-        sales=[];
-
+        sales = [];
 
 
-        snapshot.forEach((item)=>{
+        snapshot.forEach((item) => {
 
 
             sales.push({
 
-                id:item.id,
+                id: item.id,
 
                 ...item.data()
 
@@ -121,18 +113,14 @@ async function loadSales(){
         });
 
 
-
         displaySales(sales);
-
 
         updateStatistics();
 
 
-
     }
 
-
-    catch(error){
+    catch (error) {
 
 
         console.error(error);
@@ -142,10 +130,7 @@ async function loadSales(){
 
     }
 
-
 }
-
-
 
 
 
@@ -156,31 +141,35 @@ async function loadSales(){
 // =====================================================
 
 
-function displaySales(data){
+function displaySales(data) {
 
 
     const table =
-    document.getElementById("salesTable");
+        document.getElementById("salesTable");
 
 
-    table.innerHTML="";
+    table.innerHTML = "";
 
 
+    // =============================================
+    // NO SALES
+    // =============================================
 
-    if(data.length===0){
+
+    if (data.length === 0) {
 
 
-        table.innerHTML=`
+        table.innerHTML = `
 
-        <tr>
+            <tr>
 
-        <td colspan="8">
+                <td colspan="9">
 
-        No Sales Found
+                    No Sales Found
 
-        </td>
+                </td>
 
-        </tr>
+            </tr>
 
         `;
 
@@ -193,108 +182,236 @@ function displaySales(data){
 
 
 
+    // =============================================
+    // DISPLAY EACH SALE
+    // =============================================
 
-    data.forEach((sale,index)=>{
+
+    data.forEach((sale, index) => {
+
+
+        // =============================================
+        // CREATE PRODUCTS LIST
+        // =============================================
+
+
+        let products = "-";
+
+
+        if (
+            Array.isArray(sale.items) &&
+            sale.items.length > 0
+        ) {
+
+
+            products = sale.items.map((item) => {
+
+
+                return `
+
+                    <div class="sale-product">
+
+                        <strong>
+
+                            ${item.name || "Unknown Product"}
+
+                        </strong>
+
+
+                        <span>
+
+                            × ${Number(item.quantity || 0)}
+
+                        </span>
+
+                    </div>
+
+                `;
+
+
+            }).join("");
+
+        }
+
+
+
+
+
+        // =============================================
+        // PAYMENT METHODS
+        // =============================================
+
+
+        let payment = "-";
+
+
+        if (
+            Array.isArray(sale.paymentMethods) &&
+            sale.paymentMethods.length > 0
+        ) {
+
+            payment =
+                sale.paymentMethods.join(", ");
+
+        }
+
+
+
+
+
+        // =============================================
+        // DATE
+        // =============================================
+
+
+        let saleDate = "N/A";
+
+
+        if (sale.date) {
+
+            try {
+
+                saleDate =
+                    sale.date.toDate().toLocaleString();
+
+            }
+
+            catch (error) {
+
+                saleDate = "N/A";
+
+            }
+
+        }
+
+
+
+
+
+        // =============================================
+        // CREATE TABLE ROW
+        // =============================================
 
 
         table.innerHTML += `
 
-
-        <tr>
-
-
-        <td>${index+1}</td>
+            <tr>
 
 
-        <td>
+                <!-- NUMBER -->
 
-        ${sale.receiptNo || sale.id.substring(0,8)}
+                <td>
 
-        </td>
+                    ${index + 1}
 
-
-        <td>
-
-        ${sale.customerName || "Walk-in Customer"}
-
-        </td>
+                </td>
 
 
 
-        <td>
+                <!-- PRODUCTS -->
 
-        ${sale.cashier || "-"}
+                <td class="products-column">
 
-        </td>
+                    ${products}
 
-
-
-        <td>
-
-       ${sale.paymentMethods
-    ? sale.paymentMethods.join(", ")
-    : "-"}
-
-        </td>
+                </td>
 
 
 
-        <td>
+                <!-- RECEIPT NUMBER -->
 
-        KSh ${Number(sale.total)
-        .toLocaleString()}
+                <td>
 
-        </td>
+                    ${
+                        sale.receiptNo ||
+                        sale.id.substring(0, 8)
+                    }
 
-
-
-
-        <td>
-
-      ${
-sale.date
-?
-sale.date.toDate().toLocaleString()
-:
-"N/A"
-}
-
-        </td>
+                </td>
 
 
 
+                <!-- CUSTOMER -->
 
-        <td>
+                <td>
 
+                    ${
+                        sale.customerName ||
+                        "Walk-in Customer"
+                    }
 
-        <button
-
-        class="view-btn"
-
-        onclick="viewSale('${sale.id}')">
-
-
-        <i class="fa-solid fa-eye"></i>
+                </td>
 
 
-        </button>
+
+                <!-- CASHIER -->
+
+                <td>
+
+                    ${sale.cashier || "-"}
+
+                </td>
 
 
-        </td>
+
+                <!-- PAYMENT -->
+
+                <td>
+
+                    ${payment}
+
+                </td>
 
 
-        </tr>
 
+                <!-- TOTAL -->
+
+                <td>
+
+                    KSh ${Number(
+                        sale.total || 0
+                    ).toLocaleString()}
+
+                </td>
+
+
+
+                <!-- DATE -->
+
+                <td>
+
+                    ${saleDate}
+
+                </td>
+
+
+
+                <!-- ACTION -->
+
+                <td>
+
+                    <button
+
+                        class="view-btn"
+
+                        onclick="viewSale('${sale.id}')"
+
+                        title="View Receipt">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                    </button>
+
+                </td>
+
+
+            </tr>
 
         `;
 
-
     });
 
-
 }
-
-
 
 
 
@@ -305,86 +422,109 @@ sale.date.toDate().toLocaleString()
 // =====================================================
 
 
-function updateStatistics(){
+function updateStatistics() {
 
 
-    let total=0;
+    // =============================================
+    // TOTAL SALES
+    // =============================================
 
 
+    let total = 0;
 
-    sales.forEach(sale=>{
+
+    sales.forEach((sale) => {
 
 
-      total += Number(sale.total) || 0;
+        total +=
+            Number(sale.total) || 0;
 
 
     });
 
 
+    document
+        .getElementById("totalSales")
+        .textContent =
+        "KSh " + total.toLocaleString();
+
+
+
+
+
+    // =============================================
+    // TOTAL TRANSACTIONS
+    // =============================================
+
 
     document
-    .getElementById("totalSales")
-    .textContent =
-    "KSh " + total.toLocaleString();
+        .getElementById("totalTransactions")
+        .textContent =
+        sales.length;
 
 
 
-    document
-    .getElementById("totalTransactions")
-    .textContent =
-    sales.length;
 
 
+    // =============================================
+    // TODAY'S SALES
+    // =============================================
 
-    let todayTotal=0;
 
+    let todayTotal = 0;
 
 
     let today =
-    new Date()
-    .toDateString();
+        new Date().toDateString();
 
 
+    sales.forEach((sale) => {
 
 
-    sales.forEach(sale=>{
+        if (sale.date) {
 
 
-        if(sale.date){
+            try {
 
 
-            let saleDate =
-            new Date(
-            sale.date.seconds*1000
-            )
-            .toDateString();
+                let saleDate =
+                    new Date(
+                        sale.date.seconds * 1000
+                    ).toDateString();
 
 
+                if (saleDate === today) {
 
-          if(saleDate===today){
 
-    todayTotal += Number(sale.total || 0);
+                    todayTotal +=
+                        Number(sale.total || 0);
 
-}
+                }
 
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Date error:",
+                    error
+                );
+
+            }
 
         }
-
 
     });
 
 
-
-
     document
-    .getElementById("todaySales")
-    .textContent =
-    "KSh " + todayTotal.toLocaleString();
-
+        .getElementById("todaySales")
+        .textContent =
+        "KSh " +
+        todayTotal.toLocaleString();
 
 }
-
-
 
 
 
@@ -395,18 +535,16 @@ function updateStatistics(){
 // =====================================================
 
 
-window.viewSale=function(id){
-
+window.viewSale = function (id) {
 
 
     selectedSale =
-    sales.find(
-        sale=>sale.id===id
-    );
+        sales.find(
+            (sale) => sale.id === id
+        );
 
 
-
-    if(!selectedSale){
+    if (!selectedSale) {
 
         return;
 
@@ -414,139 +552,245 @@ window.viewSale=function(id){
 
 
 
-    let html=`
+
+
+    // =============================================
+    // PAYMENT
+    // =============================================
+
+
+    let payment = "-";
+
+
+    if (
+        Array.isArray(
+            selectedSale.paymentMethods
+        )
+    ) {
+
+        payment =
+            selectedSale.paymentMethods.join(", ");
+
+    }
 
 
 
-    <h3>
-    Lebarto Electronics
-    </h3>
 
 
-
-    <p>
-    Customer:
-    ${selectedSale.customerName}
-    </p>
+    // =============================================
+    // RECEIPT INFORMATION
+    // =============================================
 
 
+    let html = `
 
-<p>
-Payment:
-${selectedSale.paymentMethods
-    ? selectedSale.paymentMethods.join(", ")
-    : "-"}
-</p>
-<p>
-Cashier:
-${selectedSale.cashier}
-</p>
+        <h3>
 
-<p>
-Receipt:
-${selectedSale.receiptNo}
-</p>
+            Lebarto Electronics
 
-<p>
-Discount:
-KSh ${Number(selectedSale.discount || 0).toLocaleString()}
-</p>
-
-<p>
-Paid:
-KSh ${Number(selectedSale.amountPaid || 0).toLocaleString()}
-</p>
-
-<p>
-Balance:
-KSh ${Number(selectedSale.balance || 0).toLocaleString()}
-</p>
+        </h3>
 
 
+        <p>
 
-    <hr>
+            Customer:
+
+            ${
+                selectedSale.customerName ||
+                "Walk-in Customer"
+            }
+
+        </p>
 
 
+        <p>
 
+            Payment:
+
+            ${payment}
+
+        </p>
+
+
+        <p>
+
+            Cashier:
+
+            ${selectedSale.cashier || "-"}
+
+        </p>
+
+
+        <p>
+
+            Receipt:
+
+            ${
+                selectedSale.receiptNo ||
+                selectedSale.id
+            }
+
+        </p>
+
+
+        <p>
+
+            Discount:
+
+            KSh ${Number(
+                selectedSale.discount || 0
+            ).toLocaleString()}
+
+        </p>
+
+
+        <p>
+
+            Paid:
+
+            KSh ${Number(
+                selectedSale.amountPaid || 0
+            ).toLocaleString()}
+
+        </p>
+
+
+        <p>
+
+            Balance:
+
+            KSh ${Number(
+                selectedSale.balance || 0
+            ).toLocaleString()}
+
+        </p>
+
+
+        <hr>
 
     `;
 
 
 
-    selectedSale.items.forEach(item=>{
+
+
+    // =============================================
+    // PRODUCTS
+    // =============================================
+
+
+    if (
+        Array.isArray(selectedSale.items) &&
+        selectedSale.items.length > 0
+    ) {
+
+
+        selectedSale.items.forEach((item) => {
+
+
+            let itemTotal =
+                Number(item.total) ||
+                (
+                    Number(item.price || 0) *
+                    Number(item.quantity || 0)
+                ) ||
+                0;
+
+
+            html += `
+
+                <div class="receipt-item">
+
+
+                    <span>
+
+                        ${item.name || "Unknown Product"}
+
+                        x
+
+                        ${Number(
+                            item.quantity || 0
+                        )}
+
+                    </span>
+
+
+                    <span>
+
+                        KSh ${itemTotal.toLocaleString()}
+
+                    </span>
+
+
+                </div>
+
+            `;
+
+        });
+
+
+    }
+
+    else {
 
 
         html += `
 
+            <p>
 
-        <div class="receipt-item">
+                No products recorded.
 
-
-        <span>
-
-        ${item.name}
-        x
-        ${item.quantity}
-
-        </span>
-
-
-
-        <span>
-
-       KSh ${(Number(item.total) || Number(item.price) * Number(item.quantity) || 0).toLocaleString()}
-
-        </span>
-
-
-
-        </div>
-
+            </p>
 
         `;
 
-
-    });
-
+    }
 
 
 
 
-    html +=`
+
+    // =============================================
+    // TOTAL
+    // =============================================
 
 
-    <div class="receipt-total">
+    html += `
+
+        <div class="receipt-total">
 
 
-  Total:
+            Total:
 
-KSh ${Number(selectedSale.total || 0).toLocaleString()}
+            KSh ${Number(
+                selectedSale.total || 0
+            ).toLocaleString()}
 
 
-    </div>
-
+        </div>
 
     `;
 
 
 
 
+
+    // =============================================
+    // SHOW RECEIPT
+    // =============================================
+
+
     document
-    .getElementById("receiptDetails")
-    .innerHTML=html;
-
-
+        .getElementById("receiptDetails")
+        .innerHTML = html;
 
 
     document
-    .getElementById("receiptModal")
-    .style.display="flex";
-
+        .getElementById("receiptModal")
+        .style.display = "flex";
 
 
 };
-
-
 
 
 
@@ -558,16 +802,15 @@ KSh ${Number(selectedSale.total || 0).toLocaleString()}
 
 
 document
-.getElementById("searchSale")
-.addEventListener("keyup",function(){
+    .getElementById("searchSale")
+    .addEventListener(
+        "keyup",
+        function () {
 
+            filterSales();
 
-    filterSales();
-
-
-});
-
-
+        }
+    );
 
 
 
@@ -579,137 +822,256 @@ document
 
 
 document
-.getElementById("paymentFilter")
-.addEventListener("change",filterSales);
+    .getElementById("paymentFilter")
+    .addEventListener(
+        "change",
+        filterSales
+    );
 
 
 
+
+
+// =====================================================
+// DATE FILTER
+// =====================================================
 
 
 document
-.getElementById("dateFilter")
-.addEventListener("change",filterSales);
+    .getElementById("dateFilter")
+    .addEventListener(
+        "change",
+        filterSales
+    );
 
 
 
 
 
+// =====================================================
+// FILTER SALES
+// =====================================================
 
 
-
-function filterSales(){
+function filterSales() {
 
 
     let text =
-    document
-    .getElementById("searchSale")
-    .value
-    .toLowerCase();
-
+        document
+            .getElementById("searchSale")
+            .value
+            .toLowerCase()
+            .trim();
 
 
     let payment =
-    document
-    .getElementById("paymentFilter")
-    .value;
-
+        document
+            .getElementById("paymentFilter")
+            .value;
 
 
     let date =
-    document
-    .getElementById("dateFilter")
-    .value;
+        document
+            .getElementById("dateFilter")
+            .value;
+
 
 
 
 
     let filtered =
-    sales.filter(sale=>{
+        sales.filter((sale) => {
 
 
-      let matchText =
-
-(sale.customerName || "")
-.toLowerCase()
-.includes(text)
-
-||
-
-(sale.cashier || "")
-.toLowerCase()
-.includes(text)
-
-||
-
-(sale.receiptNo || "")
-.toLowerCase()
-.includes(text);
+            // =============================================
+            // SEARCH CUSTOMER
+            // =============================================
 
 
-
-       let matchPayment =
-
-payment === ""
-
-||
-
-(
-    Array.isArray(sale.paymentMethods) &&
-    sale.paymentMethods.includes(payment)
-);
+            let customer =
+                (
+                    sale.customerName || ""
+                )
+                .toLowerCase();
 
 
 
 
-        let matchDate=true;
+
+            // =============================================
+            // SEARCH CASHIER
+            // =============================================
+
+
+            let cashier =
+                (
+                    sale.cashier || ""
+                )
+                .toLowerCase();
 
 
 
-        if(date && sale.date){
 
 
-            let saleDate =
-            new Date(
-            sale.date.seconds*1000
-            )
-            .toISOString()
-            .substring(0,10);
+            // =============================================
+            // SEARCH RECEIPT
+            // =============================================
 
 
-
-            matchDate =
-            saleDate===date;
-
-
-        }
+            let receipt =
+                (
+                    sale.receiptNo || ""
+                )
+                .toLowerCase();
 
 
 
-        return(
-
-            matchText
-
-            &&
-
-            matchPayment
-
-            &&
-
-            matchDate
-
-        );
 
 
-    });
+            // =============================================
+            // SEARCH PRODUCTS
+            // =============================================
+
+
+            let productNames = "";
+
+
+            if (
+                Array.isArray(sale.items)
+            ) {
+
+
+                productNames =
+                    sale.items
+                        .map(
+                            item =>
+                                item.name || ""
+                        )
+                        .join(" ")
+                        .toLowerCase();
+
+            }
+
+
+
+
+
+            // =============================================
+            // TEXT MATCH
+            // =============================================
+
+
+            let matchText =
+
+                customer.includes(text)
+
+                ||
+
+                cashier.includes(text)
+
+                ||
+
+                receipt.includes(text)
+
+                ||
+
+                productNames.includes(text);
+
+
+
+
+
+            // =============================================
+            // PAYMENT MATCH
+            // =============================================
+
+
+            let matchPayment =
+
+                payment === ""
+
+                ||
+
+                (
+                    Array.isArray(
+                        sale.paymentMethods
+                    )
+
+                    &&
+
+                    sale.paymentMethods.includes(
+                        payment
+                    )
+                );
+
+
+
+
+
+            // =============================================
+            // DATE MATCH
+            // =============================================
+
+
+            let matchDate = true;
+
+
+            if (date && sale.date) {
+
+
+                try {
+
+
+                    let saleDate =
+
+                        new Date(
+                            sale.date.seconds * 1000
+                        )
+                        .toISOString()
+                        .substring(0, 10);
+
+
+                    matchDate =
+                        saleDate === date;
+
+
+                }
+
+                catch (error) {
+
+                    matchDate = false;
+
+                }
+
+            }
+
+
+
+
+
+            return (
+
+                matchText
+
+                &&
+
+                matchPayment
+
+                &&
+
+                matchDate
+
+            );
+
+        });
+
+
 
 
 
     displaySales(filtered);
 
-
 }
-
-
 
 
 
@@ -721,41 +1083,35 @@ payment === ""
 
 
 document
-.getElementById("printReceiptBtn")
-.onclick=function(){
+    .getElementById("printReceiptBtn")
+    .onclick = function () {
 
 
-    window.print();
+        window.print();
 
 
-};
-
-
-
+    };
 
 
 
 
 
 // =====================================================
-// CLOSE MODAL
+// CLOSE RECEIPT MODAL
 // =====================================================
 
 
 document
-.getElementById("closeModal")
-.onclick=()=>{
+    .getElementById("closeModal")
+    .onclick = () => {
 
 
-    document
-    .getElementById("receiptModal")
-    .style.display="none";
+        document
+            .getElementById("receiptModal")
+            .style.display = "none";
 
 
-};
-
-
-
+    };
 
 
 
@@ -767,14 +1123,35 @@ document
 
 
 document
-.getElementById("logoutBtn")
-.onclick=async()=>{
+    .getElementById("logoutBtn")
+    .onclick = async () => {
 
 
-    await signOut(auth);
+        try {
 
 
-    window.location.href="login.html";
+            await signOut(auth);
 
 
-};
+            window.location.href =
+                "login.html";
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+
+            alert(
+                "Unable to logout. Please try again."
+            );
+
+        }
+
+    };

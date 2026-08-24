@@ -1141,6 +1141,265 @@ select{
     border-radius:20px;
     text-transform:uppercase;
 }
+/* =====================================================
+   PRODUCT ACTIONS
+===================================================== */
+
+.actions-cell{
+    white-space:nowrap;
+}
+
+.actions-cell button{
+    border:none;
+    border-radius:7px;
+    padding:8px 10px;
+    margin-right:5px;
+    cursor:pointer;
+    color:#fff;
+    font-size:13px;
+}
+
+.restock-btn{
+    background:#2e7d32;
+}
+
+.restock-btn:hover{
+    background:#1b5e20;
+}
+
+.edit-btn{
+    background:#1565c0;
+}
+
+.edit-btn:hover{
+    background:#0d47a1;
+}
+
+.delete-btn{
+    background:#d32f2f;
+}
+
+.delete-btn:hover{
+    background:#b71c1c;
+}
+
+
+/* =====================================================
+   RESTOCK MODE
+===================================================== */
+
+.mode-selector{
+    display:flex;
+    gap:10px;
+    padding:20px 25px 0;
+}
+
+.mode-btn{
+    border:none;
+    background:#edf2f7;
+    color:#334155;
+    padding:12px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.mode-btn.active{
+    background:#1565c0;
+    color:#fff;
+}
+
+.mode-btn:hover{
+    background:#0d47a1;
+    color:#fff;
+}
+
+
+.restock-section{
+    display:none;
+    padding:25px;
+}
+
+.restock-section label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#374151;
+}
+
+.restock-section select,
+.restock-section input{
+    width:100%;
+    padding:13px 15px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+    margin-bottom:20px;
+}
+
+.restock-section select:focus,
+.restock-section input:focus{
+    border-color:#1565c0;
+    box-shadow:0 0 0 4px rgba(21,101,192,.12);
+}
+
+
+/* =====================================================
+   SELECTED PRODUCT INFO
+===================================================== */
+
+.selected-product-info{
+    background:#f1f7ff;
+    border:1px solid #cfe3ff;
+    border-radius:12px;
+    padding:15px;
+    margin-bottom:20px;
+}
+
+.selected-product-info p{
+    color:#64748b;
+}
+
+.restock-info-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.restock-info-grid div{
+    background:#fff;
+    padding:12px;
+    border-radius:8px;
+}
+
+.restock-info-grid strong{
+    display:block;
+    color:#64748b;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.restock-info-grid span{
+    font-weight:600;
+    color:#0f172a;
+}
+
+
+/* =====================================================
+   RESTOCK HISTORY
+===================================================== */
+
+.history-section{
+    margin-top:35px;
+}
+
+.history-header{
+    background:#fff;
+    border-radius:16px 16px 0 0;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(0,0,0,.04);
+}
+
+.history-header h2{
+    color:#0f172a;
+    font-size:22px;
+}
+
+.history-header h2 i{
+    color:#1565c0;
+    margin-right:8px;
+}
+
+.history-header p{
+    margin-top:6px;
+    color:#64748b;
+    font-size:14px;
+}
+
+.history-table-container{
+    border-radius:0 0 16px 16px;
+}
+
+
+.history-type{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;
+}
+
+
+.history-type.new-stock{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+
+.history-type.restock{
+    background:#dcfce7;
+    color:#166534;
+}
+
+
+.added-quantity{
+    color:#16803c !important;
+    font-weight:700;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.in-stock{
+    background:#dcfce7;
+    color:#166534;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.low-stock{
+    background:#fef3c7;
+    color:#92400e;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.out-stock{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+
+/* =====================================================
+   MOBILE RESTOCK
+===================================================== */
+
+@media(max-width:768px){
+
+    .mode-selector{
+        flex-direction:column;
+    }
+
+    .mode-btn{
+        width:100%;
+    }
+
+    .restock-info-grid{
+        grid-template-columns:1fr;
+    }
+
+}
 
 /* ===========================================
    END OF FILE

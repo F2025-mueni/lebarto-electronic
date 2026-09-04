@@ -1400,6 +1400,79 @@ select{
     }
 
 }
+/* =====================================================
+   PRODUCT SEARCH
+===================================================== */
+
+.product-search-container {
+    margin: 20px 0;
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.product-search-box {
+    position: relative;
+    width: 100%;
+}
+
+.product-search-box > i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+#productSearch {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 50px 14px 45px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    transition: 0.2s ease;
+}
+
+#productSearch:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#clearProductSearch {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+#clearProductSearch:hover {
+    background: #e2e8f0;
+    color: #ef4444;
+}
+
+.product-search-results {
+    margin-top: 10px;
+    color: #64748b;
+    font-size: 13px;
+}
 
 /* ===========================================
    END OF FILE

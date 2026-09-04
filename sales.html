@@ -9,13 +9,10 @@
 
 <title>Lebarto Electronics - Sales</title>
 
-
 <link rel="stylesheet" href="sales.css">
-
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 
 </head>
 
@@ -25,9 +22,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <!-- ================= SIDEBAR ================= -->
 
-
 <div class="sidebar">
-
 
 <h2>
 
@@ -36,7 +31,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 Lebarto
 
 </h2>
-
 
 
 <a href="admin.html">
@@ -48,8 +42,6 @@ Dashboard
 </a>
 
 
-
-
 <a href="products.html">
 
 <i class="fa-solid fa-box"></i>
@@ -57,8 +49,6 @@ Dashboard
 Products
 
 </a>
-
-
 
 
 <a href="categories.html">
@@ -70,8 +60,6 @@ Categories
 </a>
 
 
-
-
 <a href="suppliers.html">
 
 <i class="fa-solid fa-truck"></i>
@@ -79,8 +67,6 @@ Categories
 Suppliers
 
 </a>
-
-
 
 
 <a href="customers.html">
@@ -92,8 +78,6 @@ Customers
 </a>
 
 
-
-
 <a href="sales.html" class="active">
 
 <i class="fa-solid fa-cart-shopping"></i>
@@ -101,8 +85,6 @@ Customers
 Sales
 
 </a>
-
-
 
 
 <a href="reports.html">
@@ -114,8 +96,6 @@ Reports
 </a>
 
 
-
-
 <a href="#" id="logoutBtn">
 
 <i class="fa-solid fa-right-from-bracket"></i>
@@ -124,29 +104,20 @@ Logout
 
 </a>
 
-
-
 </div>
-
-
-
 
 
 
 <!-- ================= MAIN ================= -->
 
-
 <div class="main">
-
 
 
 <div class="topbar">
 
-
 <h1>
 Sales Management
 </h1>
-
 
 
 <div class="admin-info">
@@ -159,104 +130,188 @@ Admin
 
 </div>
 
-
 </div>
-
-
-
-
-
 
 
 
 <!-- ================= SALES CARDS ================= -->
 
-
 <div class="cards">
 
 
+<!-- TOTAL SALES -->
+
 <div class="card">
 
-
 <i class="fa-solid fa-money-bill-wave"></i>
-
 
 <div>
 
 <h3>Total Sales</h3>
 
 <p id="totalSales">
-
 KSh 0
-
 </p>
 
 </div>
 
-
 </div>
 
 
 
-
+<!-- TOTAL TRANSACTIONS -->
 
 <div class="card">
 
-
 <i class="fa-solid fa-receipt"></i>
-
 
 <div>
 
 <h3>Total Transactions</h3>
 
 <p id="totalTransactions">
-
 0
-
 </p>
 
 </div>
 
-
 </div>
 
 
 
-
+<!-- TODAY'S SALES -->
 
 <div class="card">
 
-
 <i class="fa-solid fa-calendar-day"></i>
-
 
 <div>
 
 <h3>Today's Sales</h3>
 
 <p id="todaySales">
-
 KSh 0
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     CURRENT MONTH SALES
+====================================================== -->
+
+<div class="monthly-sales-section">
+
+
+<div class="monthly-sales-header">
+
+<h2>
+
+<i class="fa-solid fa-calendar-days"></i>
+
+This Month's Sales
+
+</h2>
+
+
+<p id="monthlySalesYear">
+
+Current month sales
 
 </p>
 
 </div>
 
 
-</div>
+
+<div class="monthly-sales-grid">
+
+
+<div class="monthly-sales-card">
+
+
+<div class="monthly-sales-card-header">
+
+
+<h3 id="currentMonthName">
+
+Current Month
+
+</h3>
+
+
+<i class="fa-solid fa-chart-line"></i>
 
 
 </div>
 
 
 
+<div
+class="monthly-total"
+id="currentMonthSales"
+>
 
+KSh 0
+
+</div>
+
+
+
+<div class="monthly-details">
+
+
+<span>
+
+<i class="fa-solid fa-receipt"></i>
+
+Transactions:
+
+<strong id="currentMonthTransactions">
+
+0
+
+</strong>
+
+</span>
+
+
+
+<span>
+
+<i class="fa-solid fa-box"></i>
+
+Items Sold:
+
+<strong id="currentMonthItems">
+
+0
+
+</strong>
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
 
 
 
 <!-- ================= FILTER AREA ================= -->
-
 
 <div class="actions">
 
@@ -267,9 +322,7 @@ type="text"
 
 id="searchSale"
 
-placeholder="Search customer or cashier...">
-
-
+placeholder="Search customer, cashier, receipt or product...">
 
 
 
@@ -308,8 +361,6 @@ Card
 
 
 
-
-
 <input
 
 type="date"
@@ -317,17 +368,11 @@ type="date"
 id="dateFilter">
 
 
-
 </div>
 
 
 
-
-
-
-
 <!-- ================= SALES TABLE ================= -->
-
 
 <div class="table-container">
 
@@ -336,23 +381,34 @@ id="dateFilter">
 
 
 <thead>
+
 <tr>
-    <th>#</th>
-    <th>Products</th>
-    <th>Receipt No</th>
-    <th>Customer</th>
-    <th>Cashier</th>
-    <th>Payment</th>
-    <th>Total</th>
-    <th>Date</th>
-    <th>Action</th>
+
+<th>#</th>
+
+<th>Products</th>
+
+<th>Receipt No</th>
+
+<th>Customer</th>
+
+<th>Cashier</th>
+
+<th>Payment</th>
+
+<th>Total</th>
+
+<th>Date</th>
+
+<th>Action</th>
+
 </tr>
+
 </thead>
 
 
 
 <tbody id="salesTable">
-
 
 </tbody>
 
@@ -368,12 +424,7 @@ id="dateFilter">
 
 
 
-
-
-
-
 <!-- ================= RECEIPT MODAL ================= -->
-
 
 <div class="modal" id="receiptModal">
 
@@ -388,18 +439,17 @@ id="dateFilter">
 </span>
 
 
-
 <h2>
+
 Sale Receipt
+
 </h2>
 
 
 
 <div id="receiptDetails">
 
-
 </div>
-
 
 
 
@@ -412,15 +462,10 @@ Print Receipt
 </button>
 
 
-
 </div>
 
 
 </div>
-
-
-
-
 
 
 

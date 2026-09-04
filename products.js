@@ -77,6 +77,8 @@ function initializeProductPage() {
 
     setupProductButtons();
 
+    setupProductSearch();
+
     setupRestockSearch();
 
     setupDateFilters();
@@ -90,6 +92,198 @@ function initializeProductPage() {
     setupLogout();
 
     setupReportButtons();
+
+}
+// =====================================================
+// MAIN PRODUCT SEARCH
+// =====================================================
+
+function setupProductSearch() {
+
+    const searchInput =
+        document.getElementById("productSearch");
+
+    const clearButton =
+        document.getElementById("clearProductSearch");
+
+    const resultsLabel =
+        document.getElementById("productSearchResults");
+
+
+    if (!searchInput) {
+
+        console.warn("Main product search input not found.");
+
+        return;
+
+    }
+
+
+    function performProductSearch() {
+
+        const searchTerm =
+            searchInput.value.trim().toLowerCase();
+
+
+        // =============================================
+        // NO SEARCH
+        // =============================================
+
+        if (!searchTerm) {
+
+            filteredProducts = products;
+
+            displayProducts(products);
+
+            if (resultsLabel) {
+
+                resultsLabel.textContent =
+                    `Showing all ${products.length} products`;
+
+            }
+
+            if (clearButton) {
+
+                clearButton.style.display = "none";
+
+            }
+
+            return;
+
+        }
+
+
+        // =============================================
+        // SEARCH PRODUCTS
+        // =============================================
+
+        filteredProducts = products.filter(product => {
+
+            const name =
+                String(product.name || "").toLowerCase();
+
+            const barcode =
+                String(product.barcode || "").toLowerCase();
+
+            const category =
+                String(product.category || "").toLowerCase();
+
+            const supplier =
+                String(product.supplier || "").toLowerCase();
+
+
+            return (
+                name.includes(searchTerm) ||
+                barcode.includes(searchTerm) ||
+                category.includes(searchTerm) ||
+                supplier.includes(searchTerm)
+            );
+
+        });
+
+
+        // Display search results
+        displayProducts(filteredProducts);
+
+
+        // Update result count
+        if (resultsLabel) {
+
+            resultsLabel.textContent =
+                `Showing ${filteredProducts.length} of ${products.length} products`;
+
+        }
+
+
+        // Show X
+        if (clearButton) {
+
+            clearButton.style.display = "flex";
+
+        }
+
+    }
+
+
+    // =============================================
+    // SEARCH WHILE TYPING
+    // =============================================
+
+    searchInput.addEventListener(
+        "input",
+        performProductSearch
+    );
+
+
+    // =============================================
+    // CLEAR SEARCH
+    // =============================================
+
+    if (clearButton) {
+
+        clearButton.addEventListener("click", () => {
+
+            // Clear the input immediately
+            searchInput.value = "";
+
+            // Hide X immediately
+            clearButton.style.display = "none";
+
+            // Update label immediately
+            if (resultsLabel) {
+
+                resultsLabel.textContent =
+                    `Showing all ${products.length} products`;
+
+            }
+
+            // Restore products
+            filteredProducts = products;
+
+            displayProducts(products);
+
+            // Return focus to search box
+            searchInput.focus();
+
+        });
+
+    }
+
+
+    // =============================================
+    // ESCAPE TO CLEAR
+    // =============================================
+
+    searchInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Escape") {
+
+                event.preventDefault();
+
+                searchInput.value = "";
+
+                clearButton &&
+                    (clearButton.style.display = "none");
+
+                filteredProducts = products;
+
+                displayProducts(products);
+
+                if (resultsLabel) {
+
+                    resultsLabel.textContent =
+                        `Showing all ${products.length} products`;
+
+                }
+
+                searchInput.focus();
+
+            }
+
+        }
+    );
 
 }
 
@@ -294,12 +488,64 @@ function loadProducts() {
 
             });
 
-            filteredProducts =
-                [...products];
+       const searchInput =
+    document.getElementById(
+        "productSearch"
+    );
 
-            displayProducts(
-                filteredProducts
+const currentSearch =
+    searchInput
+        ? searchInput.value.trim().toLowerCase()
+        : "";
+
+
+if (!currentSearch) {
+
+    filteredProducts =
+        [...products];
+
+}
+
+else {
+
+    filteredProducts =
+        products.filter(product => {
+
+            const name =
+                String(
+                    product.name || ""
+                ).toLowerCase();
+
+            const barcode =
+                String(
+                    product.barcode || ""
+                ).toLowerCase();
+
+            const category =
+                String(
+                    product.category || ""
+                ).toLowerCase();
+
+            const supplier =
+                String(
+                    product.supplier || ""
+                ).toLowerCase();
+
+            return (
+                name.includes(currentSearch) ||
+                barcode.includes(currentSearch) ||
+                category.includes(currentSearch) ||
+                supplier.includes(currentSearch)
             );
+
+        });
+
+}
+
+
+displayProducts(
+    filteredProducts
+);
 
             updateStatistics();
 
@@ -407,30 +653,28 @@ function getDuplicateProducts() {
 
 
 // =====================================================
-// DISPLAY PRODUCTS
+// DISPLAY PRODUCTS - OPTIMIZED
 // =====================================================
 
 function displayProducts(productArray) {
 
-    const duplicateProducts =
-        getDuplicateProducts();
-
-    const tbody =
-        document.getElementById(
-            "productTable"
-        );
+    const tbody = document.getElementById("productTable");
 
     if (!tbody) return;
 
-    tbody.innerHTML = "";
+    const duplicateProducts = getDuplicateProducts();
 
+    const isAdmin =
+        currentUserData?.role === "admin";
 
-    if (productArray.length === 0) {
+    // -------------------------------------------------
+    // NO PRODUCTS
+    // -------------------------------------------------
+
+    if (!productArray || productArray.length === 0) {
 
         tbody.innerHTML = `
-
             <tr>
-
                 <td
                     colspan="10"
                     style="
@@ -438,141 +682,117 @@ function displayProducts(productArray) {
                         padding:30px;
                     "
                 >
-
                     No products found.
-
                 </td>
-
             </tr>
-
         `;
 
         return;
-
     }
 
+    // -------------------------------------------------
+    // BUILD ALL ROWS FIRST
+    // Then update DOM only ONCE
+    // -------------------------------------------------
 
-    const isAdmin =
-        currentUserData?.role === "admin";
-
-
-    productArray.forEach(product => {
+    const rows = productArray.map(product => {
 
         const quantity =
-            Number(
-                product.quantity || 0
-            );
-
+            Number(product.quantity || 0);
 
         const minimum =
-            Number(
-                product.minimumStock || 5
-            );
+            Number(product.minimumStock || 5);
 
+        // ---------------------------------------------
+        // STOCK STATUS
+        // ---------------------------------------------
 
-        let status = "";
-        let statusClass = "";
-
+        let status;
+        let statusClass;
 
         if (quantity === 0) {
 
-            status =
-                "Out of Stock";
+            status = "Out of Stock";
+            statusClass = "out-stock";
 
-            statusClass =
-                "out-stock";
+        } else if (quantity <= minimum) {
 
+            status = "Low Stock";
+            statusClass = "low-stock";
+
+        } else {
+
+            status = "In Stock";
+            statusClass = "in-stock";
         }
 
-        else if (quantity <= minimum) {
-
-            status =
-                "Low Stock";
-
-            statusClass =
-                "low-stock";
-
-        }
-
-        else {
-
-            status =
-                "In Stock";
-
-            statusClass =
-                "in-stock";
-
-        }
-
-
-        /*
-         * RESTOCK IS AVAILABLE TO BOTH
-         * ADMIN AND CASHIER.
-         */
+        // ---------------------------------------------
+        // ACTION BUTTONS
+        // ---------------------------------------------
 
         let actions = `
-
             <button
                 class="restock-btn"
                 onclick="restockProduct('${product.id}')"
                 type="button"
             >
-
                 <i class="fa-solid fa-boxes-stacked"></i>
-
                 Restock
-
             </button>
-
         `;
 
-
-        /*
-         * ONLY ADMIN GETS EDIT AND DELETE.
-         */
-
+        // ADMIN ONLY
         if (isAdmin) {
 
             actions += `
-
                 <button
                     class="edit-btn"
                     onclick="editProduct('${product.id}')"
                     type="button"
                 >
-
                     <i class="fa-solid fa-pen"></i>
-
                 </button>
-
 
                 <button
                     class="delete-btn"
                     onclick="deleteProduct('${product.id}')"
                     type="button"
                 >
-
                     <i class="fa-solid fa-trash"></i>
-
                 </button>
-
             `;
-
         }
 
+        // ---------------------------------------------
+        // DUPLICATE PRODUCT
+        // ---------------------------------------------
 
-        tbody.innerHTML += `
+        const isDuplicate =
+            duplicateProducts.has(product.id);
 
-            <tr
-                class="${
-                    duplicateProducts.has(product.id)
-                        ? "duplicate-product"
-                        : ""
-                }"
-            >
+        const duplicateLabel =
+            isDuplicate
+                ? `
+                    <br>
+                    <span class="duplicate-label">
+                        Duplicate
+                    </span>
+                  `
+                : "";
+
+        const duplicateClass =
+            isDuplicate
+                ? "duplicate-product"
+                : "";
+
+        // ---------------------------------------------
+        // RETURN ROW
+        // ---------------------------------------------
+
+        return `
+            <tr class="${duplicateClass}">
 
                 <td>
-
                     <img
                         src="${
                             product.image ||
@@ -585,122 +805,77 @@ function displayProducts(productArray) {
                             border-radius:6px;
                         "
                         alt="Product"
+                        loading="lazy"
                     >
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTML(
                         product.barcode || "-"
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTML(
                         product.name || "-"
                     )}
-
-                    ${
-                        duplicateProducts.has(
-                            product.id
-                        )
-                            ? `
-
-                                <br>
-
-                                <span class="duplicate-label">
-                                    Duplicate
-                                </span>
-
-                              `
-                            : ""
-                    }
-
+                    ${duplicateLabel}
                 </td>
 
-
                 <td>
-
                     ${escapeHTML(
                         product.category || "-"
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTML(
                         product.supplier || "-"
                     )}
-
                 </td>
 
-
                 <td>
-
                     KSh
                     ${Number(
                         product.buyingPrice || 0
                     ).toLocaleString()}
-
                 </td>
 
-
                 <td>
-
                     KSh
                     ${Number(
                         product.minSellingPrice || 0
                     ).toLocaleString()}
-
                     -
-
                     KSh
                     ${Number(
                         product.maxSellingPrice || 0
                     ).toLocaleString()}
-
                 </td>
 
-
                 <td>
-
                     ${quantity}
-
                 </td>
-
 
                 <td>
-
-                    <span
-                        class="${statusClass}"
-                    >
-
+                    <span class="${statusClass}">
                         ${status}
-
                     </span>
-
                 </td>
-
 
                 <td class="actions-cell">
-
                     ${actions}
-
                 </td>
 
             </tr>
-
         `;
-
     });
 
+    // -------------------------------------------------
+    // UPDATE TABLE ONLY ONCE
+    // -------------------------------------------------
+
+    tbody.innerHTML = rows.join("");
 }
 
 

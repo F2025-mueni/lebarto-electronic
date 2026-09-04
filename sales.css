@@ -538,3 +538,233 @@ tr:hover{
     font-weight: bold;
     color: #2563eb;
 }
+/* =====================================================
+   MONTHLY SALES SUMMARY
+   ===================================================== */
+
+.monthly-sales-section {
+
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    padding: 24px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.08);
+
+}
+
+
+.monthly-sales-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.monthly-sales-header h2 {
+
+    margin: 0;
+
+    font-size: 22px;
+
+}
+
+
+.monthly-sales-header h2 i {
+
+    margin-right: 8px;
+
+}
+
+
+.monthly-sales-header p {
+
+    margin: 6px 0 0;
+
+    color: #777;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   MONTHLY GRID
+   ===================================================== */
+
+.monthly-sales-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 16px;
+
+}
+
+
+/* =====================================================
+   MONTH CARD
+   ===================================================== */
+
+.monthly-sales-card {
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 10px;
+
+    padding: 18px;
+
+    background: #fafafa;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.monthly-sales-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/* =====================================================
+   MONTH HEADER
+   ===================================================== */
+
+.monthly-sales-card-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+
+}
+
+
+.monthly-sales-card-header h3 {
+
+    margin: 0;
+
+    font-size: 17px;
+
+}
+
+
+.monthly-sales-card-header i {
+
+    font-size: 18px;
+
+}
+
+
+/* =====================================================
+   MONTHLY TOTAL
+   ===================================================== */
+
+.monthly-total {
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    margin-bottom: 14px;
+
+}
+
+
+/* =====================================================
+   MONTHLY DETAILS
+   ===================================================== */
+
+.monthly-details {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    font-size: 13px;
+
+    color: #666;
+
+}
+
+
+.monthly-details span {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+
+.monthly-details i {
+
+    width: 16px;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 1000px) {
+
+    .monthly-sales-grid {
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+    }
+
+}
+
+
+@media (max-width: 750px) {
+
+    .monthly-sales-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .monthly-sales-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}

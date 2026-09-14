@@ -3,16 +3,24 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Lebarto Electronics - Sales</title>
+    <title>Lebarto Electronics - Sales</title>
 
-<link rel="stylesheet" href="sales.css">
+    <link
+        rel="stylesheet"
+        href="sales.css"
+    >
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    >
 
 </head>
 
@@ -20,182 +28,460 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <body>
 
 
-<!-- ================= SIDEBAR ================= -->
+<!-- =====================================================
+     SIDEBAR
+====================================================== -->
 
 <div class="sidebar">
 
-<h2>
+    <h2>
 
-<i class="fa-solid fa-store"></i>
+        <i class="fa-solid fa-store"></i>
 
-Lebarto
+        Lebarto
 
-</h2>
-
-
-<a href="admin.html">
-
-<i class="fa-solid fa-chart-line"></i>
-
-Dashboard
-
-</a>
+    </h2>
 
 
-<a href="products.html">
+    <a href="admin.html">
 
-<i class="fa-solid fa-box"></i>
+        <i class="fa-solid fa-chart-line"></i>
 
-Products
+        Dashboard
 
-</a>
-
-
-<a href="categories.html">
-
-<i class="fa-solid fa-list"></i>
-
-Categories
-
-</a>
+    </a>
 
 
-<a href="suppliers.html">
+    <a href="products.html">
 
-<i class="fa-solid fa-truck"></i>
+        <i class="fa-solid fa-box"></i>
 
-Suppliers
+        Products
 
-</a>
-
-
-<a href="customers.html">
-
-<i class="fa-solid fa-users"></i>
-
-Customers
-
-</a>
+    </a>
 
 
-<a href="sales.html" class="active">
+    <a href="categories.html">
 
-<i class="fa-solid fa-cart-shopping"></i>
+        <i class="fa-solid fa-list"></i>
 
-Sales
+        Categories
 
-</a>
-
-
-<a href="reports.html">
-
-<i class="fa-solid fa-chart-column"></i>
-
-Reports
-
-</a>
+    </a>
 
 
-<a href="#" id="logoutBtn">
+    <a href="suppliers.html">
 
-<i class="fa-solid fa-right-from-bracket"></i>
+        <i class="fa-solid fa-truck"></i>
 
-Logout
+        Suppliers
 
-</a>
+    </a>
+
+
+    <a href="customers.html">
+
+        <i class="fa-solid fa-users"></i>
+
+        Customers
+
+    </a>
+
+
+    <a
+        href="sales.html"
+        class="active"
+    >
+
+        <i class="fa-solid fa-cart-shopping"></i>
+
+        Sales
+
+    </a>
+
+
+    <a href="reports.html">
+
+        <i class="fa-solid fa-chart-column"></i>
+
+        Reports
+
+    </a>
+
+
+    <a
+        href="#"
+        id="logoutBtn"
+    >
+
+        <i class="fa-solid fa-right-from-bracket"></i>
+
+        Logout
+
+    </a>
 
 </div>
 
 
 
-<!-- ================= MAIN ================= -->
+<!-- =====================================================
+     MAIN CONTENT
+====================================================== -->
 
 <div class="main">
 
 
-<div class="topbar">
+    <!-- =================================================
+         TOP BAR
+    ================================================== -->
 
-<h1>
-Sales Management
-</h1>
+    <div class="topbar">
 
-
-<div class="admin-info">
-
-<i class="fa-solid fa-user-shield"></i>
-
-<span id="adminName">
-Admin
-</span>
-
-</div>
-
-</div>
+        <h1>
+            Sales Management
+        </h1>
 
 
+        <div class="admin-info">
 
-<!-- ================= SALES CARDS ================= -->
+            <i class="fa-solid fa-user-shield"></i>
 
-<div class="cards">
+            <span id="adminName">
+                Admin
+            </span>
 
+        </div>
 
-<!-- TOTAL SALES -->
-
-<div class="card">
-
-<i class="fa-solid fa-money-bill-wave"></i>
-
-<div>
-
-<h3>Total Sales</h3>
-
-<p id="totalSales">
-KSh 0
-</p>
-
-</div>
-
-</div>
+    </div>
 
 
 
-<!-- TOTAL TRANSACTIONS -->
+    <!-- =================================================
+         SALES SUMMARY CARDS
+    ================================================== -->
 
-<div class="card">
-
-<i class="fa-solid fa-receipt"></i>
-
-<div>
-
-<h3>Total Transactions</h3>
-
-<p id="totalTransactions">
-0
-</p>
-
-</div>
-
-</div>
+    <div class="cards">
 
 
+        <!-- TOTAL SALES -->
 
-<!-- TODAY'S SALES -->
+        <div class="card">
 
-<div class="card">
+            <i class="fa-solid fa-money-bill-wave"></i>
 
-<i class="fa-solid fa-calendar-day"></i>
+            <div>
 
-<div>
+                <h3>
+                    Total Sales
+                </h3>
 
-<h3>Today's Sales</h3>
+                <p id="totalSales">
+                    KSh 0
+                </p>
 
-<p id="todaySales">
-KSh 0
-</p>
+            </div>
 
-</div>
+        </div>
 
-</div>
+
+
+        <!-- TOTAL TRANSACTIONS -->
+
+        <div class="card">
+
+            <i class="fa-solid fa-receipt"></i>
+
+            <div>
+
+                <h3>
+                    Total Transactions
+                </h3>
+
+                <p id="totalTransactions">
+                    0
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TODAY'S SALES -->
+
+        <div class="card">
+
+            <i class="fa-solid fa-calendar-day"></i>
+
+            <div>
+
+                <h3>
+                    Today's Sales
+                </h3>
+
+                <p id="todaySales">
+                    KSh 0
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         CURRENT MONTH SALES
+    ================================================== -->
+
+    <div class="monthly-sales-section">
+
+
+        <div class="monthly-sales-header">
+
+            <h2>
+
+                <i class="fa-solid fa-calendar-days"></i>
+
+                This Month's Sales
+
+            </h2>
+
+
+            <p id="monthlySalesYear">
+                Current month sales
+            </p>
+
+        </div>
+
+
+
+        <div class="monthly-sales-grid">
+
+
+            <div class="monthly-sales-card">
+
+
+                <div class="monthly-sales-card-header">
+
+
+                    <h3 id="currentMonthName">
+                        Current Month
+                    </h3>
+
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+
+                </div>
+
+
+
+                <div
+                    class="monthly-total"
+                    id="currentMonthSales"
+                >
+                    KSh 0
+                </div>
+
+
+
+                <div class="monthly-details">
+
+
+                    <span>
+
+                        <i class="fa-solid fa-receipt"></i>
+
+                        Transactions:
+
+                        <strong id="currentMonthTransactions">
+                            0
+                        </strong>
+
+                    </span>
+
+
+
+                    <span>
+
+                        <i class="fa-solid fa-box"></i>
+
+                        Items Sold:
+
+                        <strong id="currentMonthItems">
+                            0
+                        </strong>
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         FILTER / SEARCH AREA
+    ================================================== -->
+
+    <div class="actions">
+
+
+        <!-- SEARCH -->
+
+        <input
+            type="text"
+            id="searchSale"
+            placeholder="Search customer, cashier, receipt or product..."
+        >
+
+
+        <!-- PAYMENT FILTER -->
+
+        <select id="paymentFilter">
+
+            <option value="">
+                All Payments
+            </option>
+
+            <option value="Cash">
+                Cash
+            </option>
+
+            <option value="Mpesa">
+                M-Pesa
+            </option>
+
+            <option value="Bank">
+                Bank
+            </option>
+
+        </select>
+
+
+        <!-- DATE FILTER -->
+
+        <input
+            type="date"
+            id="dateFilter"
+        >
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         SALES TABLE
+    ================================================== -->
+
+    <div class="table-container">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <!-- 1 -->
+
+                    <th>
+                        #
+                    </th>
+
+
+                    <!-- 2 -->
+
+                    <th>
+                        Products
+                    </th>
+
+
+                    <!-- 3 -->
+
+                    <th>
+                        Receipt No
+                    </th>
+
+
+                    <!-- 4 -->
+
+                    <th>
+                        Customer
+                    </th>
+
+
+                    <!-- 5 -->
+
+                    <th>
+                        Cashier
+                    </th>
+
+
+                    <!-- 6 -->
+
+                    <th>
+                        Payment
+                    </th>
+
+
+                    <!-- 7 -->
+
+                    <th>
+                        Total
+                    </th>
+
+
+                    <!-- 8 -->
+
+                    <th>
+                        Amount Paid
+                    </th>
+
+
+                    <!-- 9 -->
+
+                    <th>
+                        Date
+                    </th>
+
+
+                    <!-- 10 -->
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody id="salesTable">
+
+                <!-- sales.js inserts sales here -->
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
 
 
 </div>
@@ -203,273 +489,79 @@ KSh 0
 
 
 <!-- =====================================================
-     CURRENT MONTH SALES
+     RECEIPT MODAL
 ====================================================== -->
 
-<div class="monthly-sales-section">
-
-
-<div class="monthly-sales-header">
-
-<h2>
-
-<i class="fa-solid fa-calendar-days"></i>
-
-This Month's Sales
-
-</h2>
-
-
-<p id="monthlySalesYear">
-
-Current month sales
-
-</p>
-
-</div>
-
-
-
-<div class="monthly-sales-grid">
-
-
-<div class="monthly-sales-card">
-
-
-<div class="monthly-sales-card-header">
-
-
-<h3 id="currentMonthName">
-
-Current Month
-
-</h3>
-
-
-<i class="fa-solid fa-chart-line"></i>
-
-
-</div>
-
-
-
 <div
-class="monthly-total"
-id="currentMonthSales"
+    class="modal"
+    id="receiptModal"
 >
 
-KSh 0
 
-</div>
+    <div class="modal-content">
 
 
+        <!-- CLOSE BUTTON -->
 
-<div class="monthly-details">
+        <span
+            class="close"
+            id="closeModal"
+            title="Close"
+        >
 
+            &times;
 
-<span>
+        </span>
 
-<i class="fa-solid fa-receipt"></i>
 
-Transactions:
 
-<strong id="currentMonthTransactions">
+        <!-- MODAL TITLE -->
 
-0
+        <h2>
+            Sale Receipt
+        </h2>
 
-</strong>
 
-</span>
 
+        <!-- RECEIPT CONTENT -->
 
+        <div id="receiptDetails">
 
-<span>
+            <!-- sales.js inserts receipt details here -->
 
-<i class="fa-solid fa-box"></i>
+        </div>
 
-Items Sold:
 
-<strong id="currentMonthItems">
 
-0
+        <!-- PRINT BUTTON -->
 
-</strong>
+        <button
+            type="button"
+            id="printReceiptBtn"
+        >
 
-</span>
+            <i class="fa-solid fa-print"></i>
 
+            Print Receipt
 
-</div>
+        </button>
 
 
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-<!-- ================= FILTER AREA ================= -->
-
-<div class="actions">
-
-
-<input
-
-type="text"
-
-id="searchSale"
-
-placeholder="Search customer, cashier, receipt or product...">
-
-
-
-<select id="paymentFilter">
-
-
-<option value="">
-
-All Payments
-
-</option>
-
-
-<option value="Cash">
-
-Cash
-
-</option>
-
-
-<option value="Mpesa">
-
-M-Pesa
-
-</option>
-
-
-<option value="Card">
-
-Card
-
-</option>
-
-
-</select>
-
-
-
-<input
-
-type="date"
-
-id="dateFilter">
+    </div>
 
 
 </div>
 
 
 
-<!-- ================= SALES TABLE ================= -->
+<!-- =====================================================
+     SALES JAVASCRIPT
+====================================================== -->
 
-<div class="table-container">
-
-
-<table>
-
-
-<thead>
-
-<tr>
-
-<th>#</th>
-
-<th>Products</th>
-
-<th>Receipt No</th>
-
-<th>Customer</th>
-
-<th>Cashier</th>
-
-<th>Payment</th>
-
-<th>Total</th>
-
-<th>Date</th>
-
-<th>Action</th>
-
-</tr>
-
-</thead>
-
-
-
-<tbody id="salesTable">
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-
-</div>
-
-
-
-<!-- ================= RECEIPT MODAL ================= -->
-
-<div class="modal" id="receiptModal">
-
-
-<div class="modal-content">
-
-
-<span class="close" id="closeModal">
-
-&times;
-
-</span>
-
-
-<h2>
-
-Sale Receipt
-
-</h2>
-
-
-
-<div id="receiptDetails">
-
-</div>
-
-
-
-<button id="printReceiptBtn">
-
-<i class="fa-solid fa-print"></i>
-
-Print Receipt
-
-</button>
-
-
-</div>
-
-
-</div>
-
-
-
-<script type="module" src="sales.js"></script>
+<script
+    type="module"
+    src="sales.js"
+></script>
 
 
 </body>

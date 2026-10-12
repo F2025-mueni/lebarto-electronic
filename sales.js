@@ -1,9 +1,11 @@
-// =====================================================
-// LEBARTO ELECTRONICS
-// SALES.JS
-// SALES HISTORY • PRODUCTS • FILTER • RECEIPTS
-// SPLIT PAYMENT DISPLAY
-// =====================================================
+
+ // =====================================================
+ // LEBARTO ELECTRONICS
+ // SALES.JS
+ // SALES HISTORY • PRODUCTS • FILTER • RECEIPTS
+ // CASH + M-PESA + BANK + KOPO KOPO
+ // SPLIT PAYMENT SUPPORT
+ // =====================================================
 
 import { auth, db } from "./firebase-config.js";
 
@@ -25,9 +27,7 @@ import {
 // =====================================================
 
 let currentUser = null;
-
 let sales = [];
-
 let selectedSale = null;
 
 
@@ -35,25 +35,15 @@ let selectedSale = null;
 // AUTHENTICATION
 // =====================================================
 
-onAuthStateChanged(
-    auth,
-    (user) => {
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-        currentUser = user;
-
-        loadSales();
-
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
     }
-);
+
+    currentUser = user;
+    loadSales();
+});
 
 
 // =====================================================
@@ -61,65 +51,34 @@ onAuthStateChanged(
 // =====================================================
 
 async function loadSales() {
-
     try {
+        const q = query(
+            collection(db, "sales"),
+            orderBy("date", "desc")
+        );
 
-        const q =
-            query(
-                collection(
-                    db,
-                    "sales"
-                ),
-                orderBy(
-                    "date",
-                    "desc"
-                )
-            );
-
-        const snapshot =
-            await getDocs(q);
+        const snapshot = await getDocs(q);
 
         sales = [];
 
-        snapshot.forEach(
-            item => {
+        snapshot.forEach((item) => {
+            sales.push({
+                id: item.id,
+                ...item.data()
+            });
+        });
 
-                sales.push({
-
-                    id:
-                        item.id,
-
-                    ...item.data()
-
-                });
-
-            }
-        );
-
-        displaySales(
-            sales
-        );
-
+        displaySales(sales);
         updateStatistics();
-
         updateMonthlySales();
 
-    }
-
-    catch (error) {
-
-        console.error(
-            "Error loading sales:",
-            error
-        );
+    } catch (error) {
+        console.error("Error loading sales:", error);
 
         alert(
-            "Unable to load sales: " +
-            error.message
+            "Unable to load sales: " + error.message
         );
-
     }
-
 }
 
 
@@ -128,207 +87,110 @@ async function loadSales() {
 // =====================================================
 
 function getSaleDate(sale) {
-
-    if (
-        !sale ||
-        !sale.date
-    ) {
-
-        return null;
-
-    }
+    if (!sale || !sale.date) return null;
 
     try {
-
-        if (
-            typeof sale.date.toDate ===
-            "function"
-        ) {
-
+        if (typeof sale.date.toDate === "function") {
             return sale.date.toDate();
-
         }
 
-        if (
-            typeof sale.date.seconds ===
-            "number"
-        ) {
-
-            return new Date(
-                sale.date.seconds * 1000
-            );
-
+        if (typeof sale.date.seconds === "number") {
+            return new Date(sale.date.seconds * 1000);
         }
 
-        if (
-            sale.date instanceof Date
-        ) {
+        const parsed = new Date(sale.date);
 
-            return sale.date;
+        return Number.isNaN(parsed.getTime())
+            ? null
+            : parsed;
 
-        }
-
-        if (
-            typeof sale.date ===
-            "number"
-        ) {
-
-            return new Date(
-                sale.date
-            );
-
-        }
-
-        if (
-            typeof sale.date ===
-            "string"
-        ) {
-
-            const parsed =
-                new Date(
-                    sale.date
-                );
-
-            if (
-                !isNaN(
-                    parsed.getTime()
-                )
-            ) {
-
-                return parsed;
-
-            }
-
-        }
-
+    } catch (error) {
+        console.error("Date conversion error:", error);
         return null;
-
     }
-
-    catch (error) {
-
-        console.error(
-            "Date conversion error:",
-            error
-        );
-
-        return null;
-
-    }
-
 }
 
 
 // =====================================================
-// PAYMENT HELPERS
+// PAYMENT AMOUNT HELPERS
 // =====================================================
 
 function getCashAmount(sale) {
-
-    return Number(
-        sale?.cashAmount ?? 0
-    ) || 0;
-
+    return Number(sale?.cashAmount ?? 0) || 0;
 }
-
 
 function getMpesaAmount(sale) {
-
-    return Number(
-        sale?.mpesaAmount ?? 0
-    ) || 0;
-
+    return Number(sale?.mpesaAmount ?? 0) || 0;
 }
-
 
 function getBankAmount(sale) {
+    return Number(sale?.bankAmount ?? 0) || 0;
+}
 
-    return Number(
-        sale?.bankAmount ?? 0
-    ) || 0;
-
+function getKopokopoAmount(sale) {
+    return Number(sale?.kopokopoAmount ?? 0) || 0;
 }
 
 
+// =====================================================
+// TOTAL AMOUNT PAID
+// =====================================================
+
 function getAmountPaid(sale) {
-
-    if (
-        sale?.amountPaid !== undefined
-    ) {
-
-        return Number(
-            sale.amountPaid
-        ) || 0;
-
+    if (sale?.amountPaid !== undefined &&
+        sale?.amountPaid !== null) {
+        return Number(sale.amountPaid) || 0;
     }
 
     return (
-
         getCashAmount(sale) +
-
         getMpesaAmount(sale) +
-
-        getBankAmount(sale)
-
+        getBankAmount(sale) +
+        getKopokopoAmount(sale)
     );
-
 }
 
+
+// =====================================================
+// SALE TOTAL
+// =====================================================
 
 function getSaleTotal(sale) {
-
-    return Number(
-        sale?.total ?? 0
-    ) || 0;
-
+    return Number(sale?.total ?? 0) || 0;
 }
 
+
+// =====================================================
+// BALANCE
+// =====================================================
 
 function getBalance(sale) {
-
-    if (
-        sale?.balance !== undefined
-    ) {
-
-        return Math.max(
-            0,
-            Number(
-                sale.balance
-            ) || 0
-        );
-
+    if (sale?.balance !== undefined &&
+        sale?.balance !== null) {
+        return Math.max(0, Number(sale.balance) || 0);
     }
 
     return Math.max(
         0,
-        getSaleTotal(sale) -
-        getAmountPaid(sale)
+        getSaleTotal(sale) - getAmountPaid(sale)
     );
-
 }
 
 
+// =====================================================
+// CHANGE
+// =====================================================
+
 function getChange(sale) {
-
-    if (
-        sale?.change !== undefined
-    ) {
-
-        return Math.max(
-            0,
-            Number(
-                sale.change
-            ) || 0
-        );
-
+    if (sale?.change !== undefined &&
+        sale?.change !== null) {
+        return Math.max(0, Number(sale.change) || 0);
     }
 
     return Math.max(
         0,
-        getAmountPaid(sale) -
-        getSaleTotal(sale)
+        getAmountPaid(sale) - getSaleTotal(sale)
     );
-
 }
 
 
@@ -337,49 +199,33 @@ function getChange(sale) {
 // =====================================================
 
 function getPaymentMethods(sale) {
-
     const methods = [];
 
-    if (
-        getCashAmount(sale) > 0
-    ) {
-
+    if (getCashAmount(sale) > 0) {
         methods.push("Cash");
-
     }
 
-    if (
-        getMpesaAmount(sale) > 0
-    ) {
-
+    if (getMpesaAmount(sale) > 0) {
         methods.push("M-Pesa");
-
     }
 
-    if (
-        getBankAmount(sale) > 0
-    ) {
-
+    if (getBankAmount(sale) > 0) {
         methods.push("Bank");
-
     }
 
-    // Compatibility with older
-    // records where amounts may be zero
-    // but paymentMethods exists.
+    if (getKopokopoAmount(sale) > 0) {
+        methods.push("Kopo Kopo");
+    }
+
+    // Support older records without payment amounts.
     if (
         methods.length === 0 &&
-        Array.isArray(
-            sale?.paymentMethods
-        )
+        Array.isArray(sale?.paymentMethods)
     ) {
-
         return sale.paymentMethods;
-
     }
 
     return methods;
-
 }
 
 
@@ -387,316 +233,135 @@ function getPaymentMethods(sale) {
 // PAYMENT BREAKDOWN HTML
 // =====================================================
 
-function getPaymentBreakdownHTML(
-    sale
-) {
+function getPaymentBreakdownHTML(sale) {
+    const payments = [
+        {
+            name: "Cash",
+            amount: getCashAmount(sale)
+        },
+        {
+            name: "M-Pesa",
+            amount: getMpesaAmount(sale)
+        },
+        {
+            name: "Bank",
+            amount: getBankAmount(sale)
+        },
+        {
+            name: "Kopo Kopo",
+            amount: getKopokopoAmount(sale)
+        }
+    ];
 
-    const cash =
-        getCashAmount(sale);
-
-    const mpesa =
-        getMpesaAmount(sale);
-
-    const bank =
-        getBankAmount(sale);
-
-    const parts = [];
-
-    if (cash > 0) {
-
-        parts.push(`
-
+    const parts = payments
+        .filter((payment) => payment.amount > 0)
+        .map((payment) => `
             <div class="payment-line">
-
-                <span>
-                    Cash
-                </span>
-
-                <strong>
-                    ${money(cash)}
-                </strong>
-
+                <span>${payment.name}</span>
+                <strong>${money(payment.amount)}</strong>
             </div>
-
         `);
 
-    }
-
-    if (mpesa > 0) {
-
-        parts.push(`
-
-            <div class="payment-line">
-
-                <span>
-                    M-Pesa
-                </span>
-
-                <strong>
-                    ${money(mpesa)}
-                </strong>
-
-            </div>
-
-        `);
-
-    }
-
-    if (bank > 0) {
-
-        parts.push(`
-
-            <div class="payment-line">
-
-                <span>
-                    Bank
-                </span>
-
-                <strong>
-                    ${money(bank)}
-                </strong>
-
-            </div>
-
-        `);
-
-    }
-
-    if (
-        parts.length === 0
-    ) {
-
-        const methods =
-            getPaymentMethods(
-                sale
-            );
-
-        return methods
-            .map(
-                method => `
-                    <div class="payment-line">
-                        <span>
-                            ${escapeHTML(
-                                method
-                            )}
-                        </span>
-                    </div>
-                `
-            )
-            .join("");
-
+    if (parts.length === 0) {
+        return getPaymentMethods(sale)
+            .map((method) => `
+                <div class="payment-line">
+                    <span>${escapeHTML(method)}</span>
+                </div>
+            `)
+            .join("") || "-";
     }
 
     return parts.join("");
-
 }
 
 
 // =====================================================
-// DISPLAY SALES
+// DISPLAY SALES TABLE
 // =====================================================
 
 function displaySales(data) {
+    const table = document.getElementById("salesTable");
 
-    const table =
-        document.getElementById(
-            "salesTable"
-        );
-
-    if (!table) {
-        return;
-    }
+    if (!table) return;
 
     table.innerHTML = "";
 
-    if (
-        data.length === 0
-    ) {
-
+    if (data.length === 0) {
         table.innerHTML = `
-
             <tr>
-
-                <td colspan="9">
-
-                    No Sales Found
-
-                </td>
-
+                <td colspan="10">No Sales Found</td>
             </tr>
-
         `;
-
         return;
-
     }
 
-    const rows =
-        data.map(
-            (sale, index) => {
+    table.innerHTML = data.map((sale, index) => {
+        let productsHTML = "-";
 
-                let products = "-";
+        if (Array.isArray(sale.items) && sale.items.length > 0) {
+            productsHTML = sale.items.map((item) => `
+                <div class="sale-product">
+                    <strong>
+                        ${escapeHTML(item.name || "Unknown Product")}
+                    </strong>
+                    <span>× ${Number(item.quantity || 0)}</span>
+                </div>
+            `).join("");
+        }
 
-                if (
-                    Array.isArray(
-                        sale.items
-                    ) &&
-                    sale.items.length > 0
-                ) {
+        const payment = getPaymentBreakdownHTML(sale);
+        const date = getSaleDate(sale);
 
-                    products =
-                        sale.items
-                            .map(
-                                item => {
+        const saleDate = date
+            ? date.toLocaleString("en-KE")
+            : "N/A";
 
-                                    return `
+        const receiptNo =
+            sale.receiptNo || sale.id.substring(0, 8);
 
-                                        <div class="sale-product">
+        return `
+            <tr>
+                <td>${index + 1}</td>
 
-                                            <strong>
-                                                ${escapeHTML(
-                                                    item.name ||
-                                                    "Unknown Product"
-                                                )}
-                                            </strong>
+                <td class="products-column">
+                    ${productsHTML}
+                </td>
 
-                                            <span>
-                                                ×
-                                                ${
-                                                    Number(
-                                                        item.quantity ||
-                                                        0
-                                                    )
-                                                }
-                                            </span>
+                <td>${escapeHTML(receiptNo)}</td>
 
-                                        </div>
+                <td>
+                    ${escapeHTML(sale.customerName || "Walk-in Customer")}
+                </td>
 
-                                    `;
+                <td>
+                    ${escapeHTML(sale.cashier || "-")}
+                </td>
 
-                                }
-                            )
-                            .join("");
+                <td>
+                    <div class="payment-breakdown">
+                        ${payment}
+                    </div>
+                </td>
 
-                }
+                <td>${money(getSaleTotal(sale))}</td>
 
-                const payment =
-                    getPaymentBreakdownHTML(
-                        sale
-                    );
+                <td>${money(getAmountPaid(sale))}</td>
 
-                let saleDate =
-                    "N/A";
+                <td>${escapeHTML(saleDate)}</td>
 
-                const date =
-                    getSaleDate(
-                        sale
-                    );
-
-                if (date) {
-
-                    saleDate =
-                        date.toLocaleString(
-                            "en-KE"
-                        );
-
-                }
-
-                const receiptNo =
-                    sale.receiptNo ||
-                    sale.id.substring(
-                        0,
-                        8
-                    );
-
-                return `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td class="products-column">
-                            ${products}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                receiptNo
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                sale.customerName ||
-                                "Walk-in Customer"
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                sale.cashier ||
-                                "-"
-                            )}
-                        </td>
-
-                        <td>
-
-                            <div class="payment-breakdown">
-
-                                ${payment}
-
-                            </div>
-
-                        </td>
-
-                        <td>
-                            ${money(
-                                getSaleTotal(
-                                    sale
-                                )
-                            )}
-                        </td>
-
-                        <td>
-                            ${money(
-                                getAmountPaid(
-                                    sale
-                                )
-                            )}
-                        </td>
-
-                        <td>
-                            ${saleDate}
-                        </td>
-
-                        <td>
-
-                            <button
-                                class="view-btn"
-                                onclick="viewSale('${sale.id}')"
-                                title="View Receipt"
-                            >
-
-                                <i
-                                    class="fa-solid fa-eye"
-                                ></i>
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-    table.innerHTML =
-        rows.join("");
-
+                <td>
+                    <button
+                        class="view-btn"
+                        onclick="viewSale('${sale.id}')"
+                        title="View Receipt"
+                    >
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
 
@@ -705,107 +370,50 @@ function displaySales(data) {
 // =====================================================
 
 function updateStatistics() {
-
     let total = 0;
-
     let totalTransactions = 0;
-
     let todayTotal = 0;
 
-    sales.forEach(
-        sale => {
+    const today = new Date();
 
-            total +=
-                getSaleTotal(
-                    sale
-                );
+    sales.forEach((sale) => {
+        total += getSaleTotal(sale);
+        totalTransactions++;
 
-            totalTransactions++;
+        const saleDate = getSaleDate(sale);
 
-            const saleDate =
-                getSaleDate(
-                    sale
-                );
+        if (!saleDate) return;
 
-            if (!saleDate) {
-                return;
-            }
-
-            const today =
-                new Date();
-
-            const isToday =
-
-                saleDate.getFullYear() ===
-                    today.getFullYear()
-
-                &&
-
-                saleDate.getMonth() ===
-                    today.getMonth()
-
-                &&
-
-                saleDate.getDate() ===
-                    today.getDate();
-
-            if (isToday) {
-
-                todayTotal +=
-                    getSaleTotal(
-                        sale
-                    );
-
-            }
-
+        if (
+            saleDate.getFullYear() === today.getFullYear() &&
+            saleDate.getMonth() === today.getMonth() &&
+            saleDate.getDate() === today.getDate()
+        ) {
+            todayTotal += getSaleTotal(sale);
         }
-    );
+    });
 
-    setText(
-        "totalSales",
-        money(total)
-    );
-
-    setText(
-        "totalTransactions",
-        totalTransactions
-    );
-
-    setText(
-        "todaySales",
-        money(todayTotal)
-    );
-
+    setText("totalSales", money(total));
+    setText("totalTransactions", totalTransactions);
+    setText("todaySales", money(todayTotal));
 }
 
 
 // =====================================================
-// CURRENT MONTH SALES TOTAL
+// CURRENT MONTH SALES
 // =====================================================
 
 function updateMonthlySales() {
+    const now = new Date();
 
-    const now =
-        new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
 
-    const currentYear =
-        now.getFullYear();
+    const monthName = now.toLocaleString("default", {
+        month: "long"
+    });
 
-    const currentMonth =
-        now.getMonth();
-
-    const monthName =
-        now.toLocaleString(
-            "default",
-            {
-                month: "long"
-            }
-        );
-
-    setText(
-        "currentMonthName",
-        monthName
-    );
+    setText("currentMonthName", monthName);
 
     setText(
         "monthlySalesYear",
@@ -813,461 +421,170 @@ function updateMonthlySales() {
     );
 
     let monthlyTotal = 0;
-
     let monthlyTransactions = 0;
-
     let monthlyItems = 0;
 
-    sales.forEach(
-        sale => {
+    sales.forEach((sale) => {
+        const saleDate = getSaleDate(sale);
 
-            const saleDate =
-                getSaleDate(
-                    sale
-                );
+        if (!saleDate) return;
 
-            if (!saleDate) {
-                return;
-            }
-
-            if (
-                saleDate.getFullYear() !==
-                currentYear
-            ) {
-
-                return;
-
-            }
-
-            if (
-                saleDate.getMonth() !==
-                currentMonth
-            ) {
-
-                return;
-
-            }
-
-            monthlyTotal +=
-                getSaleTotal(
-                    sale
-                );
-
-            monthlyTransactions++;
-
-            if (
-                Array.isArray(
-                    sale.items
-                )
-            ) {
-
-                sale.items.forEach(
-                    item => {
-
-                        monthlyItems +=
-                            Number(
-                                item.quantity ||
-                                0
-                            );
-
-                    }
-                );
-
-            }
-
+        if (
+            saleDate.getFullYear() !== currentYear ||
+            saleDate.getMonth() !== currentMonth
+        ) {
+            return;
         }
-    );
 
-    setText(
-        "currentMonthSales",
-        money(monthlyTotal)
-    );
+        monthlyTotal += getSaleTotal(sale);
+        monthlyTransactions++;
 
-    setText(
-        "currentMonthTransactions",
-        monthlyTransactions
-    );
+        if (Array.isArray(sale.items)) {
+            sale.items.forEach((item) => {
+                monthlyItems += Number(item.quantity || 0);
+            });
+        }
+    });
 
-    setText(
-        "currentMonthItems",
-        monthlyItems
-    );
-
+    setText("currentMonthSales", money(monthlyTotal));
+    setText("currentMonthTransactions", monthlyTransactions);
+    setText("currentMonthItems", monthlyItems);
 }
 
 
 // =====================================================
-// VIEW SALE / RECEIPT
+// VIEW SALE / RECEIPT MODAL
 // =====================================================
 
-window.viewSale =
-function(id) {
+window.viewSale = function(id) {
+    selectedSale = sales.find((sale) => sale.id === id);
 
-    selectedSale =
-        sales.find(
-            sale =>
-                sale.id === id
-        );
+    if (!selectedSale) return;
 
-    if (
-        !selectedSale
-    ) {
+    const saleDate = getSaleDate(selectedSale);
 
-        return;
+    const formattedDate = saleDate
+        ? saleDate.toLocaleString("en-KE")
+        : "N/A";
 
-    }
-
-    const saleDate =
-        getSaleDate(
-            selectedSale
-        );
-
-    const formattedDate =
-        saleDate
-            ? saleDate.toLocaleString(
-                "en-KE"
-            )
-            : "N/A";
+    const receiptNo =
+        selectedSale.receiptNo || selectedSale.id;
 
     let html = `
-
-        <h3>
-            Lebarto Electronics
-        </h3>
+        <h3>Lebarto Electronics</h3>
 
         <p>
-
-            <strong>
-                Customer:
-            </strong>
-
-            ${escapeHTML(
-                selectedSale.customerName ||
-                "Walk-in Customer"
-            )}
-
+            <strong>Customer:</strong>
+            ${escapeHTML(selectedSale.customerName || "Walk-in Customer")}
         </p>
 
         <p>
-
-            <strong>
-                Cashier:
-            </strong>
-
-            ${escapeHTML(
-                selectedSale.cashier ||
-                "-"
-            )}
-
+            <strong>Cashier:</strong>
+            ${escapeHTML(selectedSale.cashier || "-")}
         </p>
 
         <p>
-
-            <strong>
-                Receipt:
-            </strong>
-
-            ${escapeHTML(
-                selectedSale.receiptNo ||
-                selectedSale.id
-            )}
-
+            <strong>Receipt:</strong>
+            ${escapeHTML(receiptNo)}
         </p>
 
         <p>
-
-            <strong>
-                Date:
-            </strong>
-
-            ${formattedDate}
-
+            <strong>Date:</strong>
+            ${escapeHTML(formattedDate)}
         </p>
 
         <hr>
 
-        <h4>
-            Payment Breakdown
-        </h4>
+        <h4>Payment Breakdown</h4>
 
         <div class="receipt-payment-breakdown">
-
-            <div class="payment-line">
-
-                <span>
-                    Cash
-                </span>
-
-                <strong>
-                    ${money(
-                        getCashAmount(
-                            selectedSale
-                        )
-                    )}
-                </strong>
-
-            </div>
-
-            <div class="payment-line">
-
-                <span>
-                    M-Pesa
-                </span>
-
-                <strong>
-                    ${money(
-                        getMpesaAmount(
-                            selectedSale
-                        )
-                    )}
-                </strong>
-
-            </div>
-
-            <div class="payment-line">
-
-                <span>
-                    Bank
-                </span>
-
-                <strong>
-                    ${money(
-                        getBankAmount(
-                            selectedSale
-                        )
-                    )}
-                </strong>
-
-            </div>
-
+            ${getPaymentBreakdownHTML(selectedSale)}
         </div>
 
         <p>
-
-            <strong>
-                Paid:
-            </strong>
-
-            ${money(
-                getAmountPaid(
-                    selectedSale
-                )
-            )}
-
+            <strong>Total Paid:</strong>
+            ${money(getAmountPaid(selectedSale))}
         </p>
 
         <p>
-
-            <strong>
-                Total:
-            </strong>
-
-            ${money(
-                getSaleTotal(
-                    selectedSale
-                )
-            )}
-
+            <strong>Total:</strong>
+            ${money(getSaleTotal(selectedSale))}
         </p>
 
         <p>
-
-            <strong>
-                Balance Due:
-            </strong>
-
-            ${money(
-                getBalance(
-                    selectedSale
-                )
-            )}
-
+            <strong>Balance Due:</strong>
+            ${money(getBalance(selectedSale))}
         </p>
 
         <p>
-
-            <strong>
-                Change:
-            </strong>
-
-            ${money(
-                getChange(
-                    selectedSale
-                )
-            )}
-
+            <strong>Change:</strong>
+            ${money(getChange(selectedSale))}
         </p>
 
         <hr>
 
+        <h4>Items Purchased</h4>
     `;
 
-
     if (
-        Array.isArray(
-            selectedSale.items
-        ) &&
+        Array.isArray(selectedSale.items) &&
         selectedSale.items.length > 0
     ) {
+        selectedSale.items.forEach((item) => {
+            const itemTotal =
+                Number(item.total) ||
+                Number(item.price || item.sellingPrice || 0) *
+                Number(item.quantity || 0);
 
-        selectedSale.items.forEach(
-            item => {
+            html += `
+                <div class="receipt-item">
+                    <span>
+                        ${escapeHTML(item.name || "Unknown Product")}
+                        × ${Number(item.quantity || 0)}
+                    </span>
 
-                const itemTotal =
-                    Number(
-                        item.total
-                    ) ||
-
-                    (
-                        Number(
-                            item.price ||
-                            0
-                        ) *
-
-                        Number(
-                            item.quantity ||
-                            0
-                        )
-                    );
-
-                html += `
-
-                    <div
-                        class="receipt-item"
-                    >
-
-                        <span>
-
-                            ${escapeHTML(
-                                item.name ||
-                                "Unknown Product"
-                            )}
-
-                            x
-
-                            ${
-                                Number(
-                                    item.quantity ||
-                                    0
-                                )
-                            }
-
-                        </span>
-
-                        <span>
-
-                            ${money(
-                                itemTotal
-                            )}
-
-                        </span>
-
-                    </div>
-
-                `;
-
-            }
-        );
-
+                    <span>${money(itemTotal)}</span>
+                </div>
+            `;
+        });
+    } else {
+        html += `<p>No products recorded.</p>`;
     }
-
-    else {
-
-        html += `
-
-            <p>
-                No products recorded.
-            </p>
-
-        `;
-
-    }
-
 
     html += `
-
-        <div
-            class="receipt-total"
-        >
-
-            Total:
-
-            ${money(
-                getSaleTotal(
-                    selectedSale
-                )
-            )}
-
+        <div class="receipt-total">
+            Total: ${money(getSaleTotal(selectedSale))}
         </div>
-
     `;
 
-
     const receiptDetails =
-        document.getElementById(
-            "receiptDetails"
-        );
+        document.getElementById("receiptDetails");
 
-    if (
-        receiptDetails
-    ) {
-
-        receiptDetails.innerHTML =
-            html;
-
+    if (receiptDetails) {
+        receiptDetails.innerHTML = html;
     }
 
     const receiptModal =
-        document.getElementById(
-            "receiptModal"
-        );
+        document.getElementById("receiptModal");
 
-    if (
-        receiptModal
-    ) {
-
-        receiptModal.style.display =
-            "flex";
-
+    if (receiptModal) {
+        receiptModal.style.display = "flex";
     }
-
 };
 
 
 // =====================================================
-// SEARCH
+// SEARCH AND FILTER LISTENERS
 // =====================================================
 
-document
-    .getElementById("searchSale")
-    ?.addEventListener(
-        "input",
-        filterSales
-    );
+document.getElementById("searchSale")
+    ?.addEventListener("input", filterSales);
 
+document.getElementById("paymentFilter")
+    ?.addEventListener("change", filterSales);
 
-// =====================================================
-// PAYMENT FILTER
-// =====================================================
-
-document
-    .getElementById("paymentFilter")
-    ?.addEventListener(
-        "change",
-        filterSales
-    );
-
-
-// =====================================================
-// DATE FILTER
-// =====================================================
-
-document
-    .getElementById("dateFilter")
-    ?.addEventListener(
-        "change",
-        filterSales
-    );
+document.getElementById("dateFilter")
+    ?.addEventListener("change", filterSales);
 
 
 // =====================================================
@@ -1275,185 +592,76 @@ document
 // =====================================================
 
 function filterSales() {
+    const text = document.getElementById("searchSale")
+        ?.value?.toLowerCase().trim() || "";
 
-    const text =
-        document.getElementById(
-            "searchSale"
-        )?.value
-        ?.toLowerCase()
-        ?.trim() || "";
+    const payment = document.getElementById("paymentFilter")
+        ?.value || "";
 
-    const payment =
-        document.getElementById(
-            "paymentFilter"
-        )?.value || "";
+    const date = document.getElementById("dateFilter")
+        ?.value || "";
 
-    const date =
-        document.getElementById(
-            "dateFilter"
-        )?.value || "";
+    const filtered = sales.filter((sale) => {
+        const customer =
+            String(sale.customerName || "").toLowerCase();
 
-    const filtered =
-        sales.filter(
-            sale => {
+        const cashier =
+            String(sale.cashier || "").toLowerCase();
 
-                const customer =
-                    (
-                        sale.customerName ||
-                        ""
-                    )
-                    .toLowerCase();
+        const receipt =
+            String(sale.receiptNo || "").toLowerCase();
 
-                const cashier =
-                    (
-                        sale.cashier ||
-                        ""
-                    )
-                    .toLowerCase();
-
-                const receipt =
-                    (
-                        sale.receiptNo ||
-                        ""
-                    )
-                    .toLowerCase();
-
-                let productNames = "";
-
-                if (
-                    Array.isArray(
-                        sale.items
-                    )
-                ) {
-
-                    productNames =
-                        sale.items
-                            .map(
-                                item =>
-                                    item.name ||
-                                    ""
-                            )
-                            .join(" ")
-                            .toLowerCase();
-
-                }
-
-                const searchable = [
-
-                    customer,
-
-                    cashier,
-
-                    receipt,
-
-                    productNames
-
-                ]
+        const productNames = Array.isArray(sale.items)
+            ? sale.items
+                .map((item) => item.name || "")
                 .join(" ")
-                .toLowerCase();
+                .toLowerCase()
+            : "";
 
-                const matchText =
+        const searchable = [
+            customer,
+            cashier,
+            receipt,
+            productNames
+        ].join(" ");
 
-                    !text ||
+        const matchText =
+            !text || searchable.includes(text);
 
-                    searchable.includes(
-                        text
-                    );
+        const methods = getPaymentMethods(sale);
 
-                const methods =
-                    getPaymentMethods(
-                        sale
-                    );
+        const matchPayment =
+            !payment ||
+            methods.some((method) =>
+                method.toLowerCase() === payment.toLowerCase()
+            );
 
-                const matchPayment =
+        let matchDate = true;
 
-                    !payment ||
+        if (date) {
+            const saleDate = getSaleDate(sale);
 
-                    methods.some(
-                        method =>
+            if (!saleDate) {
+                matchDate = false;
+            } else {
+                const year = saleDate.getFullYear();
+                const month = String(
+                    saleDate.getMonth() + 1
+                ).padStart(2, "0");
 
-                            method
-                                .toLowerCase() ===
-                            payment
-                                .toLowerCase()
-                    );
+                const day = String(
+                    saleDate.getDate()
+                ).padStart(2, "0");
 
-                let matchDate =
-                    true;
-
-                if (date) {
-
-                    const saleDate =
-                        getSaleDate(
-                            sale
-                        );
-
-                    if (!saleDate) {
-
-                        matchDate =
-                            false;
-
-                    }
-
-                    else {
-
-                        const year =
-                            saleDate
-                                .getFullYear()
-                                .toString()
-                                .padStart(
-                                    4,
-                                    "0"
-                                );
-
-                        const month =
-                            (
-                                saleDate.getMonth() +
-                                1
-                            )
-                            .toString()
-                            .padStart(
-                                2,
-                                "0"
-                            );
-
-                        const day =
-                            saleDate
-                                .getDate()
-                                .toString()
-                                .padStart(
-                                    2,
-                                    "0"
-                                );
-
-                        const saleDateString =
-                            `${year}-${month}-${day}`;
-
-                        matchDate =
-                            saleDateString ===
-                            date;
-
-                    }
-
-                }
-
-                return (
-
-                    matchText &&
-
-                    matchPayment &&
-
-                    matchDate
-
-                );
-
+                matchDate =
+                    `${year}-${month}-${day}` === date;
             }
-        );
+        }
 
-    displaySales(
-        filtered
-    );
+        return matchText && matchPayment && matchDate;
+    });
 
+    displaySales(filtered);
 }
 
 
@@ -1461,78 +669,38 @@ function filterSales() {
 // PRINT RECEIPT
 // =====================================================
 
-document
-    .getElementById(
-        "printReceiptBtn"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
-            window.print();
-
-        }
-    );
+document.getElementById("printReceiptBtn")
+    ?.addEventListener("click", () => {
+        window.print();
+    });
 
 
 // =====================================================
 // CLOSE RECEIPT MODAL
 // =====================================================
 
-document
-    .getElementById(
-        "closeModal"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
+document.getElementById("closeModal")
+    ?.addEventListener("click", () => {
+        const modal = document.getElementById("receiptModal");
 
-            const modal =
-                document.getElementById(
-                    "receiptModal"
-                );
-
-            if (modal) {
-
-                modal.style.display =
-                    "none";
-
-            }
-
+        if (modal) {
+            modal.style.display = "none";
         }
-    );
+    });
 
 
 // =====================================================
-// CLOSE MODAL OUTSIDE
+// CLOSE MODAL BY CLICKING OUTSIDE
 // =====================================================
 
-const receiptModal =
-    document.getElementById(
-        "receiptModal"
-    );
+const receiptModal = document.getElementById("receiptModal");
 
-if (
-    receiptModal
-) {
-
-    receiptModal.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target.id ===
-                "receiptModal"
-            ) {
-
-                receiptModal.style.display =
-                    "none";
-
-            }
-
+if (receiptModal) {
+    receiptModal.addEventListener("click", (event) => {
+        if (event.target.id === "receiptModal") {
+            receiptModal.style.display = "none";
         }
-    );
-
+    });
 }
 
 
@@ -1540,60 +708,29 @@ if (
 // LOGOUT
 // =====================================================
 
-document
-    .getElementById("logoutBtn")
-    ?.addEventListener(
-        "click",
-        async event => {
+document.getElementById("logoutBtn")
+    ?.addEventListener("click", async (event) => {
+        event.preventDefault();
 
-            event.preventDefault();
-
-            try {
-
-                await signOut(
-                    auth
-                );
-
-                window.location.href =
-                    "login.html";
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Logout error:",
-                    error
-                );
-
-                alert(
-                    "Unable to logout. Please try again."
-                );
-
-            }
-
+        try {
+            await signOut(auth);
+            window.location.href = "login.html";
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("Unable to logout. Please try again.");
         }
-    );
+    });
 
 
 // =====================================================
-// MONEY
+// MONEY FORMATTING
 // =====================================================
 
 function money(value) {
-
-    return "KSh " +
-
-        Number(
-            value || 0
-        ).toLocaleString(
-            "en-KE",
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }
-        );
-
+    return "KSh " + Number(value || 0).toLocaleString("en-KE", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
 }
 
 
@@ -1601,23 +738,12 @@ function money(value) {
 // SET TEXT
 // =====================================================
 
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            id
-        );
+function setText(id, value) {
+    const element = document.getElementById(id);
 
     if (element) {
-
-        element.textContent =
-            value;
-
+        element.textContent = value;
     }
-
 }
 
 
@@ -1626,43 +752,19 @@ function setText(
 // =====================================================
 
 function escapeHTML(value) {
-
-    return String(
-        value ?? ""
-    )
-
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-
-    .replace(
-        /</g,
-        "&lt;"
-    )
-
-    .replace(
-        />/g,
-        "&gt;"
-    )
-
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
 // =====================================================
-// END
+// READY
 // =====================================================
 
 console.log(
-    "LEBARTO SALES MODULE LOADED SUCCESSFULLY."
+    "LEBARTO SALES MODULE LOADED - KOPO KOPO ENABLED."
 );

@@ -1,11 +1,9 @@
 
- // =====================================================
- // LEBARTO ELECTRONICS
- // SALES.JS
- // SALES HISTORY • PRODUCTS • FILTER • RECEIPTS
- // CASH + M-PESA + BANK + KOPO KOPO
- // SPLIT PAYMENT SUPPORT
- // =====================================================
+// =====================================================
+// LEBARTO ELECTRONICS - SALES.JS
+// All-record statistics • Paginated sales table
+// Search • Date/payment filters • Receipts • Logout
+// =====================================================
 
 import { auth, db } from "./firebase-config.js";
 
@@ -18,263 +16,516 @@ import {
     collection,
     getDocs,
     query,
-    orderBy
+    orderBy,
+    limit,
+    startAfter
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-
 // =====================================================
-// VARIABLES
+// CONFIGURATION AND GLOBALS
 // =====================================================
 
-let currentUser = null;
+const PAGE_SIZE = 50;
+
 let sales = [];
+let allSales = [];
+let filteredSales = [];
 let selectedSale = null;
-
+let lastDocument = null;
+let loadingSales = false;
+let allSalesLoaded = false;
+let authReady = false;
 
 // =====================================================
 // AUTHENTICATION
 // =====================================================
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "login.html";
         return;
     }
 
-    currentUser = user;
-    loadSales();
+    if (authReady) return;
+    authReady = true;
+
+    await loadAllSales();
 });
 
-
 // =====================================================
-// LOAD SALES
+// LOAD ALL SALES FOR ACCURATE STATISTICS
 // =====================================================
 
-async function loadSales() {
+async function loadAllSales() {
+    const table = document.getElementById("salesTable");
+
+    if (table) {
+        table.innerHTML =
+            '<tr><td colspan="10">Loading sales...</td></tr>';
+    }
+
     try {
-        const q = query(
-            collection(db, "sales"),
-            orderBy("date", "desc")
-        );
+        const snapshot = await getDocs(collection(db, "sales"));
 
-        const snapshot = await getDocs(q);
+        allSales = snapshot.docs.map((d) => ({
+            ...d.data(),
+            id: d.id
+        }));
 
-        sales = [];
-
-        snapshot.forEach((item) => {
-            sales.push({
-                id: item.id,
-                ...item.data()
-            });
+        // Sort locally so missing dates do not exclude sales.
+        allSales.sort((a, b) => {
+            const dateA = getSaleDate(a)?.getTime() || 0;
+            const dateB = getSaleDate(b)?.getTime() || 0;
+            return dateB - dateA;
         });
 
-        displaySales(sales);
-        updateStatistics();
-        updateMonthlySales();
+        updateStatistics(allSales);
+        updateMonthlySales(allSales);
+
+        console.log("Total Firestore sales:", allSales.length);
+        console.log("Sample sale:", allSales[0] || "No sale documents");
+
+        await loadSales(true);
 
     } catch (error) {
-        console.error("Error loading sales:", error);
+        console.error("Unable to load all sales:", error);
 
-        alert(
-            "Unable to load sales: " + error.message
-        );
+        if (table) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="10">
+                        Failed to load sales:
+                        ${escapeHTML(error.message)}
+                    </td>
+                </tr>
+            `;
+        }
+
+        setText("totalSales", "Unavailable");
+        setText("todaySales", "Unavailable");
+        setText("currentMonthSales", "Unavailable");
+
+        alert("Unable to read Firestore sales: " + error.message);
     }
 }
 
+// =====================================================
+// LOAD TABLE IN PAGES OF 50
+// =====================================================
+
+async function loadSales(reset = false) {
+    if (loadingSales || (!reset && allSalesLoaded)) return;
+
+    loadingSales = true;
+    updateLoadMoreButton();
+
+    const table = document.getElementById("salesTable");
+
+    if (reset) {
+        sales = [];
+        filteredSales = [];
+        lastDocument = null;
+        allSalesLoaded = false;
+
+        if (table) {
+            table.innerHTML =
+                '<tr><td colspan="10">Loading sales...</td></tr>';
+        }
+    }
+
+    try {
+        const salesCollection = collection(db, "sales");
+
+        const salesQuery = lastDocument
+            ? query(
+                salesCollection,
+                orderBy("date", "desc"),
+                startAfter(lastDocument),
+                limit(PAGE_SIZE)
+            )
+            : query(
+                salesCollection,
+                orderBy("date", "desc"),
+                limit(PAGE_SIZE)
+            );
+
+        const snapshot = await getDocs(salesQuery);
+
+        if (!snapshot.empty) {
+            lastDocument = snapshot.docs[snapshot.docs.length - 1];
+
+            const existingIds = new Set(sales.map((sale) => sale.id));
+
+            for (const d of snapshot.docs) {
+                if (!existingIds.has(d.id)) {
+                    sales.push({
+                        ...d.data(),
+                        id: d.id
+                    });
+                }
+            }
+        }
+
+        if (snapshot.size < PAGE_SIZE) {
+            allSalesLoaded = true;
+        }
+
+        filterSales();
+
+        console.log(
+            `Sales table loaded: ${sales.length}; batch: ${snapshot.size}`
+        );
+
+    } catch (error) {
+        console.error("Sales page loading error:", error);
+
+        if (table) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="10">
+                        Error loading sales table:
+                        ${escapeHTML(error.message)}
+                    </td>
+                </tr>
+            `;
+        }
+
+        alert("Unable to load the sales table: " + error.message);
+
+    } finally {
+        loadingSales = false;
+        updateLoadMoreButton();
+    }
+}
 
 // =====================================================
-// GET SALE DATE
+// LOAD MORE BUTTON
+// =====================================================
+
+function updateLoadMoreButton() {
+    const button = document.getElementById("loadMoreSalesBtn");
+    if (!button) return;
+
+    button.disabled = loadingSales || allSalesLoaded;
+
+    button.textContent = loadingSales
+        ? "Loading..."
+        : allSalesLoaded
+            ? "All Sales Loaded"
+            : "Load More Sales";
+}
+
+document.getElementById("loadMoreSalesBtn")
+    ?.addEventListener("click", () => loadSales(false));
+
+// =====================================================
+// NUMBER AND MONEY HELPERS
+// =====================================================
+
+function numberValue(value) {
+    if (value == null || value === "") return 0;
+
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : 0;
+    }
+
+    if (typeof value === "object" && value.toNumber) {
+        return numberValue(value.toNumber());
+    }
+
+    const result = Number(
+        String(value)
+            .replace(/,/g, "")
+            .replace(/KSh/gi, "")
+            .trim()
+    );
+
+    return Number.isFinite(result) ? result : 0;
+}
+
+function money(value) {
+    return "KSh " + numberValue(value).toLocaleString("en-KE", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+// =====================================================
+// DATE HELPERS
 // =====================================================
 
 function getSaleDate(sale) {
-    if (!sale || !sale.date) return null;
+    const value =
+        sale?.date ??
+        sale?.createdAt ??
+        sale?.saleDate ??
+        sale?.timestamp ??
+        null;
+
+    if (value == null) return null;
 
     try {
-        if (typeof sale.date.toDate === "function") {
-            return sale.date.toDate();
+        let date;
+
+        if (typeof value.toDate === "function") {
+            date = value.toDate();
+        } else if (typeof value.seconds === "number") {
+            date = new Date(value.seconds * 1000);
+        } else if (value instanceof Date) {
+            date = value;
+        } else if (typeof value === "number") {
+            date = new Date(
+                value < 100000000000 ? value * 1000 : value
+            );
+        } else {
+            date = new Date(value);
         }
 
-        if (typeof sale.date.seconds === "number") {
-            return new Date(sale.date.seconds * 1000);
-        }
-
-        const parsed = new Date(sale.date);
-
-        return Number.isNaN(parsed.getTime())
-            ? null
-            : parsed;
-
+        return Number.isNaN(date.getTime()) ? null : date;
     } catch (error) {
-        console.error("Date conversion error:", error);
+        console.error("Invalid sale date:", error);
         return null;
     }
 }
 
+function isToday(date) {
+    if (!date) return false;
 
-// =====================================================
-// PAYMENT AMOUNT HELPERS
-// =====================================================
+    const now = new Date();
 
-function getCashAmount(sale) {
-    return Number(sale?.cashAmount ?? 0) || 0;
+    return date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate();
 }
 
-function getMpesaAmount(sale) {
-    return Number(sale?.mpesaAmount ?? 0) || 0;
-}
+function isCurrentMonth(date) {
+    if (!date) return false;
 
-function getBankAmount(sale) {
-    return Number(sale?.bankAmount ?? 0) || 0;
-}
+    const now = new Date();
 
-function getKopokopoAmount(sale) {
-    return Number(sale?.kopokopoAmount ?? 0) || 0;
+    return date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth();
 }
-
 
 // =====================================================
-// TOTAL AMOUNT PAID
-// =====================================================
-
-function getAmountPaid(sale) {
-    if (sale?.amountPaid !== undefined &&
-        sale?.amountPaid !== null) {
-        return Number(sale.amountPaid) || 0;
-    }
-
-    return (
-        getCashAmount(sale) +
-        getMpesaAmount(sale) +
-        getBankAmount(sale) +
-        getKopokopoAmount(sale)
-    );
-}
-
-
-// =====================================================
-// SALE TOTAL
+// SALE TOTALS
 // =====================================================
 
 function getSaleTotal(sale) {
-    return Number(sale?.total ?? 0) || 0;
+    if (sale?.total != null && sale.total !== "") {
+        return Math.max(0, numberValue(sale.total));
+    }
+
+    if (sale?.grandTotal != null && sale.grandTotal !== "") {
+        return Math.max(0, numberValue(sale.grandTotal));
+    }
+
+    if (sale?.subtotal != null && sale.subtotal !== "") {
+        return Math.max(
+            0,
+            numberValue(sale.subtotal) - numberValue(sale.discount)
+        );
+    }
+
+    if (!Array.isArray(sale?.items)) return 0;
+
+    return sale.items.reduce((sum, item) => {
+        const total = item?.total != null
+            ? numberValue(item.total)
+            : numberValue(item?.price ?? item?.sellingPrice) *
+              numberValue(item?.quantity);
+
+        return sum + total;
+    }, 0);
 }
 
+// =====================================================
+// PAYMENT HELPERS
+// =====================================================
 
-// =====================================================
-// BALANCE
-// =====================================================
+function normalizePaymentMethod(method) {
+    const value = String(method || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z]/g, "");
+
+    if (value.includes("kopokopo")) return "kopokopo";
+    if (value.includes("mpesa")) return "mpesa";
+
+    return value;
+}
+
+function getSavedPaymentMethods(sale) {
+    const saved =
+        sale?.paymentMethods ??
+        sale?.paymentMethod ??
+        sale?.paymentMethodsUsed ??
+        [];
+
+    const methods = Array.isArray(saved)
+        ? saved
+        : typeof saved === "string"
+            ? saved.split(",")
+            : [];
+
+    return methods.map((method) => String(method).trim()).filter(Boolean);
+}
+
+function getPaymentAmounts(sale) {
+    let cash = numberValue(sale?.cashAmount);
+    let mpesa = numberValue(sale?.mpesaAmount ?? sale?.mPesaAmount);
+    let bank = numberValue(sale?.bankAmount);
+
+    let kopoKopo = numberValue(
+        sale?.kopokopoAmount ??
+        sale?.kopoKopoAmount ??
+        sale?.kopoAmount ??
+        sale?.kopoKopoPaid
+    );
+
+    const savedPaid = numberValue(sale?.amountPaid ?? sale?.paidAmount);
+    const methods = getSavedPaymentMethods(sale);
+
+    if (cash + mpesa + bank + kopoKopo === 0 &&
+        savedPaid > 0 && methods.length === 1) {
+        const method = normalizePaymentMethod(methods[0]);
+
+        if (method === "cash") cash = savedPaid;
+        else if (method === "mpesa") mpesa = savedPaid;
+        else if (method === "bank") bank = savedPaid;
+        else if (method === "kopokopo") kopoKopo = savedPaid;
+    }
+
+    return {
+        cash,
+        mpesa,
+        bank,
+        kopoKopo,
+        totalPaid: savedPaid > 0
+            ? savedPaid
+            : cash + mpesa + bank + kopoKopo
+    };
+}
+
+function getAmountPaid(sale) {
+    return getPaymentAmounts(sale).totalPaid;
+}
 
 function getBalance(sale) {
-    if (sale?.balance !== undefined &&
-        sale?.balance !== null) {
-        return Math.max(0, Number(sale.balance) || 0);
+    if (sale?.balance != null && sale.balance !== "") {
+        return Math.max(0, numberValue(sale.balance));
     }
 
-    return Math.max(
-        0,
-        getSaleTotal(sale) - getAmountPaid(sale)
-    );
+    return Math.max(0, getSaleTotal(sale) - getAmountPaid(sale));
 }
-
-
-// =====================================================
-// CHANGE
-// =====================================================
 
 function getChange(sale) {
-    if (sale?.change !== undefined &&
-        sale?.change !== null) {
-        return Math.max(0, Number(sale.change) || 0);
+    if (sale?.change != null && sale.change !== "") {
+        return Math.max(0, numberValue(sale.change));
     }
 
-    return Math.max(
-        0,
-        getAmountPaid(sale) - getSaleTotal(sale)
-    );
+    return Math.max(0, getAmountPaid(sale) - getSaleTotal(sale));
 }
-
-
-// =====================================================
-// GET PAYMENT METHODS
-// =====================================================
 
 function getPaymentMethods(sale) {
+    const amounts = getPaymentAmounts(sale);
     const methods = [];
 
-    if (getCashAmount(sale) > 0) {
-        methods.push("Cash");
-    }
+    if (amounts.cash > 0) methods.push("Cash");
+    if (amounts.mpesa > 0) methods.push("M-Pesa");
+    if (amounts.bank > 0) methods.push("Bank");
+    if (amounts.kopoKopo > 0) methods.push("Kopo Kopo");
 
-    if (getMpesaAmount(sale) > 0) {
-        methods.push("M-Pesa");
-    }
-
-    if (getBankAmount(sale) > 0) {
-        methods.push("Bank");
-    }
-
-    if (getKopokopoAmount(sale) > 0) {
-        methods.push("Kopo Kopo");
-    }
-
-    // Support older records without payment amounts.
-    if (
-        methods.length === 0 &&
-        Array.isArray(sale?.paymentMethods)
-    ) {
-        return sale.paymentMethods;
-    }
-
-    return methods;
+    return methods.length ? methods : getSavedPaymentMethods(sale);
 }
 
-
-// =====================================================
-// PAYMENT BREAKDOWN HTML
-// =====================================================
-
 function getPaymentBreakdownHTML(sale) {
+    const amounts = getPaymentAmounts(sale);
+
     const payments = [
-        {
-            name: "Cash",
-            amount: getCashAmount(sale)
-        },
-        {
-            name: "M-Pesa",
-            amount: getMpesaAmount(sale)
-        },
-        {
-            name: "Bank",
-            amount: getBankAmount(sale)
-        },
-        {
-            name: "Kopo Kopo",
-            amount: getKopokopoAmount(sale)
-        }
+        ["Cash", amounts.cash],
+        ["M-Pesa", amounts.mpesa],
+        ["Bank", amounts.bank],
+        ["Kopo Kopo", amounts.kopoKopo]
     ];
 
-    const parts = payments
-        .filter((payment) => payment.amount > 0)
-        .map((payment) => `
+    const rows = payments
+        .filter(([, amount]) => amount > 0)
+        .map(([name, amount]) => `
             <div class="payment-line">
-                <span>${payment.name}</span>
-                <strong>${money(payment.amount)}</strong>
+                <span>${name}</span>
+                <strong>${money(amount)}</strong>
             </div>
         `);
 
-    if (parts.length === 0) {
-        return getPaymentMethods(sale)
-            .map((method) => `
-                <div class="payment-line">
-                    <span>${escapeHTML(method)}</span>
-                </div>
-            `)
-            .join("") || "-";
-    }
-
-    return parts.join("");
+    return rows.length
+        ? rows.join("")
+        : getSavedPaymentMethods(sale)
+            .map((method) => `<span>${escapeHTML(method)}</span>`)
+            .join(", ") || "-";
 }
 
+// =====================================================
+// STATISTICS — ALWAYS USE ALL FIRESTORE SALES
+// =====================================================
+
+function updateStatistics(data) {
+    let total = 0;
+    let todayTotal = 0;
+
+    data.forEach((sale) => {
+        const amount = getSaleTotal(sale);
+        total += amount;
+
+        if (isToday(getSaleDate(sale))) {
+            todayTotal += amount;
+        }
+    });
+
+    setText("totalSales", money(total));
+    setText("totalTransactions", data.length);
+    setText("todaySales", money(todayTotal));
+}
+
+function updateMonthlySales(data) {
+    const now = new Date();
+
+    const monthName = now.toLocaleString("en", {
+        month: "long"
+    });
+
+    setText("currentMonthName", monthName);
+    setText(
+        "monthlySalesYear",
+        `${monthName} ${now.getFullYear()} sales summary`
+    );
+
+    let total = 0;
+    let transactions = 0;
+    let items = 0;
+
+    data.forEach((sale) => {
+        if (!isCurrentMonth(getSaleDate(sale))) return;
+
+        total += getSaleTotal(sale);
+        transactions++;
+
+        if (Array.isArray(sale.items)) {
+            sale.items.forEach((item) => {
+                items += numberValue(item?.quantity);
+            });
+        }
+    });
+
+    setText("currentMonthSales", money(total));
+    setText("currentMonthTransactions", transactions);
+    setText("currentMonthItems", items);
+}
 
 // =====================================================
 // DISPLAY SALES TABLE
@@ -282,300 +533,111 @@ function getPaymentBreakdownHTML(sale) {
 
 function displaySales(data) {
     const table = document.getElementById("salesTable");
-
     if (!table) return;
 
-    table.innerHTML = "";
-
-    if (data.length === 0) {
+    if (!data.length) {
         table.innerHTML = `
-            <tr>
-                <td colspan="10">No Sales Found</td>
-            </tr>
+            <tr><td colspan="10">No sales found.</td></tr>
         `;
         return;
     }
 
     table.innerHTML = data.map((sale, index) => {
-        let productsHTML = "-";
-
-        if (Array.isArray(sale.items) && sale.items.length > 0) {
-            productsHTML = sale.items.map((item) => `
-                <div class="sale-product">
-                    <strong>
-                        ${escapeHTML(item.name || "Unknown Product")}
-                    </strong>
-                    <span>× ${Number(item.quantity || 0)}</span>
-                </div>
-            `).join("");
-        }
-
-        const payment = getPaymentBreakdownHTML(sale);
         const date = getSaleDate(sale);
 
-        const saleDate = date
-            ? date.toLocaleString("en-KE")
-            : "N/A";
-
-        const receiptNo =
-            sale.receiptNo || sale.id.substring(0, 8);
+        const productsHTML = Array.isArray(sale.items)
+            ? sale.items.map((item) => `
+                <div class="sale-product">
+                    <strong>${escapeHTML(item?.name || "Unknown Product")}</strong>
+                    <span>× ${numberValue(item?.quantity)}</span>
+                </div>
+            `).join("")
+            : "-";
 
         return `
             <tr>
                 <td>${index + 1}</td>
-
-                <td class="products-column">
-                    ${productsHTML}
-                </td>
-
-                <td>${escapeHTML(receiptNo)}</td>
-
-                <td>
-                    ${escapeHTML(sale.customerName || "Walk-in Customer")}
-                </td>
-
-                <td>
-                    ${escapeHTML(sale.cashier || "-")}
-                </td>
-
+                <td class="products-column">${productsHTML || "-"}</td>
+                <td>${escapeHTML(sale.receiptNo || sale.id.slice(0, 8))}</td>
+                <td>${escapeHTML(sale.customerName || "Walk-in Customer")}</td>
+                <td>${escapeHTML(sale.cashier || "-")}</td>
                 <td>
                     <div class="payment-breakdown">
-                        ${payment}
+                        ${getPaymentBreakdownHTML(sale)}
                     </div>
                 </td>
-
                 <td>${money(getSaleTotal(sale))}</td>
-
                 <td>${money(getAmountPaid(sale))}</td>
-
-                <td>${escapeHTML(saleDate)}</td>
-
+                <td>${date ? escapeHTML(date.toLocaleString("en-KE")) : "N/A"}</td>
                 <td>
-                    <button
-                        class="view-btn"
-                        onclick="viewSale('${sale.id}')"
+                    <button class="view-btn"
+                        data-sale-id="${escapeHTML(sale.id)}"
                         title="View Receipt"
-                    >
+                        aria-label="View receipt">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </td>
             </tr>
         `;
     }).join("");
-}
 
-
-// =====================================================
-// UPDATE TOP STATISTICS
-// =====================================================
-
-function updateStatistics() {
-    let total = 0;
-    let totalTransactions = 0;
-    let todayTotal = 0;
-
-    const today = new Date();
-
-    sales.forEach((sale) => {
-        total += getSaleTotal(sale);
-        totalTransactions++;
-
-        const saleDate = getSaleDate(sale);
-
-        if (!saleDate) return;
-
-        if (
-            saleDate.getFullYear() === today.getFullYear() &&
-            saleDate.getMonth() === today.getMonth() &&
-            saleDate.getDate() === today.getDate()
-        ) {
-            todayTotal += getSaleTotal(sale);
-        }
-    });
-
-    setText("totalSales", money(total));
-    setText("totalTransactions", totalTransactions);
-    setText("todaySales", money(todayTotal));
-}
-
-
-// =====================================================
-// CURRENT MONTH SALES
-// =====================================================
-
-function updateMonthlySales() {
-    const now = new Date();
-
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    const monthName = now.toLocaleString("default", {
-        month: "long"
-    });
-
-    setText("currentMonthName", monthName);
-
-    setText(
-        "monthlySalesYear",
-        `${monthName} ${currentYear} sales summary`
-    );
-
-    let monthlyTotal = 0;
-    let monthlyTransactions = 0;
-    let monthlyItems = 0;
-
-    sales.forEach((sale) => {
-        const saleDate = getSaleDate(sale);
-
-        if (!saleDate) return;
-
-        if (
-            saleDate.getFullYear() !== currentYear ||
-            saleDate.getMonth() !== currentMonth
-        ) {
-            return;
-        }
-
-        monthlyTotal += getSaleTotal(sale);
-        monthlyTransactions++;
-
-        if (Array.isArray(sale.items)) {
-            sale.items.forEach((item) => {
-                monthlyItems += Number(item.quantity || 0);
-            });
-        }
-    });
-
-    setText("currentMonthSales", money(monthlyTotal));
-    setText("currentMonthTransactions", monthlyTransactions);
-    setText("currentMonthItems", monthlyItems);
-}
-
-
-// =====================================================
-// VIEW SALE / RECEIPT MODAL
-// =====================================================
-
-window.viewSale = function(id) {
-    selectedSale = sales.find((sale) => sale.id === id);
-
-    if (!selectedSale) return;
-
-    const saleDate = getSaleDate(selectedSale);
-
-    const formattedDate = saleDate
-        ? saleDate.toLocaleString("en-KE")
-        : "N/A";
-
-    const receiptNo =
-        selectedSale.receiptNo || selectedSale.id;
-
-    let html = `
-        <h3>Lebarto Electronics</h3>
-
-        <p>
-            <strong>Customer:</strong>
-            ${escapeHTML(selectedSale.customerName || "Walk-in Customer")}
-        </p>
-
-        <p>
-            <strong>Cashier:</strong>
-            ${escapeHTML(selectedSale.cashier || "-")}
-        </p>
-
-        <p>
-            <strong>Receipt:</strong>
-            ${escapeHTML(receiptNo)}
-        </p>
-
-        <p>
-            <strong>Date:</strong>
-            ${escapeHTML(formattedDate)}
-        </p>
-
-        <hr>
-
-        <h4>Payment Breakdown</h4>
-
-        <div class="receipt-payment-breakdown">
-            ${getPaymentBreakdownHTML(selectedSale)}
-        </div>
-
-        <p>
-            <strong>Total Paid:</strong>
-            ${money(getAmountPaid(selectedSale))}
-        </p>
-
-        <p>
-            <strong>Total:</strong>
-            ${money(getSaleTotal(selectedSale))}
-        </p>
-
-        <p>
-            <strong>Balance Due:</strong>
-            ${money(getBalance(selectedSale))}
-        </p>
-
-        <p>
-            <strong>Change:</strong>
-            ${money(getChange(selectedSale))}
-        </p>
-
-        <hr>
-
-        <h4>Items Purchased</h4>
-    `;
-
-    if (
-        Array.isArray(selectedSale.items) &&
-        selectedSale.items.length > 0
-    ) {
-        selectedSale.items.forEach((item) => {
-            const itemTotal =
-                Number(item.total) ||
-                Number(item.price || item.sellingPrice || 0) *
-                Number(item.quantity || 0);
-
-            html += `
-                <div class="receipt-item">
-                    <span>
-                        ${escapeHTML(item.name || "Unknown Product")}
-                        × ${Number(item.quantity || 0)}
-                    </span>
-
-                    <span>${money(itemTotal)}</span>
-                </div>
-            `;
+    table.querySelectorAll("[data-sale-id]").forEach((button) => {
+        button.addEventListener("click", () => {
+            viewSale(button.dataset.saleId);
         });
-    } else {
-        html += `<p>No products recorded.</p>`;
-    }
-
-    html += `
-        <div class="receipt-total">
-            Total: ${money(getSaleTotal(selectedSale))}
-        </div>
-    `;
-
-    const receiptDetails =
-        document.getElementById("receiptDetails");
-
-    if (receiptDetails) {
-        receiptDetails.innerHTML = html;
-    }
-
-    const receiptModal =
-        document.getElementById("receiptModal");
-
-    if (receiptModal) {
-        receiptModal.style.display = "flex";
-    }
-};
-
+    });
+}
 
 // =====================================================
-// SEARCH AND FILTER LISTENERS
+// SEARCH AND FILTERS
 // =====================================================
+
+function filterSales() {
+    const text = (
+        document.getElementById("searchSale")?.value || ""
+    ).toLowerCase().trim();
+
+    const payment = document.getElementById("paymentFilter")?.value || "";
+    const dateValue = document.getElementById("dateFilter")?.value || "";
+
+    filteredSales = sales.filter((sale) => {
+        const productNames = Array.isArray(sale.items)
+            ? sale.items.map((item) => item?.name || "").join(" ")
+            : "";
+
+        const searchable = [
+            sale.customerName || "",
+            sale.cashier || "",
+            sale.receiptNo || "",
+            sale.id,
+            productNames,
+            getPaymentMethods(sale).join(" ")
+        ].join(" ").toLowerCase();
+
+        const matchText = !text || searchable.includes(text);
+
+        const matchPayment = !payment ||
+            getPaymentMethods(sale).some((method) =>
+                normalizePaymentMethod(method) ===
+                normalizePaymentMethod(payment)
+            );
+
+        const date = getSaleDate(sale);
+
+        const matchDate = !dateValue || (
+            date &&
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` === dateValue
+        );
+
+        return matchText && matchPayment && matchDate;
+    });
+
+    displaySales(filteredSales);
+
+    // Keep headline totals independent of the table's loaded page.
+    updateStatistics(allSales);
+    updateMonthlySales(allSales);
+}
 
 document.getElementById("searchSale")
     ?.addEventListener("input", filterSales);
@@ -586,123 +648,98 @@ document.getElementById("paymentFilter")
 document.getElementById("dateFilter")
     ?.addEventListener("change", filterSales);
 
-
 // =====================================================
-// FILTER SALES
+// VIEW RECEIPT
 // =====================================================
 
-function filterSales() {
-    const text = document.getElementById("searchSale")
-        ?.value?.toLowerCase().trim() || "";
+function viewSale(id) {
+    selectedSale =
+        sales.find((sale) => sale.id === id) ||
+        allSales.find((sale) => sale.id === id);
 
-    const payment = document.getElementById("paymentFilter")
-        ?.value || "";
+    if (!selectedSale) {
+        alert("Sale not found.");
+        return;
+    }
 
-    const date = document.getElementById("dateFilter")
-        ?.value || "";
+    const date = getSaleDate(selectedSale);
 
-    const filtered = sales.filter((sale) => {
-        const customer =
-            String(sale.customerName || "").toLowerCase();
+    let html = `
+        <h3>Lebarto Electronics</h3>
+        <p><strong>Customer:</strong>
+            ${escapeHTML(selectedSale.customerName || "Walk-in Customer")}</p>
+        <p><strong>Cashier:</strong>
+            ${escapeHTML(selectedSale.cashier || "-")}</p>
+        <p><strong>Receipt:</strong>
+            ${escapeHTML(selectedSale.receiptNo || selectedSale.id)}</p>
+        <p><strong>Date:</strong>
+            ${date ? escapeHTML(date.toLocaleString("en-KE")) : "N/A"}</p>
+        <hr>
+        <h4>Payment Breakdown</h4>
+        ${getPaymentBreakdownHTML(selectedSale)}
+        <p><strong>Total Paid:</strong> ${money(getAmountPaid(selectedSale))}</p>
+        <p><strong>Total:</strong> ${money(getSaleTotal(selectedSale))}</p>
+        <p><strong>Balance Due:</strong> ${money(getBalance(selectedSale))}</p>
+        <p><strong>Change:</strong> ${money(getChange(selectedSale))}</p>
+        <hr>
+        <h4>Items Purchased</h4>
+    `;
 
-        const cashier =
-            String(sale.cashier || "").toLowerCase();
+    if (Array.isArray(selectedSale.items) && selectedSale.items.length) {
+        selectedSale.items.forEach((item) => {
+            const itemTotal = item?.total != null
+                ? numberValue(item.total)
+                : numberValue(item?.price ?? item?.sellingPrice) *
+                  numberValue(item?.quantity);
 
-        const receipt =
-            String(sale.receiptNo || "").toLowerCase();
+            html += `
+                <div class="receipt-item">
+                    <span>
+                        ${escapeHTML(item?.name || "Unknown Product")}
+                        × ${numberValue(item?.quantity)}
+                    </span>
+                    <span>${money(itemTotal)}</span>
+                </div>
+            `;
+        });
+    } else {
+        html += "<p>No products recorded.</p>";
+    }
 
-        const productNames = Array.isArray(sale.items)
-            ? sale.items
-                .map((item) => item.name || "")
-                .join(" ")
-                .toLowerCase()
-            : "";
+    html += `
+        <div class="receipt-total">
+            Total: ${money(getSaleTotal(selectedSale))}
+        </div>
+    `;
 
-        const searchable = [
-            customer,
-            cashier,
-            receipt,
-            productNames
-        ].join(" ");
+    const details = document.getElementById("receiptDetails");
+    if (details) details.innerHTML = html;
 
-        const matchText =
-            !text || searchable.includes(text);
-
-        const methods = getPaymentMethods(sale);
-
-        const matchPayment =
-            !payment ||
-            methods.some((method) =>
-                method.toLowerCase() === payment.toLowerCase()
-            );
-
-        let matchDate = true;
-
-        if (date) {
-            const saleDate = getSaleDate(sale);
-
-            if (!saleDate) {
-                matchDate = false;
-            } else {
-                const year = saleDate.getFullYear();
-                const month = String(
-                    saleDate.getMonth() + 1
-                ).padStart(2, "0");
-
-                const day = String(
-                    saleDate.getDate()
-                ).padStart(2, "0");
-
-                matchDate =
-                    `${year}-${month}-${day}` === date;
-            }
-        }
-
-        return matchText && matchPayment && matchDate;
-    });
-
-    displaySales(filtered);
+    const modal = document.getElementById("receiptModal");
+    if (modal) modal.style.display = "flex";
 }
 
+window.viewSale = viewSale;
 
 // =====================================================
-// PRINT RECEIPT
+// PRINT AND CLOSE RECEIPT
 // =====================================================
 
 document.getElementById("printReceiptBtn")
-    ?.addEventListener("click", () => {
-        window.print();
-    });
-
-
-// =====================================================
-// CLOSE RECEIPT MODAL
-// =====================================================
+    ?.addEventListener("click", () => window.print());
 
 document.getElementById("closeModal")
     ?.addEventListener("click", () => {
         const modal = document.getElementById("receiptModal");
-
-        if (modal) {
-            modal.style.display = "none";
-        }
+        if (modal) modal.style.display = "none";
     });
 
-
-// =====================================================
-// CLOSE MODAL BY CLICKING OUTSIDE
-// =====================================================
-
-const receiptModal = document.getElementById("receiptModal");
-
-if (receiptModal) {
-    receiptModal.addEventListener("click", (event) => {
+document.getElementById("receiptModal")
+    ?.addEventListener("click", (event) => {
         if (event.target.id === "receiptModal") {
-            receiptModal.style.display = "none";
+            event.currentTarget.style.display = "none";
         }
     });
-}
-
 
 // =====================================================
 // LOGOUT
@@ -717,38 +754,12 @@ document.getElementById("logoutBtn")
             window.location.href = "login.html";
         } catch (error) {
             console.error("Logout error:", error);
-            alert("Unable to logout. Please try again.");
+            alert("Unable to logout: " + error.message);
         }
     });
 
-
 // =====================================================
-// MONEY FORMATTING
-// =====================================================
-
-function money(value) {
-    return "KSh " + Number(value || 0).toLocaleString("en-KE", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-    });
-}
-
-
-// =====================================================
-// SET TEXT
-// =====================================================
-
-function setText(id, value) {
-    const element = document.getElementById(id);
-
-    if (element) {
-        element.textContent = value;
-    }
-}
-
-
-// =====================================================
-// ESCAPE HTML
+// HTML ESCAPING
 // =====================================================
 
 function escapeHTML(value) {
@@ -760,11 +771,4 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-
-// =====================================================
-// READY
-// =====================================================
-
-console.log(
-    "LEBARTO SALES MODULE LOADED - KOPO KOPO ENABLED."
-);
+console.log("LEBARTO SALES MODULE LOADED — ALL-SALES STATISTICS.");
